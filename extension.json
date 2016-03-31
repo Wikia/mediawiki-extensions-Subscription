@@ -1,0 +1,56 @@
+{
+	"name": "Subscription",
+	"version": "0.0.1",
+	"author": [
+		"Alexia E. Smith"
+		"Hydra Wiki Platform Team"
+	],
+	"descriptionmsg": "subscription_description",
+	"type": "specialpage",
+	"SpecialPages": {
+		"Subscription": "SpecialSubscription"
+	},
+	"MessagesDirs": {
+		"Subscription": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"SubscriptionMagic": "Subscription.i18n.magic.php"
+	},
+	"AutoloadClasses": {
+		"Hydra\\Api\\GamepediaPro": "classes/api/GamepediaPro.php",
+		"Hydra\\Subscription": "classes/Subscription.php",
+		"SubscriptionHooks": "Subscription.hooks.php",
+		"SpecialSubscription": "specials/SpecialSubscription.php"
+	},
+	"ResourceModules": {
+		"ext.subscription": {
+			"styles": [
+				"css/subscription.css"
+			],
+			"scripts": [
+				"js/subscription.js"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "Subscription"
+	},
+	"Hooks": {
+		"LinkEnd": [
+			"SubscriptionHooks::onLinkEnd"
+		]
+	},
+	"config": {
+		"CurseAuthPrivacyPolicyUpdated": 1449513692,
+		"SubscriptionProviders": [
+			"GamepediaPro",
+			"Curse_Community",
+			"Wiki_Manager",
+			"Ads_Manager"
+		]
+	},
+	"manifest_version": 1
+}

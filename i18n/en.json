@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": ["Alexia E. Smith"]
+	},
+	"subscription": "Subscription",
+	"action-subscription": "perform Subscription actions",
+	"subscription_description": "Paid subscription system for Hydra Wiki Platform.",
+	"complimentary_subscription_id": "complimentary",
+	"complimentary_subscription_name": "Complimentary"
+}
