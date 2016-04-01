@@ -13,7 +13,7 @@
 
 namespace \Hydra\Provider;
 
-class GamepediaPro {
+class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * API configuration.
 	 *

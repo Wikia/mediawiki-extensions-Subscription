@@ -56,8 +56,20 @@ class Subscription {
 	 * @access	public
 	 * @return	void
 	 */
-	public function hasSub() {
-		# code...
+	public function hasSubscription() {
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$providers = $config->get('SusbcriptionProviders');
+
+		if (isset($providers) && is_array($providers)) {
+			foreach ($providers as $providerId => $details) {
+				$subscription = \SubscriptionProvider::factory($providerId);
+				if ($subscription->hasSubscription()) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }
 
