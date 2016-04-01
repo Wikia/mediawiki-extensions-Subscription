@@ -45,7 +45,6 @@
 		]
 	},
 	"config": {
-		"CurseAuthPrivacyPolicyUpdated": 1449513692,
 		"SubscriptionProviders": {
 			"GamepediaPro": {
 				"class": "Hydra\\Provider\\GamepediaPro"
