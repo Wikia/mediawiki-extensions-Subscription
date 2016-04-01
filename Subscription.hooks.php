@@ -14,6 +14,13 @@
 
 class SubscriptionHooks {
 	/**
+	 * Link cache for onLinkEnd look ups.
+	 *
+	 * @var		array
+	 */
+	static private $linkCache = [];
+
+	/**
 	 * Handle adding premium flair.
 	 *
 	 * @access	public
@@ -26,16 +33,27 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onLinkEnd($dummy, $target, $options, &$html, &$attribs, &$returnOverride) {
-		if (!empty($target) && $target->getNamespace() === NS_USER) {
-			$user = User::newFromName($target->getText());
+		$isPremium = false;
 
-			if (!empty($user) && $user->getId()) {
-				$subscription = \Hydra\Subscription::newFromUser($user);
-				if ($subscription !== false && $subscription->hasSubscription()) {
-					$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '')."premium_user";
+		if (!empty($target) && $target->getNamespace() === NS_USER) {
+			if (array_key_exists($target->getText(), self::$linkCache)) {
+				$isPremium = self::$linkCache[$target->getText()];
+			} else {
+				$user = User::newFromName($target->getText());
+
+				if (!empty($user) && $user->getId()) {
+					$subscription = \Hydra\Subscription::newFromUser($user);
+					if ($subscription !== false && $subscription->hasSubscription()) {
+						$isPremium = true;
+					}
 				}
 			}
 		}
+
+		if ($isPremium) {
+			$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '')."premium_user";
+		}
+		self::$linkCache[$target->getText()] = $isPremium;
 
 		return true;
 	}

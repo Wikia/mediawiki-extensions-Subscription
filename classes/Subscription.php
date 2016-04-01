@@ -62,6 +62,9 @@ class Subscription {
 
 		if (isset($providers) && is_array($providers)) {
 			foreach ($providers as $providerId => $details) {
+				echo "<pre>";
+				var_dump($providerId);
+				echo "</pre>";
 				$subscription = SubscriptionProvider::factory($providerId);
 				if ($subscription->hasSubscription($this->globalId)) {
 					return true;
@@ -102,6 +105,7 @@ abstract class SubscriptionProvider {
 		}
 
 		if (!array_key_exists($providerId, self::$instances)) {
+			var_dump("INITIALIZE");
 			self::$instances[$providerId] = null;
 
 			if (isset($wgSusbcriptionProviders[$providerId])) {
