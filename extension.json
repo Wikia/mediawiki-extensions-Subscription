@@ -54,7 +54,7 @@
 		"GProApiConfig": {
 			"endpoint": "//www.gamepedia.com/",
 			"https": true,
-			"ssl_verify": true,
+			"ssl_verify": true
 		}
 	},
 	"manifest_version": 1
