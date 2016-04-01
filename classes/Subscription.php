@@ -101,7 +101,7 @@ abstract class SubscriptionProvider {
 		global $wgSusbcriptionProviders, $wgSusbcriptionProvider;
 
 		if ($providerId === null) {
-			$providerId = $wgCentralIdLookupProvider;
+			$providerId = $wgSusbcriptionProvider;
 		}
 
 		if (!array_key_exists($providerId, self::$instances)) {

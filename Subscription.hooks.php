@@ -21,6 +21,16 @@ class SubscriptionHooks {
 	static private $linkCache = [];
 
 	/**
+	 * Function Documentation
+	 *
+	 * @access	public
+	 * @return	void
+	 */
+	public function init() {
+		# code...
+	}
+
+	/**
 	 * Handle adding premium flair.
 	 *
 	 * @access	public
