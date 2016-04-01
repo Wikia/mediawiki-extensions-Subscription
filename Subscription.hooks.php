@@ -26,14 +26,12 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onLinkEnd($dummy, $target, $options, &$html, &$attribs, &$returnOverride) {
-		self::init();
-
 		if (!empty($target) && $target->getNamespace() === NS_USER) {
 			$user = User::newFromName($target->getText());
 
 			if (!empty($user) && $user->getId()) {
-				$curseUser = self::$CurseAuth->getUserInstance($user);
-				if ($curseUser->isPremium()) {
+				$subscription = \Hydra\Subscription::newFromUser($user);
+				if ($subscription !== false && $subscription->hasSubscription()) {
 					$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '')."premium_user";
 				}
 			}

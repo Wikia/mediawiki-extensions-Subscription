@@ -19,8 +19,9 @@
 		"SubscriptionMagic": "Subscription.i18n.magic.php"
 	},
 	"AutoloadClasses": {
-		"Hydra\\Api\\GamepediaPro": "classes/providers/GamepediaPro.php",
+		"Hydra\\Provider\\GamepediaPro": "classes/providers/GamepediaPro.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
+		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",
 		"SubscriptionHooks": "Subscription.hooks.php",
 		"SpecialSubscription": "specials/SpecialSubscription.php"
 	},
@@ -46,10 +47,7 @@
 	"config": {
 		"CurseAuthPrivacyPolicyUpdated": 1449513692,
 		"SubscriptionProviders": [
-			"GamepediaPro",
-			"Curse_Community",
-			"Wiki_Manager",
-			"Ads_Manager"
+			"GamepediaPro"
 		],
 		"GProApiConfig": {
 			"endpoint": "//www.gamepedia.com/",

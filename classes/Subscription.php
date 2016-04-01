@@ -12,7 +12,7 @@
  *
 **/
 
-namespace \Hydra;
+namespace Hydra;
 
 class Subscription {
 	/**
@@ -62,8 +62,8 @@ class Subscription {
 
 		if (isset($providers) && is_array($providers)) {
 			foreach ($providers as $providerId => $details) {
-				$subscription = \SubscriptionProvider::factory($providerId);
-				if ($subscription->hasSubscription()) {
+				$subscription = SubscriptionProvider::factory($providerId);
+				if ($subscription->hasSubscription($this->globalId)) {
 					return true;
 				}
 			}
@@ -75,7 +75,7 @@ class Subscription {
 
 abstract class SubscriptionProvider {
 	/**
-	 * Global User ID
+	 * Provider Instances
 	 *
 	 * @var		array
 	 */
@@ -105,7 +105,7 @@ abstract class SubscriptionProvider {
 			self::$instances[$providerId] = null;
 
 			if (isset($wgSusbcriptionProviders[$providerId])) {
-				$provider = ObjectFactory::getObjectFromSpec($wgSusbcriptionProviders[$providerId]);
+				$provider = \ObjectFactory::getObjectFromSpec($wgSusbcriptionProviders[$providerId]);
 				if ($provider instanceof SubscriptionProvider) {
 					$provider->providerId = $providerId;
 					self::$instances[$providerId] = $provider;

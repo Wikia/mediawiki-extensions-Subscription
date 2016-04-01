@@ -11,9 +11,9 @@
  *
  */
 
-namespace \Hydra\Provider;
+namespace Hydra\Provider;
 
-class GamepediaPro extends SubscriptionProvider {
+class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * API configuration.
 	 *
@@ -76,10 +76,10 @@ class GamepediaPro extends SubscriptionProvider {
 		$data = self::callApi($pieces);
 
 		if ($data !== false) {
-			if (isset($data['errorCode']) || isset($data['planId'] || isset($data['goodThru'])) {
+			if (isset($data['errorCode']) || isset($data['planId']) || isset($data['goodThru'])) {
 				if (isset($data['goodThru'])) {
 					$expires = new \MWTimestamp($data['goodThru']);
-				} elseif (isset($data['paidThruDate']) {
+				} elseif (isset($data['paidThruDate'])) {
 					$expires = new \MWTimestamp($data['paidThruDate']);
 				} else {
 					$expires = false;
@@ -200,7 +200,7 @@ class GamepediaPro extends SubscriptionProvider {
 			$options['sslVerifyCert'] = false;
 		}
 
-		$response = Http::post($url, $options, __METHOD__);
+		$response = \Http::post($url, $options, __METHOD__);
 		if ($response !== false) {
 			$data = @json_decode($response, true);
 
