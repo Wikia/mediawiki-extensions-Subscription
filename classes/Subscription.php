@@ -20,7 +20,7 @@ class Subscription {
 	 *
 	 * @var		integer
 	 */
-	static private $globalId;
+	private $globalId;
 
 	/**
 	 * Main Constructor
