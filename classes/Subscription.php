@@ -62,9 +62,6 @@ class Subscription {
 
 		if (isset($providers) && is_array($providers)) {
 			foreach ($providers as $providerId => $details) {
-				echo "<pre>";
-				var_dump($providerId);
-				echo "</pre>";
 				$subscription = SubscriptionProvider::factory($providerId);
 				if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
 					return true;
@@ -106,7 +103,6 @@ abstract class SubscriptionProvider {
 		}
 
 		if (!array_key_exists($providerId, self::$instances)) {
-			var_dump("INITIALIZE");
 			self::$instances[$providerId] = null;
 
 			if (isset($wgSusbcriptionProviders[$providerId])) {
@@ -114,6 +110,8 @@ abstract class SubscriptionProvider {
 				if ($provider instanceof SubscriptionProvider) {
 					$provider->providerId = $providerId;
 					self::$instances[$providerId] = $provider;
+				} else {
+					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID, \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend ".__CLASS__.".");
 				}
 			}
 		}
@@ -167,4 +165,7 @@ abstract class SubscriptionProvider {
 	 * @return	mixed	Response message such as below or false on API failure.
 	 */
 	abstract public function cancelCompedSubscription($globalId);
+}
+
+class SubscriptionProviderException extends \Exception {
 }
