@@ -57,14 +57,15 @@ class Subscription {
 	 * @return	void
 	 */
 	public function hasSubscription() {
-		global $wgSusbcriptionProviders;
+		global $wgSusbcriptionProviders, $wgSusbcriptionProvider;
 		var_dump(__METHOD__);
-		var_dump($wgSusbcriptionProviders);
+		var_dump($wgSusbcriptionProvider);
 
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$providers = $config->get('SusbcriptionProviders');
-		var_dump($providers);
 
+		var_dump($config->get('SusbcriptionProvider'));
+		var_dump($config->get('SubscriptionProviders'));
+		exit;
 		if (isset($providers) && is_array($providers)) {
 			foreach ($providers as $providerId => $details) {
 				echo "<pre>";
@@ -99,7 +100,7 @@ abstract class SubscriptionProvider {
 	/**
 	 * Get a subscription provider.
 	 *
-	 * @param	string	Provider ID from $$wgSusbcriptionProvider
+	 * @param	string	Provider ID from $wgSusbcriptionProvider
 	 * @return CentralIdLookup|null
 	 */
 	static public function factory($providerId = null) {
