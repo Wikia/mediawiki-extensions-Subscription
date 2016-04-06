@@ -94,7 +94,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 					'price'				=> (isset($data['planPrice']) ? floatval($data['planPrice']) : 0.00),
 					'subscription_id'	=> (isset($data['subscriptionId']) ? floatval($data['subscriptionId']) : '')
 				];
-				return $data;
+				return $subscription;
 			}
 		}
 
