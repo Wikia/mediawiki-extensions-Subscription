@@ -51,20 +51,32 @@ class Subscription {
 	}
 
 	/**
-	 * Function Documentation
+	 * Does this user have a valid active subscription?
 	 *
 	 * @access	public
-	 * @return	void
+	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 * @return	boolean
 	 */
-	public function hasSubscription() {
+	public function hasSubscription($providerId = null) {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$providers = $config->get('SubscriptionProviders');
 
 		if (isset($providers) && is_array($providers)) {
-			foreach ($providers as $providerId => $details) {
+			if ($providerId !== null) {
+				if (!array_key_exists($providerId, $providers)) {
+					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
+				}
 				$subscription = SubscriptionProvider::factory($providerId);
 				if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
 					return true;
+				}
+			} else {
+				foreach ($providers as $providerId => $details) {
+					$subscription = SubscriptionProvider::factory($providerId);
+					if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
+						return true;
+					}
 				}
 			}
 		}
@@ -111,7 +123,7 @@ abstract class SubscriptionProvider {
 					$provider->providerId = $providerId;
 					self::$instances[$providerId] = $provider;
 				} else {
-					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID, \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend ".__CLASS__.".");
+					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend ".__CLASS__.".");
 				}
 			}
 		}
