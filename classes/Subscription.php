@@ -23,6 +23,13 @@ class Subscription {
 	private $globalId;
 
 	/**
+	 * Main Config Factory
+	 *
+	 * @var		object
+	 */
+	private $config;
+
+	/**
 	 * Main Constructor
 	 *
 	 * @access	public
@@ -31,6 +38,8 @@ class Subscription {
 	 */
 	public function __construct($globalId) {
 		$this->globalId = intval($globalId);
+
+		$this->config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 	}
 
 	/**
@@ -59,8 +68,7 @@ class Subscription {
 	 * @return	boolean
 	 */
 	public function hasSubscription($providerId = null) {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$providers = $config->get('SubscriptionProviders');
+		$providers = $this->config->get('SubscriptionProviders');
 
 		if (isset($providers) && is_array($providers)) {
 			if ($providerId !== null) {
@@ -82,6 +90,42 @@ class Subscription {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Does this user have a valid active subscription?
+	 *
+	 * @access	public
+	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 * @return	array	Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
+	 */
+	public function getSubscription($providerId = null) {
+		$providers = $this->config->get('SubscriptionProviders');
+
+		if (isset($providers) && is_array($providers)) {
+			if ($providerId !== null) {
+				if (!array_key_exists($providerId, $providers)) {
+					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
+				}
+				$_subscriptions[$providerId] = false;
+				$subscription = SubscriptionProvider::factory($providerId);
+				if ($subscription !== null) {
+					$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
+				}
+			} else {
+				$_subscriptions = [];
+				foreach ($providers as $providerId => $details) {
+					$_subscriptions[$providerId] = false;
+					$subscription = SubscriptionProvider::factory($providerId);
+					if ($subscription !== null) {
+						$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
+					}
+				}
+			}
+		}
+
+		return $_subscriptions;
 	}
 }
 
