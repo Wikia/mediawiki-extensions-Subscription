@@ -44,7 +44,7 @@
 			"SubscriptionHooks::onLinkEnd"
 		],
 		"LoadExtensionSchemaUpdates": [
-			"DynamicSettingsHooks::onLoadExtensionSchemaUpdates"
+			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
 		]
 	},
 	"config": {
