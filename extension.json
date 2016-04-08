@@ -19,6 +19,7 @@
 		"SubscriptionMagic": "Subscription.i18n.magic.php"
 	},
 	"AutoloadClasses": {
+		"Hydra\\Job\\UpdateUserSubscriptionsJob": "classes/jobs/UpdateUserSubscriptionsJob.php",
 		"Hydra\\Provider\\GamepediaPro": "classes/providers/GamepediaPro.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
 		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",

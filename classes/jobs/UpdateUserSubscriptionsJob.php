@@ -14,7 +14,7 @@
 
 namespace Hydra\Job;
 
-class UpdateUserSubscriptionsJob extends Job {
+class UpdateUserSubscriptionsJob extends \Job {
 	/**
 	 * Main Constructor
 	 *
@@ -23,7 +23,7 @@ class UpdateUserSubscriptionsJob extends Job {
 	 * @param	array	Parameters
 	 * @return	void
 	 */
-	public function __construct(Title $title, array $params) {
+	public function __construct(\Title $title, array $params) {
 		parent::__construct('UpdateUserSubscriptionsJob', $title, $params);
 
 		$this->removeDuplicates = true;

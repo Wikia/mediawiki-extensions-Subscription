@@ -13,7 +13,6 @@
 **/
 
 namespace Hydra\Maintenance;
-use Hydra\Job;
 require_once(dirname(dirname(dirname(__DIR__))).'/maintenance/Maintenance.php');
 
 class QueueSubscriptionUpdates extends \Maintenance {
@@ -68,12 +67,10 @@ class QueueSubscriptionUpdates extends \Maintenance {
 					continue;
 				}
 
-				$globalIds[] = $globalId;
-			}
+				$title = \Title::newFromText($user->getTitleKey());
 
-			if (count($globalIds)) {
-				$job = new UpdateUserSubscriptionsJob($globalIds);
-				JobQueueGroup::singleton()->push($job);
+				$job = new \Hydra\Job\UpdateUserSubscriptionsJob($title, [$globalId]);
+				\JobQueueGroup::singleton()->push($job);
 			}
 		}
 	}
