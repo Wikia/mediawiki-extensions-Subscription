@@ -36,7 +36,9 @@ class QueueSubscriptionUpdates extends \Maintenance {
 	 * @return	void
 	 */
 	public function execute() {
-		$result = $this->DB->select(
+		$db = wfGetDB(DB_MASTER);
+
+		$result = $db->select(
 			['user'],
 			['count(*) as total'],
 			null,
@@ -45,7 +47,7 @@ class QueueSubscriptionUpdates extends \Maintenance {
 		$total = $result->fetchRow();
 
 		for ($i = 0; $i <= $total['total']; $i += 1000) {
-			$result = $this->DB->select(
+			$result = $db->select(
 				['user'],
 				['*'],
 				null,
@@ -57,8 +59,8 @@ class QueueSubscriptionUpdates extends \Maintenance {
 			);
 
 			$globalIds = [];
-			while ($row = $result->fetch()) {
-				$user = User::newFromRow($row);
+			while ($row = $result->fetchObject()) {
+				$user = \User::newFromRow($row);
 
 				$lookup = \CentralIdLookup::factory();
 				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
@@ -68,8 +70,11 @@ class QueueSubscriptionUpdates extends \Maintenance {
 
 				$globalIds[] = $globalId;
 			}
-			//$job = new UpdateUserSubscriptionsJob($globalIds);
-			//JobQueueGroup::singleton()->push($job);
+
+			if (count($globalIds)) {
+				$job = new UpdateUserSubscriptionsJob($globalIds);
+				JobQueueGroup::singleton()->push($job);
+			}
 		}
 	}
 }
