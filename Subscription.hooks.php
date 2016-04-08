@@ -67,4 +67,21 @@ class SubscriptionHooks {
 
 		return true;
 	}
+
+	/**
+	 * Setups and Modifies Database Information
+	 *
+	 * @access	public
+	 * @param	object	[Optional] DatabaseUpdater Object
+	 * @return	boolean	true
+	 */
+	static public function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
+		$extDir = __DIR__;
+
+		//Install
+		//Tables
+		$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+
+		return true;
+	}
 }

@@ -191,7 +191,7 @@ abstract class SubscriptionProvider {
 	 * [
 	 * 		'active'			=> true,
 	 * 		'begins'			=> new \MWTimestamp(), //MWTimestamp object or boolean false if not applicable.
-	 * 		'expires'			=> new \MWTimestamp(), //MWTimestamp object or oolean false if it never expires.
+	 * 		'expires'			=> new \MWTimestamp(), //MWTimestamp object or boolean false if it never expires.
 	 * 		'plan_id'			=> 'premium_pro_user', //Changing the plan ID into lower case and replacing spaces is not required.
 	 * 		'plan_name'			=> 'Premium Pro User',
 	 * 		'price'				=> 9.9900, //Float
