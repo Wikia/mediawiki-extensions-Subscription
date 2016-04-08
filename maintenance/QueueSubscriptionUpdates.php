@@ -13,6 +13,7 @@
 **/
 
 namespace Hydra\Maintenance;
+use Hydra\Job;
 require_once(dirname(dirname(dirname(__DIR__))).'/maintenance/Maintenance.php');
 
 class QueueSubscriptionUpdates extends \Maintenance {
@@ -35,7 +36,41 @@ class QueueSubscriptionUpdates extends \Maintenance {
 	 * @return	void
 	 */
 	public function execute() {
+		$result = $this->DB->select(
+			['user'],
+			['count(*) as total'],
+			null,
+			__METHOD__
+		);
+		$total = $result->fetchRow();
 
+		for ($i = 0; $i <= $total['total']; $i += 1000) {
+			$result = $this->DB->select(
+				['user'],
+				['*'],
+				null,
+				__METHOD__,
+				[
+					'OFFSET'	=> $i,
+					'LIMIT'		=> 1000
+				]
+			);
+
+			$globalIds = [];
+			while ($row = $result->fetch()) {
+				$user = User::newFromRow($row);
+
+				$lookup = \CentralIdLookup::factory();
+				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+				if (!$globalId) {
+					continue;
+				}
+
+				$globalIds[] = $globalId;
+			}
+			//$job = new UpdateUserSubscriptionsJob($globalIds);
+			//JobQueueGroup::singleton()->push($job);
+		}
 	}
 }
 

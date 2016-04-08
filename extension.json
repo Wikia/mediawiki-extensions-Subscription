@@ -47,6 +47,9 @@
 			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
 		]
 	},
+	"JobClasses": {
+		"UpdateUserSubscriptions": "Hydra\\Job\\UpdateUserSubscriptionsJob"
+	},
 	"config": {
 		"SubscriptionProviders": {
 			"GamepediaPro": {
