@@ -37,5 +37,6 @@ class UpdateUserSubscriptionsJob extends \Job {
 	 */
 	public function run() {
 		# code...
+		return true;
 	}
 }
