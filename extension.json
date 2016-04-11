@@ -49,7 +49,7 @@
 		]
 	},
 	"JobClasses": {
-		"UpdateUserSubscriptions": "Hydra\\Job\\UpdateUserSubscriptionsJob"
+		"UpdateUserSubscriptionsJob": "Hydra\\Job\\UpdateUserSubscriptionsJob"
 	},
 	"config": {
 		"SubscriptionProviders": {
