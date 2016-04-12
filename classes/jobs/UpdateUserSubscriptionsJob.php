@@ -49,7 +49,7 @@ class UpdateUserSubscriptionsJob extends \Job {
 				continue;
 			}
 
-			$subscription->updateLocalCache($providerId, $subscriptionData);
+			\Hydra\SubscriptionCache::updateLocalCache($globalId, $providerId, $subscriptionData);
 		}
 
 		return true;

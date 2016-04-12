@@ -22,7 +22,8 @@
 		"Hydra\\Job\\UpdateUserSubscriptionsJob": "classes/jobs/UpdateUserSubscriptionsJob.php",
 		"Hydra\\Provider\\GamepediaPro": "classes/providers/GamepediaPro.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
-		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",
+		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
+		"Hydra\\SubscriptionProvider": "classes/Subscription.php",
 		"SubscriptionHooks": "Subscription.hooks.php",
 		"SpecialSubscription": "specials/SpecialSubscription.php"
 	},
