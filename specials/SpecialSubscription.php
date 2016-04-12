@@ -31,10 +31,43 @@ class SpecialSubscription extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($path) {
-		$this->setHeaders();
 		$this->checkPermissions();
-		$this->outputHeader();
-		// TODO implement
+
+		$this->setHeaders();
+
+		$this->subscriptionList();
+	}
+
+	/**
+	 * Subscriptions List
+	 *
+	 * @access	public
+	 * @return	void	[Outputs to screen]
+	 */
+	public function subscriptionList() {
+		$hide['deleted'] = true;
+		$hide['secret'] = true;
+
+		$searchTerm = '';
+		if ($this->wgRequest->getVal('do') == 'resetSearch') {
+			$this->wgRequest->response()->setcookie('subscriptionSearchTerm', '', 1);
+		} else {
+			$listSearch = $this->wgRequest->getVal('list_search');
+			$cookieSearch = $this->wgRequest->getCookie('subscriptionSearchTerm');
+			if (($this->wgRequest->getVal('do') == 'search' && !empty($listSearch)) || !empty($cookieSearch)) {
+				if (!empty($cookieSearch) && empty($listSearch)) {
+					$searchTerm = $this->wgRequest->getCookie('subscriptionSearchTerm');
+				} else {
+					$searchTerm = $this->wgRequest->getVal('list_search');
+				}
+				$this->wgRequest->response()->setcookie('subscriptionSearchTerm', $searchTerm, $cookieExpire);
+			}
+		}
+
+		$subscriptions = \Hydra\SubscriptionCache::getList($searchTerm);
+
+		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
+		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $sortKey, $sortDir, $searchTerm));
 	}
 
 	/**

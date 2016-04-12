@@ -24,7 +24,7 @@ class TemplateSubscription {
 	 * @param	string	[Optional] Search Term
 	 * @return	string	Built HTML
 	 */
-	public function wikiSites($subscriptions, $pagination, $sortKey = 'user_id', $sortDir = 'ASC', $searchTerm = null) {
+	public function subscriptionList($subscriptions, $pagination, $sortKey = 'user_id', $sortDir = 'ASC', $searchTerm = null) {
 		global $wgOut, $wgUser, $wgRequest;
 
 		$subscriptionPage = Title::newFromText('Special:Subscription');
