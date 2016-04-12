@@ -28,7 +28,7 @@ class TemplateSubscription {
 		global $wgOut, $wgUser, $wgRequest;
 
 		$subscriptionPage = Title::newFromText('Special:Subscription');
-		$subscriptionURL = $wikiSitesPage->getFullURL();
+		$subscriptionURL = $subscriptionPage->getFullURL();
 
 		$html = $pagination;
 
@@ -52,7 +52,6 @@ class TemplateSubscription {
 						<th".($sortKey == 'active' ? " data-selected='true'" : '')."><span data-sort='active'".($sortKey == 'active' ? " data-selected='true'" : '').">".wfMessage('sub_th_active')->escaped()."</span></th>
 						<th".($sortKey == 'begins' ? " data-selected='true'" : '')."><span data-sort='begins'".($sortKey == 'begins' ? " data-selected='true'" : '').">".wfMessage('sub_th_begins')->escaped()."</span></th>
 						<th".($sortKey == 'expires' ? " data-selected='true'" : '')."><span data-sort='expires'".($sortKey == 'expires' ? " data-selected='true'" : '').">".wfMessage('sub_th_expires')->escaped()."</span></th>
-						<th".($sortKey == 'plan_id' ? " data-selected='true'" : '')."><span data-sort='plan_id'".($sortKey == 'plan_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_plan_id')->escaped()."</span></th>
 						<th".($sortKey == 'plan_name' ? " data-selected='true'" : '')."><span data-sort='plan_name'".($sortKey == 'plan_name' ? " data-selected='true'" : '').">".wfMessage('sub_th_plan_name')->escaped()."</span></th>
 						<th".($sortKey == 'price' ? " data-selected='true'" : '')."><span data-sort='price'".($sortKey == 'price' ? " data-selected='true'" : '').">".wfMessage('sub_th_price')->escaped()."</span></th>
 						<th".($sortKey == 'subscription_id' ? " data-selected='true'" : '')."><span data-sort='subscription_id'".($sortKey == 'subscription_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_subscription_id')->escaped()."</span></th>
@@ -70,8 +69,7 @@ class TemplateSubscription {
 						<td>{$subscription['active']}</td>
 						<td>{$subscription['begins']}</td>
 						<td>{$subscription['expires']}</td>
-						<td>{$subscription['plan_id']}</td>
-						<td>{$subscription['plan_name']}</td>
+						<td>{$subscription['plan_name']} <em>({$subscription['plan_id']})</em></td>
 						<td>{$subscription['price']}</td>
 						<td>{$subscription['subscription_id']}</td>
 					</tr>
@@ -80,7 +78,7 @@ class TemplateSubscription {
 		} else {
 			$html .= "
 					<tr>
-						<td colspan='".1."'>".wfMessage('no_subscriptions_found')->escaped()."</td>
+						<td colspan='8'>".wfMessage('no_subscriptions_found')->escaped()."</td>
 					</tr>
 			";
 		}

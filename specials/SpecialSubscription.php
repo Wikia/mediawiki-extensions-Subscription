@@ -21,6 +21,10 @@ class SpecialSubscription extends SpecialPage {
 	 */
 	public function __construct() {
 		parent::__construct('Subscription', 'subscription', true);
+
+		$this->wgRequest	= $this->getRequest();
+		$this->wgUser		= $this->getUser();
+		$this->output		= $this->getOutput();
 	}
 
 	/**
@@ -31,6 +35,10 @@ class SpecialSubscription extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function execute($path) {
+		$this->templates = new TemplateSubscription;
+
+		$this->output->addModules(['ext.subscription']);
+
 		$this->checkPermissions();
 
 		$this->setHeaders();
@@ -64,7 +72,7 @@ class SpecialSubscription extends SpecialPage {
 			}
 		}
 
-		$subscriptions = \Hydra\SubscriptionCache::getList($searchTerm);
+		//$subscriptions = \Hydra\SubscriptionCache::getList($searchTerm);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $sortKey, $sortDir, $searchTerm));

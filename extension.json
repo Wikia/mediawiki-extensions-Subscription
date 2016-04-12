@@ -35,7 +35,13 @@
 			],
 			"scripts": [
 				"js/subscription.js"
-			]
+			],
+			"dependencies": [
+				"ext.curse.button",
+				"ext.curse.pagination",
+				"ext.dynamicSettings"
+			],
+			"position": "top"
 		}
 	},
 	"ResourceFileModulePaths": {
