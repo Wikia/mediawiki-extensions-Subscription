@@ -194,15 +194,23 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 		$url = $endPoint.implode('/', $pieces);
 
-		$options = ['postData' => '='];
+		$options = [
+			'method'			=> 'POST',
+			'postData'			=> '=',
+			'timeout'			=> 'default',
+			'connectTimeout'	=> 'default'
+		];
 		if ($apiConfig['ssl_verify'] === false) {
 			$options['sslVerifyHost'] = false;
 			$options['sslVerifyCert'] = false;
 		}
 
-		$response = \Http::post($url, $options, __METHOD__);
-		if ($response !== false) {
-			$data = @json_decode($response, true);
+		$request = \MWHttpRequest::factory($url, $options, __METHOD__);
+		$request->setHeader('x-api-key', $apiConfig['api_key']);
+		$status = $request->execute();
+
+		if ($status->isOK()) {
+			$data = @json_decode($request->getContent(), true);
 
 			if ($useCache === true) {
 				self::cacheApiResponse($pieces, $data);

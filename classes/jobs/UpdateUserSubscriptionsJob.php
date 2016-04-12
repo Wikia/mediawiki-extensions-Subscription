@@ -36,7 +36,22 @@ class UpdateUserSubscriptionsJob extends \Job {
 	 * @return	boolean	Success
 	 */
 	public function run() {
-		# code...
+		$globalId = intval($this->params[0]);
+		if ($globalId < 1) {
+			return false;
+		}
+
+		$subscription = new \Hydra\Subscription($globalId);
+
+		foreach ($subscription->getSubscription() as $providerId => $subscriptionData) {
+			if ($subscriptionData === false) {
+				//There was a service error.  Continue and check it later as the service may be down.
+				continue;
+			}
+
+			$subscription->updateLocalCache($providerId, $subscriptionData);
+		}
+
 		return true;
 	}
 }
