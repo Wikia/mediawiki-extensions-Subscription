@@ -55,11 +55,11 @@ class SubscriptionCache {
 		$exists = $result->fetchObject();
 
 		$db->begin();
-		if (isset($exists['sid'])) {
+		if (isset($exists->sid)) {
 			$db->update(
 				'subscription',
 				$save,
-				['sid' => $exists['sid']],
+				['sid' => $exists->sid],
 				__METHOD__
 			);
 		} else {
