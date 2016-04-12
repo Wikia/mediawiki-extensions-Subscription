@@ -2,7 +2,7 @@
 /**
  * Curse Inc.
  * Subscription
- * Paid subscription system for Hydra Wiki Platform.
+ * Subscription Special Page
  *
  * @author		Alexia E. Smith
  * @copyright	(c) 2016 Curse Inc.
@@ -20,11 +20,7 @@ class SpecialSubscription extends SpecialPage {
 	 * @return	void
 	 */
 	public function __construct() {
-		parent::__construct(
-			'Subscription', // name
-			'subscription', // required user right
-			true // display on Special:Specialpages
-		);
+		parent::__construct('Subscription', 'subscription', true);
 	}
 
 	/**
@@ -34,7 +30,7 @@ class SpecialSubscription extends SpecialPage {
 	 * @param	string	Sub page passed in the URL.
 	 * @return	void	[Outputs to screen]
 	 */
-	public function execute( $path ) {
+	public function execute($path) {
 		$this->setHeaders();
 		$this->checkPermissions();
 		$this->outputHeader();
@@ -48,6 +44,6 @@ class SpecialSubscription extends SpecialPage {
 	 * @return string
 	 */
 	protected function getGroupName() {
-		return 'other'; //Change to display in a different category on Special:SpecialPages.
+		return 'user';
 	}
 }

@@ -25,7 +25,8 @@
 		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
 		"Hydra\\SubscriptionProvider": "classes/Subscription.php",
 		"SubscriptionHooks": "Subscription.hooks.php",
-		"SpecialSubscription": "specials/SpecialSubscription.php"
+		"SpecialSubscription": "specials/SpecialSubscription.php",
+		"TemplateSubscription": "templates/TemplateSubscription.php"
 	},
 	"ResourceModules": {
 		"ext.subscription": {
