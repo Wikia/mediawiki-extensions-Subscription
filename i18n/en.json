@@ -16,5 +16,7 @@
 	"sub_th_plan_name": "Plan",
 	"sub_th_price": "Price",
 	"sub_th_subscription_id": "Unique ID",
-	"no_subscriptions_found": "No subscriptions found."
+	"no_subscriptions_found": "No subscriptions found.",
+	"price_range": "Price range:",
+	"date_range": "Date range:"
 }

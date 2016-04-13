@@ -1,1 +1,113 @@
+.filter_bar {
+	background-color: #ffffff;
+	border-radius: 2px;
+	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+	box-sizing: border-box;
+	color: #fff;
+	display: inline-block;
+	float: left;
+	margin-top: 4px;
+	overflow: hidden;
+	padding: 10px;
+	width: 200px;
+}
 
+.skin-hydradark .filter_bar {
+	background-color: #303030;
+	color: #fff;
+}
+
+.filter_bar form fieldset > * {
+	box-sizing: border-box;
+	display: inline-block;
+	margin: 4px 0;
+	width: 100%;
+}
+
+.filter_bar form fieldset > label {
+	margin-top: 12px;
+}
+
+.filter_bar form fieldset > label, .filter_bar .slider_range {
+	line-height: 1em;
+}
+
+.filter_bar .ui-slider .ui-slider-range {
+	background: orange none repeat scroll 0 0;
+}
+
+.filter_bar form fieldset .ui-slider-horizontal {
+	box-sizing: initial;
+}
+
+.filter_bar fieldset {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border: 0 none;
+}
+
+.filter_bar .ui-slider .value {
+	color: #000;
+	display: block;
+	font-family: Verdana,Arial,sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	left: 50%;
+	margin: 0 0 0 -20px;
+	position: absolute;
+	text-align: center;
+	top: 12px;
+	width: 40px;
+}
+
+.skin-hydradark .filter_bar .ui-slider .value {
+	color: #fff;
+}
+
+.filter_bar .ui-slider .price-range-both.value {
+	margin: 0 0 0 -50px;
+	top: 12px;
+	width: 100px;
+}
+
+.filter_bar .ui-slider .price-range-both {
+	display: none;
+}
+
+#subscription_list {
+	border-collapse: separate;
+	border-spacing: 1px 4px;
+	padding: 0 10px;
+	width: 100%;
+}
+
+#subscription_list.with_filters {
+	width: calc(100% - 200px);
+}
+
+#subscription_list tr {
+	background-color: #ffffff;
+	border-radius: 2px;
+	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+	box-sizing: border-box;
+	color: #fff;
+	overflow: hidden;
+}
+
+#subscription_list th {
+	padding: 0 4px;
+}
+
+.skin-hydradark #subscription_list tr {
+	background-color: #303030;
+	color: #fff;
+}
+
+#subscription_list tr td {
+	padding: 10px;
+}
+
+#subscription_list .active {
+	text-align: center;
+}

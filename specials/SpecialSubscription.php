@@ -72,10 +72,12 @@ class SpecialSubscription extends SpecialPage {
 			}
 		}
 
-		//$subscriptions = \Hydra\SubscriptionCache::getList($searchTerm);
+		$filterValues = \Hydra\SubscriptionCache::getSearchFilterValues();
+
+		$subscriptions = \Hydra\SubscriptionCache::filterSearch(0, 100);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
-		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $sortKey, $sortDir, $searchTerm));
+		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
 	}
 
 	/**

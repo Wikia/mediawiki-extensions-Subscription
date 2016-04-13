@@ -39,7 +39,9 @@
 			"dependencies": [
 				"ext.curse.button",
 				"ext.curse.pagination",
-				"ext.dynamicSettings"
+				"ext.dynamicSettings",
+				"jquery.ui.datepicker",
+				"jquery.ui.slider"
 			],
 			"position": "top"
 		}

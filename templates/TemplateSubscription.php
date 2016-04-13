@@ -19,12 +19,13 @@ class TemplateSubscription {
 	 * @access	public
 	 * @param	array	Array of subscription information.
 	 * @param	array	Pagination
+	 * @param	array	Minimum and Maximum Filter Values
 	 * @param	string	[Optional] Data sorting key
 	 * @param	string	[Optional] Data sorting direction
 	 * @param	string	[Optional] Search Term
 	 * @return	string	Built HTML
 	 */
-	public function subscriptionList($subscriptions, $pagination, $sortKey = 'user_id', $sortDir = 'ASC', $searchTerm = null) {
+	public function subscriptionList($subscriptions, $pagination, $filterValues, $sortKey = 'user_id', $sortDir = 'ASC', $searchTerm = null) {
 		global $wgOut, $wgUser, $wgRequest;
 
 		$subscriptionPage = Title::newFromText('Special:Subscription');
@@ -33,18 +34,21 @@ class TemplateSubscription {
 		$html = $pagination;
 
 		$html .= "
-			<div class='search_bar'>
+			<div class='filter_bar'>
 				<form method='get' action='{$subscriptionURL}'>
 					<fieldset>
+						<input id='filtervalues' type='hidden' value='".htmlspecialchars(json_encode($filterValues, JSON_UNESCAPED_SLASHES), ENT_QUOTES)."'/>
 						<input type='hidden' name='section' value='list'/>
 						<input type='hidden' name='do' value='search'/>
-						<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' placeholder='".wfMessage('search')->escaped()."' title='".wfMessage('wiki_sites_search_tooltip')->escaped()."'/>
-						<input type='submit' value='".wfMessage('list_search')->escaped()."' class='button'/>
-						<a href='{$subscriptionURL}?do=resetSearch' class='button'>".wfMessage('list_reset')->escaped()."</a>
+						<button type='submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('list_search')->escaped()."</button>
+						<button type='submit' formaction='{$subscriptionURL}?do=resetSearch' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')->escaped()."</button>
+						<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' placeholder='".wfMessage('search')->escaped()."'/>
+						<label for='price'>".wfMessage('price_range')->escaped()."</label>
+						<div id='price'></div>
 					</fieldset>
 				</form>
 			</div>
-			<table id='wikilist'>
+			<table id='subscription_list' class='with_filters'>
 				<thead>
 					<tr class='sortable' data-sort-dir='".($sortDir == 'desc' ? 'desc' : 'asc')."'>
 						<th".($sortKey == 'user' ? " data-selected='true'" : '')."><span data-sort='user'".($sortKey == 'user' ? " data-selected='true'" : '').">".wfMessage('sub_th_user')->escaped()."</span></th>
@@ -60,17 +64,18 @@ class TemplateSubscription {
 				<tbody>
 				";
 		if (is_array($subscriptions) && count($subscriptions)) {
-			$_wikis = [];
 			foreach ($subscriptions as $subscription) {
+				$lookup = \CentralIdLookup::factory();
+				$user = $lookup->localUserFromCentralId($subscription['global_id'], \CentralIdLookup::AUDIENCE_RAW);
 				$html .= "
 					<tr>
-						<td>{$subscription['global_id']}</td>
+						<td>".($user !== null ? $user->getName() : $subscription['global_id'])."</td>
 						<td>{$subscription['provider_id']}</td>
-						<td>{$subscription['active']}</td>
-						<td>{$subscription['begins']}</td>
-						<td>{$subscription['expires']}</td>
-						<td>{$subscription['plan_name']} <em>({$subscription['plan_id']})</em></td>
-						<td>{$subscription['price']}</td>
+						<td class='active'>".(isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;")."</td>
+						<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['begins']) : "&nbsp;")."</td>
+						<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;")."</td>
+						<td>".(isset($subscription['plan_name']) && !empty($subscription['plan_name']) ? $subscription['plan_name'] : "&nbsp;").(isset($subscription['plan_id']) && !empty($subscription['plan_id']) ? " <em>({$subscription['plan_id']})</em>" : "&nbsp;")."</td>
+						<td>".number_format($subscription['price'], 2)."</td>
 						<td>{$subscription['subscription_id']}</td>
 					</tr>
 ";
