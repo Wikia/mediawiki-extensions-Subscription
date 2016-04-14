@@ -18,5 +18,6 @@
 	"sub_th_subscription_id": "Unique ID",
 	"no_subscriptions_found": "No subscriptions found.",
 	"price_range": "Price range:",
-	"date_range": "Date range:"
+	"date_range": "Date range:",
+	"filter": "Filter"
 }

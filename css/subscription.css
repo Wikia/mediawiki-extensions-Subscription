@@ -89,6 +89,10 @@
 	margin-left: 0;
 }
 
+.filter_bar form fieldset > label, .filter_bar .named_filter > span {
+	font-weight: bold;
+}
+
 
 /*********************/
 /* Subscription List */

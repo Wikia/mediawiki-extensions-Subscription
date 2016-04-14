@@ -40,11 +40,14 @@ class TemplateSubscription {
 						<input id='filtervalues' type='hidden' value='".htmlspecialchars(json_encode($filterValues, JSON_UNESCAPED_SLASHES), ENT_QUOTES)."'/>
 						<input type='hidden' name='section' value='list'/>
 						<input type='hidden' name='do' value='search'/>
-						<button type='submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('list_search')->escaped()."</button>
+						<button type='submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('filter')->escaped()."</button>
 						<button type='submit' formaction='{$subscriptionURL}?do=resetSearch' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')->escaped()."</button>
 						<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' placeholder='".wfMessage('search')->escaped()."'/>
 						<label for='price'>".wfMessage('price_range')->escaped()."</label>
-						<div id='price'></div>
+						<div id='price'>
+							<input type='hidden' name='min_price' value=''/>
+							<input type='hidden' name='max_price' value=''/>
+						</div>
 					</fieldset>
 				</form>
 			</div>

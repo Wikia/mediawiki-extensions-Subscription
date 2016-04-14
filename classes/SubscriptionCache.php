@@ -180,6 +180,12 @@ class SubscriptionCache {
 	 * @return	array	Filter Values
 	 */
 	static public function getSearchFilterValues() {
+		//Filter types that need to be strictly clamped and checked.
+		$_clamps = [
+			'date'	=> ['min_date', 'max_date'],
+			'price'	=> ['min_price', 'max_price']
+		];
+
 		$filters = [
 			'providers'	=> [],
 			'plans'	=> [],
@@ -211,30 +217,20 @@ class SubscriptionCache {
 		);
 
 		while ($row = $result->fetchRow()) {
-			if ($row['min_date'] !== null) {
-				if ($filters['date']['min_date'] === false) {
-					$filters['date']['min_date'] = $row['min_date'];
-				} else {
-					$filters['date']['min_date'] = min($filters['date']['min_date'], $row['min_date']);
+			foreach ($_clamps as $type => $_values) {
+				foreach ($_values as $value) {
+					if ($row[$value] !== null) {
+						if ($filters[$type][$value] === false) {
+							$filters[$type][$value] = $row[$value];
+						} else {
+							if (strpos($value, 'min_') === 0) {
+								$filters[$type][$value] = min($filters[$type][$value], $row[$value]);
+							} else {
+								$filters[$type][$value] = max($filters[$type][$value], $row[$value]);
+							}
+						}
+					}
 				}
-			}
-			if ($row['max_date'] !== null) {
-				if ($filters['date']['max_date'] === false) {
-					$filters['date']['max_date'] = $row['max_date'];
-				} else {
-					$filters['date']['max_date'] = max($filters['date']['max_date'], $row['max_date']);
-				}
-			}
-
-			if ($filters['price']['min_price'] === false) {
-				$filters['price']['min_price'] = $row['min_price'];
-			} else {
-				$filters['price']['min_price'] = min($filters['price']['min_price'], $row['min_price']);
-			}
-			if ($filters['price']['max_price'] === false) {
-				$filters['price']['max_price'] = $row['max_price'];
-			} else {
-				$filters['price']['max_price'] = max($filters['price']['max_price'], $row['max_price']);
 			}
 
 			if (!empty($row['provider_id'])) {
@@ -248,6 +244,24 @@ class SubscriptionCache {
 		$filters['providers'] = array_unique($filters['providers']);
 		$filters['plans'] = array_unique($filters['plans']);
 
-		return $filters;
+		$request = \RequestContext::getMain()->getRequest();
+
+		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
+
+		foreach ($_clamps as $type => $_values) {
+			foreach ($_values as $value) {
+				if (!isset($userFilters[$value])) {
+					$userFilters[$type][$value] = $filters[$type][$value];
+				} else {
+					$userFilters[$type][$value] = $userFilters[$value];
+					unset($userFilters[$value]);
+				}
+			}
+		}
+
+		return [
+			'default'	=> $filters,
+			'user'		=> $userFilters
+		];
 	}
 }

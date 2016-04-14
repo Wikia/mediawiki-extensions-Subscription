@@ -9,16 +9,16 @@ $(document).ready(function() {
 		if ($("#price").length) {
 			setupSlider(
 				'price',
-				(filterValues.price.min_price ? Math.round(filterValues.price.min_price) : 0),
-				(filterValues.price.max_price ? Math.round(filterValues.price.max_price) : 0),
-				(filterValues.price.min_price ? Math.round(filterValues.price.min_price) : 0),
-				(filterValues.price.max_price ? Math.round(filterValues.price.max_price) : 0)
+				(filterValues.default.price.min_price ? Math.floor(filterValues.default.price.min_price) : 0.0),
+				(filterValues.default.price.max_price ? Math.ceil(filterValues.default.price.max_price) : 0.0),
+				(filterValues.user.price.min_price ? Math.floor(filterValues.user.price.min_price) : 0.0),
+				(filterValues.user.price.max_price ? Math.ceil(filterValues.user.price.max_price) : 0.0)
 			);
 		}
 
-		$(".filter_bar form fieldset").append(createNamedFilter("providers", filterValues.providers).prepend($("<span>").text(mw.msg('sub_th_provider_id'))));
+		$(".filter_bar form fieldset").append(createNamedFilter("providers", filterValues.default.providers, filterValues.user.providers).prepend($("<span>").text(mw.msg('sub_th_provider_id'))));
 
-		$(".filter_bar form fieldset").append(createNamedFilter("plans", filterValues.plans).prepend($("<span>").text(mw.msg('sub_th_plan_name'))));
+		$(".filter_bar form fieldset").append(createNamedFilter("plans", filterValues.default.plans, filterValues.user.plans).prepend($("<span>").text(mw.msg('sub_th_plan_name'))));
 	});
 
 	/**
@@ -42,9 +42,10 @@ $(document).ready(function() {
 			values: [currentMin, currentMax],
 			slide: function(event, ui) {
 				$('.ui-slider-handle:eq(0) .price-range-min', this).html('$' + ui.values[0]);
+				$('input[name="min_price"]', this).val(ui.values[0]);
 				$('.ui-slider-handle:eq(1) .price-range-max', this).html('$' + ui.values[1]);
+				$('input[name="max_price"]', this).val(ui.values[1]);
 				$('.price-range-both').html('$' + ui.values[0] + ' - $' + ui.values[1]);
-
 
 				if (slideCollision($('.price-range-min', this), $('.price-range-max', this)) == true) {
 					$('.price-range-min, .price-range-max', this).css('opacity', '0');
@@ -56,11 +57,13 @@ $(document).ready(function() {
 			}
 		});
 
-		$('.ui-slider-range', $(element)).append('<span class="price-range-both value">$' + $(element).slider('values', 0 ) + ' - ' + $(element).slider('values', 1 ) + '</span>');
+		$('.ui-slider-range', $(element)).append('<span class="price-range-both value">$' + $(element).slider('values', 0) + ' - ' + $(element).slider('values', 1 ) + '</span>');
 
-		$('.ui-slider-handle:eq(0)', $(element)).append('<span class="price-range-min value">$' + $(element).slider('values', 0 ) + '</span>');
+		$('.ui-slider-handle:eq(0)', $(element)).append('<span class="price-range-min value">$' + $(element).slider('values', 0) + '</span>');
+		$('input[name="min_price"]', $(element)).val($(element).slider('values', 0));
 
-		$('.ui-slider-handle:eq(1)', $(element)).append('<span class="price-range-max value">$' + $(element).slider('values', 1 ) + '</span>');
+		$('.ui-slider-handle:eq(1)', $(element)).append('<span class="price-range-max value">$' + $(element).slider('values', 1) + '</span>');
+		$('input[name="max_price"]', $(element)).val($(element).slider('values', 1));
 	}
 
 	//http://codepen.io/ignaty/pen/EruAe
@@ -88,18 +91,23 @@ $(document).ready(function() {
 	 *
 	 * @access	public
 	 * @param	string	Filter Key/Name to use for form handling.
-	 * @param	object	List of items to include in the group filter.
+	 * @param	object	List of default filters to include in the group filter.
+	 * @param	object	List of user filters to include in the group filter.
 	 * @return	object	Built HTML jQuery Object
 	 */
-	function createNamedFilter(filterKey, items) {
+	function createNamedFilter(filterKey, defaultFilters, userFilters) {
 		var container = $("<div>").addClass('named_filter').append("<ul>");
 
-		console.log(filterKey);
-		console.log(items);
-		console.log(items.length);
-		$.each(items, function(unused, item) {
-			var input = $("<li>").append($("<label>").append($("<input>").attr('type', 'checkbox').attr('name', filterKey+"[]").val(item)).append(item));
-			$("ul", container).append(input);
+		$.each(defaultFilters, function(unused, filter) {
+			var input = $("<input>").attr('type', 'checkbox').attr('name', filterKey+"[]").val(filter);
+
+			if (userFilters.length && userFilters.indexOf(filter) > -1) {
+				$(input).attr('checked', true);
+			}
+
+			var item = $("<li>").append($("<label>").append(input).append(filter));
+
+			$("ul", container).append(item);
 		});
 
 		return container;
