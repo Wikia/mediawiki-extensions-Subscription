@@ -1,3 +1,6 @@
+/**************/
+/* Filter Bar */
+/**************/
 .filter_bar {
 	background-color: #ffffff;
 	border-radius: 2px;
@@ -24,7 +27,7 @@
 	width: 100%;
 }
 
-.filter_bar form fieldset > label {
+.filter_bar form fieldset > label, .filter_bar form fieldset > .named_filter {
 	margin-top: 12px;
 }
 
@@ -38,6 +41,8 @@
 
 .filter_bar form fieldset .ui-slider-horizontal {
 	box-sizing: initial;
+	margin-left: 0.6em;
+	width: calc(100% - 1.2em);
 }
 
 .filter_bar fieldset {
@@ -75,6 +80,19 @@
 	display: none;
 }
 
+.filter_bar .named_filter > ul {
+	list-style: outside none none;
+	margin: 0;
+}
+
+.filter_bar .named_filter input {
+	margin-left: 0;
+}
+
+
+/*********************/
+/* Subscription List */
+/*********************/
 #subscription_list {
 	border-collapse: separate;
 	border-spacing: 1px 4px;

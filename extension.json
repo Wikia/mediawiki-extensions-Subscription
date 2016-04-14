@@ -43,6 +43,10 @@
 				"jquery.ui.datepicker",
 				"jquery.ui.slider"
 			],
+			"messages": [
+				"sub_th_provider_id",
+				"sub_th_plan_name"
+			],
 			"position": "top"
 		}
 	},

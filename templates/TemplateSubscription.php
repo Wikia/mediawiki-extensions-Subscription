@@ -73,7 +73,7 @@ class TemplateSubscription {
 						<td>{$subscription['provider_id']}</td>
 						<td class='active'>".(isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;")."</td>
 						<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['begins']) : "&nbsp;")."</td>
-						<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;")."</td>
+						<td>".(isset($subscription['expires']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;")."</td>
 						<td>".(isset($subscription['plan_name']) && !empty($subscription['plan_name']) ? $subscription['plan_name'] : "&nbsp;").(isset($subscription['plan_id']) && !empty($subscription['plan_id']) ? " <em>({$subscription['plan_id']})</em>" : "&nbsp;")."</td>
 						<td>".number_format($subscription['price'], 2)."</td>
 						<td>{$subscription['subscription_id']}</td>
