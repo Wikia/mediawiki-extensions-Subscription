@@ -259,7 +259,12 @@ class SubscriptionCache {
 				if (!isset($userFilters[$value])) {
 					$userFilters[$type][$value] = $filters[$type][$value];
 				} else {
-					$userFilters[$type][$value] = $userFilters[$value];
+					//These are intentionally backwards so that users can not set out of bound values.
+					if (strpos($value, 'min_') === 0) {
+						$userFilters[$type][$value] = max($filters[$type][$value], $userFilters[$value]);
+					} else {
+						$userFilters[$type][$value] = min($filters[$type][$value], $userFilters[$value]);
+					}
 					unset($userFilters[$value]);
 				}
 			}
