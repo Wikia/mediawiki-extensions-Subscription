@@ -88,11 +88,12 @@ class SubscriptionCache {
 	 * @param	integer	Zero based start position.
 	 * @param	integer	Total number of results to return.
 	 * @param	string	[Optional] Search term to filter by.
+	 * @param	array	[Optional] Filters for where statement.
 	 * @param	string	[Optional] Database field name to sort by, defaults to 'wiki_name'.
 	 * @param	string	[Optional] Database sort direction, defaults to 'ASC'.
 	 * @return	array	an array of resulting objects, possibly empty.
 	 */
-	static public function filterSearch($start, $itemsPerPage, $searchTerm = null, $sortKey = 'sid', $sortDir = 'ASC') {
+	static public function filterSearch($start, $itemsPerPage, $searchTerm = null, $filters, $sortKey = 'sid', $sortDir = 'ASC') {
 		$db = wfGetDB(DB_MASTER);
 		$searchableFields = ['global_id', 'provider_id', 'active'];
 		$tables = ['subscription'];
@@ -110,10 +111,28 @@ class SubscriptionCache {
 		];
 		$joins['wiki_domains'] = [
 			'LEFT JOIN', 'wiki_domains.site_key = wiki_sites.md5_key'
-		];
-		$and[] = "wiki_sites.deleted = 0";
-		$and[] = "wiki_domains.type = ".Domains::getDomainEnvironment();
-		$and[] = "(wiki_advertisements.site_key != -1 OR wiki_advertisements.site_key IS NULL OR CHAR_LENGTH(wiki_advertisements.site_key) >= 32)";
+		];*/
+
+		if (isset($filters['date']['min_date'])) {
+			$and[] = "begins >= ".$db->strencode($filters['date']['min_date']);
+		}
+		if (isset($filters['date']['max_date'])) {
+			$and[] = "expires <= ".$db->strencode($filters['date']['max_date']);
+		}
+
+		if (isset($filters['price']['min_price'])) {
+			$and[] = "price >= ".$db->strencode($filters['price']['min_price']);
+		}
+		if (isset($filters['price']['max_price'])) {
+			$and[] = "price <= ".$db->strencode($filters['price']['max_price']);
+		}
+
+		if (isset($filters['providers']) && !empty($filters['providers'])) {
+			$and[] = "provider_id IN(".$db->makeList($filters['providers']).")";
+		}
+		if (isset($filters['plans']) && !empty($filters['plans'])) {
+			$and[] = "plan_name IN(".$db->makeList($filters['plans']).")";
+		}
 
 		if (count($and)) {
 			if (!empty($where)) {
@@ -123,13 +142,13 @@ class SubscriptionCache {
 			}
 		}
 
-		$options['ORDER BY'] = ($db->fieldExists('wiki_advertisements', $sortKey) || $sortKey == 'domain' ? $sortKey : 'wiki_name').' '.($sortDir == 'DESC' ? 'DESC' : 'ASC');
+		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid').' '.($sortDir == 'DESC' ? 'DESC' : 'ASC');
 		if ($start !== null) {
 			$options['OFFSET'] = $start;
 		}
 		if ($itemsPerPage !== null) {
 			$options['LIMIT'] = $itemsPerPage;
-		}*/
+		}
 
 		$wikis = [];
 		$results = $db->select(
@@ -219,15 +238,13 @@ class SubscriptionCache {
 		while ($row = $result->fetchRow()) {
 			foreach ($_clamps as $type => $_values) {
 				foreach ($_values as $value) {
-					if ($row[$value] !== null) {
-						if ($filters[$type][$value] === false) {
-							$filters[$type][$value] = $row[$value];
+					if ($filters[$type][$value] === false) {
+						$filters[$type][$value] = $row[$value];
+					} else {
+						if (strpos($value, 'min_') === 0) {
+							$filters[$type][$value] = min($filters[$type][$value], $row[$value]);
 						} else {
-							if (strpos($value, 'min_') === 0) {
-								$filters[$type][$value] = min($filters[$type][$value], $row[$value]);
-							} else {
-								$filters[$type][$value] = max($filters[$type][$value], $row[$value]);
-							}
+							$filters[$type][$value] = max($filters[$type][$value], $row[$value]);
 						}
 					}
 				}

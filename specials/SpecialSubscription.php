@@ -74,7 +74,7 @@ class SpecialSubscription extends SpecialPage {
 
 		$filterValues = \Hydra\SubscriptionCache::getSearchFilterValues();
 
-		$subscriptions = \Hydra\SubscriptionCache::filterSearch(0, 100);
+		$subscriptions = \Hydra\SubscriptionCache::filterSearch(0, 100, $searchTerm, $filterValues['user']);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
