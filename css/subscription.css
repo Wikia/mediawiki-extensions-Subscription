@@ -9,7 +9,6 @@
 	color: #fff;
 	display: inline-block;
 	float: left;
-	margin-top: 4px;
 	overflow: hidden;
 	padding: 10px;
 	width: 200px;
@@ -98,17 +97,18 @@
 /* Subscription List */
 /*********************/
 #subscription_list {
+	margin-left: 200px;
+	padding: 0 10px;
+}
+
+#subscription_list table {
 	border-collapse: separate;
 	border-spacing: 1px 4px;
-	padding: 0 10px;
+	padding: 0;
 	width: 100%;
 }
 
-#subscription_list.with_filters {
-	width: calc(100% - 200px);
-}
-
-#subscription_list tr {
+#subscription_list table tr {
 	background-color: #ffffff;
 	border-radius: 2px;
 	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
@@ -117,19 +117,27 @@
 	overflow: hidden;
 }
 
-#subscription_list th {
+#subscription_list table th {
 	padding: 0 4px;
 }
 
-.skin-hydradark #subscription_list tr {
+.skin-hydradark #subscription_list table tr {
 	background-color: #303030;
 	color: #fff;
 }
 
-#subscription_list tr td {
+#subscription_list table tr td {
 	padding: 10px;
 }
 
-#subscription_list .active {
+#subscription_list table .active {
 	text-align: center;
+}
+
+#subscription_list .pagination:first-child {
+	margin-top: 0;
+}
+
+#subscription_list .pagination:last-child {
+	margin-bottom: 0;
 }

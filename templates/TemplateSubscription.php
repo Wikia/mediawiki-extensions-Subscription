@@ -31,9 +31,7 @@ class TemplateSubscription {
 		$subscriptionPage = Title::newFromText('Special:Subscription');
 		$subscriptionURL = $subscriptionPage->getFullURL();
 
-		$html = $pagination;
-
-		$html .= "
+		$html = "
 			<div class='filter_bar'>
 				<form method='get' action='{$subscriptionURL}'>
 					<fieldset>
@@ -51,50 +49,52 @@ class TemplateSubscription {
 					</fieldset>
 				</form>
 			</div>
-			<table id='subscription_list' class='with_filters'>
-				<thead>
-					<tr class='sortable' data-sort-dir='".($sortDir == 'desc' ? 'desc' : 'asc')."'>
-						<th".($sortKey == 'user' ? " data-selected='true'" : '')."><span data-sort='user'".($sortKey == 'user' ? " data-selected='true'" : '').">".wfMessage('sub_th_user')->escaped()."</span></th>
-						<th".($sortKey == 'provider_id' ? " data-selected='true'" : '')."><span data-sort='provider_id'".($sortKey == 'provider_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_provider_id')->escaped()."</span></th>
-						<th".($sortKey == 'active' ? " data-selected='true'" : '')."><span data-sort='active'".($sortKey == 'active' ? " data-selected='true'" : '').">".wfMessage('sub_th_active')->escaped()."</span></th>
-						<th".($sortKey == 'begins' ? " data-selected='true'" : '')."><span data-sort='begins'".($sortKey == 'begins' ? " data-selected='true'" : '').">".wfMessage('sub_th_begins')->escaped()."</span></th>
-						<th".($sortKey == 'expires' ? " data-selected='true'" : '')."><span data-sort='expires'".($sortKey == 'expires' ? " data-selected='true'" : '').">".wfMessage('sub_th_expires')->escaped()."</span></th>
-						<th".($sortKey == 'plan_name' ? " data-selected='true'" : '')."><span data-sort='plan_name'".($sortKey == 'plan_name' ? " data-selected='true'" : '').">".wfMessage('sub_th_plan_name')->escaped()."</span></th>
-						<th".($sortKey == 'price' ? " data-selected='true'" : '')."><span data-sort='price'".($sortKey == 'price' ? " data-selected='true'" : '').">".wfMessage('sub_th_price')->escaped()."</span></th>
-						<th".($sortKey == 'subscription_id' ? " data-selected='true'" : '')."><span data-sort='subscription_id'".($sortKey == 'subscription_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_subscription_id')->escaped()."</span></th>
-					</tr>
-				</thead>
-				<tbody>
+			<div id='subscription_list'>
+				{$pagination}
+				<table class='with_filters'>
+					<thead>
+						<tr class='sortable' data-sort-dir='".($sortDir == 'desc' ? 'desc' : 'asc')."'>
+							<th".($sortKey == 'user' ? " data-selected='true'" : '')."><span data-sort='user'".($sortKey == 'user' ? " data-selected='true'" : '').">".wfMessage('sub_th_user')->escaped()."</span></th>
+							<th".($sortKey == 'provider_id' ? " data-selected='true'" : '')."><span data-sort='provider_id'".($sortKey == 'provider_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_provider_id')->escaped()."</span></th>
+							<th".($sortKey == 'active' ? " data-selected='true'" : '')."><span data-sort='active'".($sortKey == 'active' ? " data-selected='true'" : '').">".wfMessage('sub_th_active')->escaped()."</span></th>
+							<th".($sortKey == 'begins' ? " data-selected='true'" : '')."><span data-sort='begins'".($sortKey == 'begins' ? " data-selected='true'" : '').">".wfMessage('sub_th_begins')->escaped()."</span></th>
+							<th".($sortKey == 'expires' ? " data-selected='true'" : '')."><span data-sort='expires'".($sortKey == 'expires' ? " data-selected='true'" : '').">".wfMessage('sub_th_expires')->escaped()."</span></th>
+							<th".($sortKey == 'plan_name' ? " data-selected='true'" : '')."><span data-sort='plan_name'".($sortKey == 'plan_name' ? " data-selected='true'" : '').">".wfMessage('sub_th_plan_name')->escaped()."</span></th>
+							<th".($sortKey == 'price' ? " data-selected='true'" : '')."><span data-sort='price'".($sortKey == 'price' ? " data-selected='true'" : '').">".wfMessage('sub_th_price')->escaped()."</span></th>
+							<th".($sortKey == 'subscription_id' ? " data-selected='true'" : '')."><span data-sort='subscription_id'".($sortKey == 'subscription_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_subscription_id')->escaped()."</span></th>
+						</tr>
+					</thead>
+					<tbody>
 				";
 		if (is_array($subscriptions) && count($subscriptions)) {
 			foreach ($subscriptions as $subscription) {
 				$lookup = \CentralIdLookup::factory();
 				$user = $lookup->localUserFromCentralId($subscription['global_id'], \CentralIdLookup::AUDIENCE_RAW);
 				$html .= "
-					<tr>
-						<td>".($user !== null ? $user->getName() : $subscription['global_id'])."</td>
-						<td>{$subscription['provider_id']}</td>
-						<td class='active'>".(isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;")."</td>
-						<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['begins']) : "&nbsp;")."</td>
-						<td>".(isset($subscription['expires']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;")."</td>
-						<td>".(isset($subscription['plan_name']) && !empty($subscription['plan_name']) ? $subscription['plan_name'] : "&nbsp;").(isset($subscription['plan_id']) && !empty($subscription['plan_id']) ? " <em>({$subscription['plan_id']})</em>" : "&nbsp;")."</td>
-						<td>".number_format($subscription['price'], 2)."</td>
-						<td>{$subscription['subscription_id']}</td>
-					</tr>
+						<tr>
+							<td>".($user !== null ? $user->getName() : $subscription['global_id'])."</td>
+							<td>{$subscription['provider_id']}</td>
+							<td class='active'>".(isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;")."</td>
+							<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['begins']) : "&nbsp;")."</td>
+							<td>".(isset($subscription['expires']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;")."</td>
+							<td>".(isset($subscription['plan_name']) && !empty($subscription['plan_name']) ? $subscription['plan_name'] : "&nbsp;").(isset($subscription['plan_id']) && !empty($subscription['plan_id']) ? " <em>({$subscription['plan_id']})</em>" : "&nbsp;")."</td>
+							<td>".number_format($subscription['price'], 2)."</td>
+							<td>{$subscription['subscription_id']}</td>
+						</tr>
 ";
 			}
 		} else {
 			$html .= "
-					<tr>
-						<td colspan='8'>".wfMessage('no_subscriptions_found')->escaped()."</td>
-					</tr>
+						<tr>
+							<td colspan='8'>".wfMessage('no_subscriptions_found')->escaped()."</td>
+						</tr>
 			";
 		}
 		$html .= "
-				</tbody>
-			</table>";
-
-		$html .= $pagination;
+					</tbody>
+				</table>
+				{$pagination}
+			</div>";
 
 		return $html;
 	}

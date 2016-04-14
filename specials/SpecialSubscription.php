@@ -53,10 +53,11 @@ class SpecialSubscription extends SpecialPage {
 	 * @return	void	[Outputs to screen]
 	 */
 	public function subscriptionList() {
-		$hide['deleted'] = true;
-		$hide['secret'] = true;
+		$start = $this->wgRequest->getInt('st');
+		$itemsPerPage = 100;
+		$searchTerm = null;
+		$cookieExpire = time() + 900;
 
-		$searchTerm = '';
 		if ($this->wgRequest->getVal('do') == 'resetSearch') {
 			$this->wgRequest->response()->setcookie('subscriptionSearchTerm', '', 1);
 		} else {
@@ -74,7 +75,11 @@ class SpecialSubscription extends SpecialPage {
 
 		$filterValues = \Hydra\SubscriptionCache::getSearchFilterValues();
 
-		$subscriptions = \Hydra\SubscriptionCache::filterSearch(0, 100, $searchTerm, $filterValues['user']);
+		$subscriptions = \Hydra\SubscriptionCache::filterSearch($start, $itemsPerPage, $searchTerm, $filterValues['user']);
+
+		$total = \Hydra\SubscriptionCache::getLastSearchTotal();
+
+		$pagination = Curse::generatePaginationHtml($total, $itemsPerPage, $start, 4);//, implode('&', $extra));
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
