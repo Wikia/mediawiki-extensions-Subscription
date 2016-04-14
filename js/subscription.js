@@ -101,7 +101,7 @@ $(document).ready(function() {
 		$.each(defaultFilters, function(unused, filter) {
 			var input = $("<input>").attr('type', 'checkbox').attr('name', filterKey+"[]").val(filter);
 
-			if (userFilters.length && userFilters.indexOf(filter) > -1) {
+			if (userFilters && userFilters.length && userFilters.indexOf(filter) > -1) {
 				$(input).attr('checked', true);
 			}
 

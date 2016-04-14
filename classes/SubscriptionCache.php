@@ -247,6 +247,12 @@ class SubscriptionCache {
 		$request = \RequestContext::getMain()->getRequest();
 
 		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
+		if (!isset($userFilters['providers'])) {
+			$userFilters['providers'] = [];
+		}
+		if (!isset($userFilters['plans'])) {
+			$userFilters['plans'] = [];
+		}
 
 		foreach ($_clamps as $type => $_values) {
 			foreach ($_values as $value) {
