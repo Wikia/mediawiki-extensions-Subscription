@@ -96,10 +96,6 @@
 	font-weight: bold;
 }
 
-.filter_bar #ui-datepicker-div {
-	margin-top: -28px;
-}
-
 .filter_bar a.mw-ui-button {
 	line-height: 1.2em;
 }
