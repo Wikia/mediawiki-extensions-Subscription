@@ -61,7 +61,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @access	public
 	 * @param	integer	Global User ID
-	 * @return	mixed	Subscription information, false on API failure.
+	 * @return	mixed	Subscription information, null on missing subscription, false on API failure.
 	 */
 	public function getSubscription($globalId) {
 		if ($globalId < 1) {
@@ -75,7 +75,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 		$data = self::callApi($pieces);
 
-		if ($data !== false) {
+		if ($data !== false && $data !== null) {
 			if (isset($data['errorCode']) || isset($data['planId']) || isset($data['goodThru'])) {
 				if (isset($data['goodThru'])) {
 					$expires = new \MWTimestamp($data['goodThru']);
@@ -96,6 +96,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 				];
 				return $subscription;
 			}
+		} elseif ($data === null) {
+			return null;
 		}
 
 		return false;
@@ -175,13 +177,13 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 * @access	private
 	 * @param	array	URL pieces between slashes.  Example ['get-user-subscription', 9001] would become 'https://www.exmaple.com/get-user-subscription/9001'.
 	 * @param	boolean	[Optional] Use Cached Responses
-	 * @return	mixed	JSON data on success, false on a fatal error.
+	 * @return	mixed	JSON data on success, null on 404, false on a fatal error.
 	 */
 	private function callApi($pieces, $useCache = true) {
 		if ($useCache === true) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
-			$cached = $wgCache->get(wfMemcKey($pieces));
+			$cached = $wgCache->get(call_user_func_array('wfMemcKey', $pieces));
 			if (!empty($cached)) {
 				return $cached;
 			}
@@ -217,6 +219,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 			}
 
 			return $data;
+		} elseif (!$status->isOK() && $request->getStatus() == 404) {
+			return null;
 		}
 
 		return false;

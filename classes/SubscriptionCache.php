@@ -38,6 +38,18 @@ class SubscriptionCache {
 			return false;
 		}
 
+		if ($subscription === null) {
+			$success = $db->delete(
+				'subscription',
+				[
+					'global_id'		=> $globalId,
+					'provider_id'	=> $providerId
+				],
+				__METHOD__
+			);
+			return $success;
+		}
+
 		$save = [
 			'global_id'			=> $globalId,
 			'provider_id'		=> $providerId,
