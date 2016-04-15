@@ -19,6 +19,10 @@
 	color: #fff;
 }
 
+.filter_bar > form {
+	overflow: hidden;
+}
+
 .filter_bar form fieldset > * {
 	box-sizing: border-box;
 	display: inline-block;
