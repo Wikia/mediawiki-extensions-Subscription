@@ -68,15 +68,16 @@ $(document).ready(function() {
 					var epoch = date.getTime() / 1000 - offset;
 
 					$(dataHolder).val(epoch);
-				},
-				onChange: function() {
-					if ($(this).val() == '') {
-						var dataHolder = '#'+$(this).attr('data-input');
-						$(dataHolder).val('');
-					}
 				}
 			}
-		);
+		).change(function() {
+			if (!$(this).val()) {
+				var dataHolder = '#'+$(this).attr('data-input');
+				$(dataHolder).val('');
+			}
+		}).keyup(function() {
+			$(this).change();
+		});
 	}
 
 	/**

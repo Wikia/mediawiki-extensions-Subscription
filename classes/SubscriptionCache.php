@@ -265,32 +265,24 @@ class SubscriptionCache {
 
 		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
 
-		if (isset($userFilters['min_date'])) {
-			if (empty($userFilters['min_date'])) {
-				unset($userFilters['min_date']);
-			} else {
-				$userFilters['min_date'] = wfTimestamp(TS_MW, $userFilters['min_date']);
-			}
-			if ($userFilters['min_date'] === false) {
-				unset($userFilters['min_date']);
-			}
-		}
-		if (isset($userFilters['max_date'])) {
-			if (empty($userFilters['max_date'])) {
-				unset($userFilters['max_date']);
-			} else {
-				$userFilters['max_date'] = wfTimestamp(TS_MW, $userFilters['max_date']);
-			}
-			if ($userFilters['max_date'] === false) {
-				unset($userFilters['max_date']);
-			}
-		}
-
 		if (!isset($userFilters['providers'])) {
 			$userFilters['providers'] = [];
 		}
 		if (!isset($userFilters['plans'])) {
 			$userFilters['plans'] = [];
+		}
+
+		foreach ($_clamps['date'] as $type) {
+			if (isset($userFilters[$type])) {
+				if (empty($userFilters[$type])) {
+					unset($userFilters[$type]);
+				} else {
+					$userFilters[$type] = wfTimestamp(TS_MW, $userFilters[$type]);
+				}
+				if ($userFilters[$type] === false) {
+					unset($userFilters[$type]);
+				}
+			}
 		}
 
 		foreach ($_clamps as $type => $_values) {
