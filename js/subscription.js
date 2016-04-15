@@ -25,8 +25,28 @@ $(document).ready(function() {
 		}
 
 		if ($("input#expires_before").length) {
-			setupDatePicker($("input#begins_after"));
+			setupDatePicker($("input#expires_before"));
 		}
+
+		$('input#min_date').change(function() {
+			var currentVal = $(this).val();
+			var time = new Date(0);
+			if (currentVal > 0) {
+				var existEpochDate = new Date((currentVal * 1000) + (time.getTimezoneOffset() * 60000));
+				var picker = '#begins_after';
+				$(picker).datepicker("setDate", existEpochDate);
+			}
+		}).change();
+
+		$('input#max_date').change(function() {
+			var currentVal = $(this).val();
+			var time = new Date(0);
+			if (currentVal > 0) {
+				var existEpochDate = new Date((currentVal * 1000) + (time.getTimezoneOffset() * 60000));
+				var picker = '#expires_before';
+				$(picker).datepicker("setDate", existEpochDate);
+			}
+		}).change();
 	});
 
 	/**
@@ -44,7 +64,16 @@ $(document).ready(function() {
 				onSelect: function(dateText) {
 					var dataHolder = '#'+$(this).attr('data-input');
 					var date = $(this).datepicker("getDate");
-					$(dataHolder).val(date.toISOString());
+					var offset = date.getTimezoneOffset() * 60;
+					var epoch = date.getTime() / 1000 - offset;
+
+					$(dataHolder).val(epoch);
+				},
+				onChange: function() {
+					if ($(this).val() == '') {
+						var dataHolder = '#'+$(this).attr('data-input');
+						$(dataHolder).val('');
+					}
 				}
 			}
 		);
