@@ -39,8 +39,8 @@ class TemplateSubscription {
 						<input type='hidden' name='section' value='list'/>
 						<input type='hidden' name='do' value='search'/>
 						<button type='submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('filter')->escaped()."</button>
-						<button type='submit' formaction='{$subscriptionURL}?do=resetSearch' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')->escaped()."</button>
-						<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' placeholder='".wfMessage('search')->escaped()."'/>
+						<a href='{$subscriptionURL}?do=resetSearch' class='mw-ui-button mw-ui-destructive'>".wfMessage('list_reset')->escaped()."</a>
+						<input type='text' name='list_search' value='".htmlentities($searchTerm, ENT_QUOTES)."' class='search_field' placeholder='".wfMessage('search_users')->escaped()."'/>
 						<label for='price'>".wfMessage('price_range')->escaped()."</label>
 						<div id='price'>
 							<input type='hidden' name='min_price' value=''/>

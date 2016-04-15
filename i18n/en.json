@@ -21,5 +21,6 @@
 	"date_range": "Date range:",
 	"filter": "Filter",
 	"begins_after": "Begins after:",
-	"expires_before": "Expires before:"
+	"expires_before": "Expires before:",
+	"search_users": "Search users..."
 }

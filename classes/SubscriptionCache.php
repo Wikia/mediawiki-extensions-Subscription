@@ -98,20 +98,32 @@ class SubscriptionCache {
 		$searchableFields = ['global_id', 'provider_id', 'active'];
 		$tables = ['subscription'];
 
-		/*if (!empty($searchTerm)) {
-			//Normal table search.
-			foreach ($searchableFields as $field) {
-				$where[] = "`".$field."` LIKE '%".$db->strencode($searchTerm)."%'";
-			}
-			$where = "(".implode(' OR ', $where).")";
-		}
+		if (!empty($searchTerm)) {
+			$searchResults = $db->select(
+				['user'],
+				['*'],
+				['user_name LIKE "%'.$db->strencode($searchTerm).'%"'],
+				__METHOD__
+			);
 
-		$joins['wiki_advertisements'] = [
-			'LEFT JOIN', 'wiki_sites.md5_key = wiki_advertisements.site_key'
-		];
-		$joins['wiki_domains'] = [
-			'LEFT JOIN', 'wiki_domains.site_key = wiki_sites.md5_key'
-		];*/
+			$lookup = \CentralIdLookup::factory();
+			$globalIds = [];
+			while ($row = $searchResults->fetchObject()) {
+				$user = \User::newFromRow($row);
+				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
+				if (!$globalId) {
+					continue;
+				}
+
+				$globalIds[] = $globalId;
+			}
+			if (!empty($globalIds)) {
+				$and[] = "global_id IN(".$db->makeList($globalIds).")";
+			} else {
+				//This is a dumb helper to produce "No results" when no valid user was foudn.
+				$and[] = "global_id = -2";
+			}
+		}
 
 		if (isset($filters['date']['min_date'])) {
 			$and[] = "begins >= ".$db->strencode($filters['date']['min_date']);
