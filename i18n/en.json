@@ -19,5 +19,7 @@
 	"no_subscriptions_found": "No subscriptions found.",
 	"price_range": "Price range:",
 	"date_range": "Date range:",
-	"filter": "Filter"
+	"filter": "Filter",
+	"begins_after": "Begins after:",
+	"expires_before": "Expires before:"
 }

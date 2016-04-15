@@ -46,6 +46,13 @@ class TemplateSubscription {
 							<input type='hidden' name='min_price' value=''/>
 							<input type='hidden' name='max_price' value=''/>
 						</div>
+						<label for='begins_after' class='label_above'>".wfMessage('begins_after')->escaped()."</label>
+						<input id='begins_after' data-input='min_date' type='text' value=''/>
+						<input id='min_date' name='min_date' type='hidden' value='".htmlentities($filterValues['user']['date']['min_date'])."'/>
+
+						<label for='expires_before' class='label_above'>".wfMessage('expires_before')->escaped()."</label>
+						<input id='expires_before' data-input='max_date' type='text' value=''/>
+						<input id='max_date' name='max_date' type='hidden' value='".htmlentities($filterValues['user']['date']['max_date'])."'/>
 					</fieldset>
 				</form>
 			</div>

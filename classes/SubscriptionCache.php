@@ -264,6 +264,21 @@ class SubscriptionCache {
 		$request = \RequestContext::getMain()->getRequest();
 
 		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
+
+		if (isset($userFilters['min_date'])) {
+			$userFilters['min_date'] = wfTimestamp(TS_MW, $userFilters['min_date']);
+			var_dump($userFilters['min_date']);
+			if ($userFilters['min_date'] === false) {
+				unset($userFilters['min_date']);
+			}
+		}
+		if (isset($userFilters['max_date'])) {
+			$userFilters['max_date'] = wfTimestamp(TS_MW, $userFilters['max_date']);
+			if ($userFilters['max_date'] === false) {
+				unset($userFilters['max_date']);
+			}
+		}
+
 		if (!isset($userFilters['providers'])) {
 			$userFilters['providers'] = [];
 		}

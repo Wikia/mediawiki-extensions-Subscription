@@ -19,7 +19,36 @@ $(document).ready(function() {
 		$(".filter_bar form fieldset").append(createNamedFilter("providers", filterValues.default.providers, filterValues.user.providers).prepend($("<span>").text(mw.msg('sub_th_provider_id'))));
 
 		$(".filter_bar form fieldset").append(createNamedFilter("plans", filterValues.default.plans, filterValues.user.plans).prepend($("<span>").text(mw.msg('sub_th_plan_name'))));
+
+		if ($("input#begins_after").length) {
+			setupDatePicker($("input#begins_after"));
+		}
+
+		if ($("input#expires_before").length) {
+			setupDatePicker($("input#begins_after"));
+		}
 	});
+
+	/**
+	 * Setup a date picker.
+	 *
+	 * @access	public
+	 * @param	object	Input element for the date picker.
+	 * @return	void
+	 */
+	function setupDatePicker(element) {
+		$(element).datepicker(
+			{
+				dateFormat: "yy-mm-dd",
+				constrainInput: true,
+				onSelect: function(dateText) {
+					var dataHolder = '#'+$(this).attr('data-input');
+					var date = $(this).datepicker("getDate");
+					$(dataHolder).val(date.toISOString());
+				}
+			}
+		);
+	}
 
 	/**
 	 * Setup a slider filter.

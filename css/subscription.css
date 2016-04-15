@@ -92,6 +92,10 @@
 	font-weight: bold;
 }
 
+#ui-datepicker-div {
+	margin-top: -28px;
+}
+
 
 /*********************/
 /* Subscription List */
