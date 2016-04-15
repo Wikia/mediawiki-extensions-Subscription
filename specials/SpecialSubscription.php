@@ -54,7 +54,7 @@ class SpecialSubscription extends SpecialPage {
 	 */
 	public function subscriptionList() {
 		$start = $this->wgRequest->getInt('st');
-		$itemsPerPage = 100;
+		$itemsPerPage = 50;
 		$searchTerm = null;
 		$cookieExpire = time() + 900;
 
@@ -79,7 +79,15 @@ class SpecialSubscription extends SpecialPage {
 
 		$total = \Hydra\SubscriptionCache::getLastSearchTotal();
 
-		$pagination = Curse::generatePaginationHtml($total, $itemsPerPage, $start, 4);//, implode('&', $extra));
+		$extra = [];
+		$userFilters = $this->wgRequest->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
+		if (!empty($userFilters) && is_array($userFilters)) {
+			foreach ($userFilters as $key => $value) {
+				$extra[] = $key.'='.$value;
+			}
+		}
+
+		$pagination = Curse::generatePaginationHtml($total, $itemsPerPage, $start, 4, implode('&', $extra));
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
