@@ -89,8 +89,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 					'active'			=> (isset($data['status']) && $data['status'] == 1 ? true : false),
 					'begins'			=> false,
 					'expires'			=> $expires,
-					'plan_id'			=> (isset($data['planId']) ? $data['planId'] : wfMessage('complimentary_subscription_id')),
-					'plan_name'			=> (isset($data['planName']) ? $data['planName'] : wfMessage('complimentary_subscription_name')),
+					'plan_id'			=> (isset($data['planId']) ? $data['planId'] : 'complimentary'),
+					'plan_name'			=> (isset($data['planName']) ? $data['planName'] : 'Complimentary'),
 					'price'				=> (isset($data['planPrice']) ? floatval($data['planPrice']) : 0.00),
 					'subscription_id'	=> (isset($data['subscriptionId']) ? floatval($data['subscriptionId']) : '')
 				];
