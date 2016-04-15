@@ -6,7 +6,7 @@
 	border-radius: 2px;
 	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
 	box-sizing: border-box;
-	color: #fff;
+	color: #000;
 	display: inline-block;
 	float: left;
 	overflow: hidden;
@@ -120,7 +120,7 @@
 	border-radius: 2px;
 	box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
 	box-sizing: border-box;
-	color: #fff;
+	color: #000;
 	overflow: hidden;
 }
 
