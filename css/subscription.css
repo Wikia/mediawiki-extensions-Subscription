@@ -114,7 +114,7 @@
 
 #subscription_list table {
 	border-collapse: separate;
-	border-spacing: 1px 4px;
+	border-spacing: 0 4px;
 	padding: 0;
 	width: 100%;
 }
@@ -138,7 +138,19 @@
 }
 
 #subscription_list table tr td {
+	border-color: #ddd;
+	border-image: none;
+	border-style: solid;
+	border-width: 0 1px 0 0;
 	padding: 10px;
+}
+
+.skin-hydradark #subscription_list table tr td {
+	border-color: #000;
+}
+
+#subscription_list table tr td:last-child {
+	border-width: 0;
 }
 
 #subscription_list table .active {
