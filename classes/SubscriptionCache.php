@@ -138,17 +138,17 @@ class SubscriptionCache {
 		}
 
 		if (isset($filters['date']['min_date'])) {
-			$and[] = "begins >= ".$db->strencode($filters['date']['min_date']);
+			$and[] = "begins >= ".$db->strencode(intval($filters['date']['min_date']));
 		}
 		if (isset($filters['date']['max_date'])) {
-			$and[] = "expires <= ".$db->strencode($filters['date']['max_date']);
+			$and[] = "expires <= ".$db->strencode(intval($filters['date']['max_date']));
 		}
 
 		if (isset($filters['price']['min_price'])) {
-			$and[] = "price >= ".$db->strencode($filters['price']['min_price']);
+			$and[] = "price >= ".$db->strencode(intval($filters['price']['min_price']));
 		}
 		if (isset($filters['price']['max_price'])) {
-			$and[] = "price <= ".$db->strencode($filters['price']['max_price']);
+			$and[] = "price <= ".$db->strencode(intval($filters['price']['max_price']));
 		}
 
 		if (isset($filters['providers']) && !empty($filters['providers'])) {
