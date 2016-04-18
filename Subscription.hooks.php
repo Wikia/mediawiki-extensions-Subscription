@@ -80,7 +80,9 @@ class SubscriptionHooks {
 
 		//Install
 		//Tables
-		$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
+			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+		}
 
 		return true;
 	}
