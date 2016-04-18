@@ -114,7 +114,7 @@ class SubscriptionCache {
 			$searchResults = $db->select(
 				['user'],
 				['*'],
-				['user_name LIKE "%'.$db->strencode($searchTerm).'%"'],
+				['CONVERT(user_name USING utf8) LIKE "%'.$db->strencode($searchTerm).'%"'],
 				__METHOD__
 			);
 
