@@ -330,4 +330,37 @@ class SubscriptionCache {
 			'user'		=> $userFilters
 		];
 	}
+
+	/**
+	 * Get basic subscription statistics.
+	 *
+	 * @access	public
+	 * @return	array	Active subscriptions, total users, and percentage.
+	 */
+	static public function getStatistics() {
+		$db = wfGetDB(DB_MASTER);
+
+		$result = $db->select(
+			['subscription'],
+			['count(*) as total'],
+			['active' => 1],
+			__METHOD__
+		);
+		$statistics['active'] = $result->fetchRow()['total'];
+
+		$result = $db->select(
+			['user'],
+			['count(*) as total'],
+			null,
+			__METHOD__
+		);
+		$statistics['total'] = $result->fetchRow()['total'];
+
+		$statistics['precentage'] = 0;
+		if ($statistics['total'] > 0) {
+			$statistics['precentage'] = number_format($statistics['active'] / $statistics['total'] * 100, 2);
+		}
+
+		return $statistics;
+	}
 }

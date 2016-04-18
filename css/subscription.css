@@ -160,3 +160,7 @@
 #subscription_list .pagination:last-child {
 	margin-bottom: 0;
 }
+
+#subscription_list div span#subscription_statistics {
+	float: right;
+}
