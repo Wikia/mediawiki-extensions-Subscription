@@ -371,7 +371,7 @@ class SubscriptionCache {
 	 * @access	private
 	 * @return	object	Database
 	 */
-	self private function getDb() {
+	static private function getDb() {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {
