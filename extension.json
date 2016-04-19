@@ -76,7 +76,8 @@
 			"endpoint": "//www.gamepedia.com/",
 			"https": true,
 			"ssl_verify": true
-		}
+		},
+		"SubscriptionMasterDB": "master"
 	},
 	"manifest_version": 1
 }

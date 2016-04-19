@@ -32,7 +32,13 @@ class SubscriptionCache {
 	 * @return	boolean	Success
 	 */
 	static public function updateLocalCache($globalId, $providerId, $subscription) {
-		$db = wfGetDB(DB_MASTER);
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$masterDb = $config->get('SubscriptionMasterDB');
+		if ($masterDb !== false) {
+			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+		} else {
+			$db = wfGetDB(DB_MASTER);
+		}
 
 		if ($globalId < 1 || empty($providerId)) {
 			return false;
@@ -106,7 +112,14 @@ class SubscriptionCache {
 	 * @return	array	an array of resulting objects, possibly empty.
 	 */
 	static public function filterSearch($start, $itemsPerPage, $searchTerm = null, $filters, $sortKey = 'sid', $sortDir = 'ASC') {
-		$db = wfGetDB(DB_MASTER);
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$masterDb = $config->get('SubscriptionMasterDB');
+		if ($masterDb !== false) {
+			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+		} else {
+			$db = wfGetDB(DB_MASTER);
+		}
+
 		$searchableFields = ['global_id', 'provider_id', 'active'];
 		$tables = ['subscription'];
 
