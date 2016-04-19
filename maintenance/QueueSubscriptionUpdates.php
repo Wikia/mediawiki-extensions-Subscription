@@ -35,7 +35,13 @@ class QueueSubscriptionUpdates extends \Maintenance {
 	 * @return	void
 	 */
 	public function execute() {
-		$db = wfGetDB(DB_MASTER);
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$masterDb = $config->get('SubscriptionMasterDB');
+		if ($masterDb !== false) {
+			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+		} else {
+			$db = wfGetDB(DB_MASTER);
+		}
 
 		$result = $db->select(
 			['user'],
