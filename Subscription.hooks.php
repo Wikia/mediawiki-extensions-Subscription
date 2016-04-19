@@ -43,11 +43,11 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onLinkEnd($dummy, $target, $options, &$html, &$attribs, &$returnOverride) {
-		$isPremium = false;
+		$classes = false;
 
 		if (!empty($target) && $target->getNamespace() === NS_USER) {
 			if (array_key_exists($target->getText(), self::$linkCache)) {
-				$isPremium = self::$linkCache[$target->getText()];
+				$classes = self::$linkCache[$target->getText()];
 			} else {
 				$user = User::newFromName($target->getText());
 
@@ -55,18 +55,18 @@ class SubscriptionHooks {
 					$subscription = \Hydra\Subscription::newFromUser($user);
 					if ($subscription !== false) {
 						$classes = $subscription->getFlairClasses();
-						if (!empty($classes)) {
-							$isPremium = true;
+						if (empty($classes)) {
+							$classes = false; //Enforce sanity.
 						}
 					}
 				}
 			}
 		}
 
-		if ($isPremium) {
+		if ($classes !== false) {
 			$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '').implode(' ', $classes);
 		}
-		self::$linkCache[$target->getText()] = $isPremium;
+		self::$linkCache[$target->getText()] = $classes;
 
 		return true;
 	}
