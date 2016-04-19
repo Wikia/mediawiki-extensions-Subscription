@@ -238,4 +238,14 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 		return $wgCache->set(wfMemcKey($pieces), $response, 300);
 	}
+
+	/**
+	 * Return a valid CSS class for flair display.
+	 *
+	 * @access	public
+	 * @return	mixed	False for no flair, string otherwise.
+	 */
+	public function getFlairClass() {
+		return 'gamepedia_pro_user';
+	}
 }

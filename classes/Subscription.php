@@ -68,24 +68,9 @@ class Subscription {
 	 * @return	boolean
 	 */
 	public function hasSubscription($providerId = null) {
-		$providers = $this->config->get('SubscriptionProviders');
-
-		if (isset($providers) && is_array($providers)) {
-			if ($providerId !== null) {
-				if (!array_key_exists($providerId, $providers)) {
-					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
-				}
-				$subscription = SubscriptionProvider::factory($providerId);
-				if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
-					return true;
-				}
-			} else {
-				foreach ($providers as $providerId => $details) {
-					$subscription = SubscriptionProvider::factory($providerId);
-					if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
-						return true;
-					}
-				}
+		foreach ($this->getSubscriptionProviders() as $subscription) {
+			if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
+				return true;
 			}
 		}
 
@@ -101,31 +86,62 @@ class Subscription {
 	 * @return	array	Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
 	 */
 	public function getSubscription($providerId = null) {
+		$_subscriptions = [];
+		foreach ($this->getSubscriptionProviders() as $subscription) {
+			$_subscriptions[$providerId] = false;
+			$subscription = SubscriptionProvider::factory($providerId);
+			if ($subscription !== null) {
+				$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
+			}
+		}
+
+		return $_subscriptions;
+	}
+
+	/**
+	 * Does this user have a valid active subscription?
+	 *
+	 * @access	public
+	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * @return	array	CSS classes.
+	 */
+	public function getFlairClasses($providerId = null) {
+		$classess = [];
+		foreach ($this->getSubscriptionProviders() as $subscription) {
+			if ($subscription !== null && !empty($subscription->getFlairClass()) && $subscription->hasSubscription($this->globalId)) {
+				$classess[] = $subscription->getFlairClass();
+			}
+		}
+
+		return $classess;
+	}
+
+	/**
+	 * Return specified or all subscription providers.
+	 *
+	 * @access	private
+	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 * @return	array	Subscription Providers.
+	 */
+	private function getSubscriptionProviders($providerId = null) {
 		$providers = $this->config->get('SubscriptionProviders');
 
+		$subscriptionProviders = [];
 		if (isset($providers) && is_array($providers)) {
 			if ($providerId !== null) {
 				if (!array_key_exists($providerId, $providers)) {
 					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
 				}
-				$_subscriptions[$providerId] = false;
-				$subscription = SubscriptionProvider::factory($providerId);
-				if ($subscription !== null) {
-					$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
-				}
+				$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
 			} else {
-				$_subscriptions = [];
 				foreach ($providers as $providerId => $details) {
-					$_subscriptions[$providerId] = false;
-					$subscription = SubscriptionProvider::factory($providerId);
-					if ($subscription !== null) {
-						$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
-					}
+					$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
 				}
 			}
 		}
 
-		return $_subscriptions;
+		return $subscriptionProviders;
 	}
 }
 
@@ -221,6 +237,16 @@ abstract class SubscriptionProvider {
 	 * @return	mixed	Response message such as below or false on API failure.
 	 */
 	abstract public function cancelCompedSubscription($globalId);
+
+	/**
+	 * Return a valid CSS class for flair display.
+	 *
+	 * @access	public
+	 * @return	mixed	False for no flair, string otherwise.
+	 */
+	public function getFlairClass() {
+		return false;
+	}
 }
 
 class SubscriptionProviderException extends \Exception {

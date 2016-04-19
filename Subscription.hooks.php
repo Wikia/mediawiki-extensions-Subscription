@@ -53,15 +53,18 @@ class SubscriptionHooks {
 
 				if (!empty($user) && $user->getId()) {
 					$subscription = \Hydra\Subscription::newFromUser($user);
-					if ($subscription !== false && $subscription->hasSubscription()) {
-						$isPremium = true;
+					if ($subscription !== false) {
+						$classes = $subscription->getFlairClasses();
+						if (!empty($classes)) {
+							$isPremium = true;
+						}
 					}
 				}
 			}
 		}
 
 		if ($isPremium) {
-			$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '')."premium_user";
+			$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '').implode(' ', $classes);
 		}
 		self::$linkCache[$target->getText()] = $isPremium;
 
