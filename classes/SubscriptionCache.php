@@ -32,13 +32,7 @@ class SubscriptionCache {
 	 * @return	boolean	Success
 	 */
 	static public function updateLocalCache($globalId, $providerId, $subscription) {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$masterDb = $config->get('SubscriptionMasterDB');
-		if ($masterDb !== false) {
-			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
-		} else {
-			$db = wfGetDB(DB_MASTER);
-		}
+		$db = self::getDb();
 
 		if ($globalId < 1 || empty($providerId)) {
 			return false;
@@ -112,13 +106,7 @@ class SubscriptionCache {
 	 * @return	array	an array of resulting objects, possibly empty.
 	 */
 	static public function filterSearch($start, $itemsPerPage, $searchTerm = null, $filters, $sortKey = 'sid', $sortDir = 'ASC') {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$masterDb = $config->get('SubscriptionMasterDB');
-		if ($masterDb !== false) {
-			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
-		} else {
-			$db = wfGetDB(DB_MASTER);
-		}
+		$db = self::getDb();
 
 		$searchableFields = ['global_id', 'provider_id', 'active'];
 		$tables = ['subscription'];
@@ -255,7 +243,7 @@ class SubscriptionCache {
 			]
 		];
 
-		$db = wfGetDB(DB_MASTER);
+		$db = self::getDb();
 
 		$result = $db->select(
 			['subscription'],
@@ -351,7 +339,7 @@ class SubscriptionCache {
 	 * @return	array	Active subscriptions, total users, and percentage.
 	 */
 	static public function getStatistics() {
-		$db = wfGetDB(DB_MASTER);
+		$db = self::getDb();
 
 		$result = $db->select(
 			['subscription'],
@@ -375,5 +363,23 @@ class SubscriptionCache {
 		}
 
 		return $statistics;
+	}
+
+	/**
+	 * Get the database connection.
+	 *
+	 * @access	private
+	 * @return	object	Database
+	 */
+	self private function getDb() {
+		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$masterDb = $config->get('SubscriptionMasterDB');
+		if ($masterDb !== false) {
+			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+		} else {
+			$db = wfGetDB(DB_MASTER);
+		}
+
+		return $db;
 	}
 }
