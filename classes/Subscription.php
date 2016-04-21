@@ -136,6 +136,10 @@ class Subscription {
 				$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
 			} else {
 				foreach ($providers as $providerId => $details) {
+					if ($details === null) {
+						//Provider has been nulled out to prevent processing it.
+						continue;
+					}
 					$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
 				}
 			}
