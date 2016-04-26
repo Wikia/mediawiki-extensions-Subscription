@@ -164,3 +164,13 @@
 #subscription_list div span#subscription_statistics {
 	float: right;
 }
+
+#subscription_list .collapse {
+	min-width: 1%;
+	white-space: nowrap;
+}
+
+#subscription_list .controls a {
+	filter: invert(100%);
+	text-decoration: none;
+}
