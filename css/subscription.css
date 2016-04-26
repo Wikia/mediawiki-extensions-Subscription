@@ -171,6 +171,9 @@
 }
 
 #subscription_list .controls a {
-	filter: invert(100%);
 	text-decoration: none;
+}
+
+.skin-hydradark #subscription_list .controls a {
+	filter: invert(100%);
 }
