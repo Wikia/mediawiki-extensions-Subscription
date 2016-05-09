@@ -45,7 +45,7 @@ class SubscriptionHooks {
 	static public function onLinkEnd($dummy, $target, $options, &$html, &$attribs, &$returnOverride) {
 		$classes = false;
 
-		if (!empty($target) && $target->getNamespace() === NS_USER) {
+		if (!empty($target) && $target->getNamespace() === NS_USER && $target->getText() == $html) {
 			if (array_key_exists($target->getText(), self::$linkCache)) {
 				$classes = self::$linkCache[$target->getText()];
 			} else {
