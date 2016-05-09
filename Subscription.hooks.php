@@ -61,12 +61,12 @@ class SubscriptionHooks {
 					}
 				}
 			}
-		}
 
-		if ($classes !== false) {
-			$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '').implode(' ', $classes);
+			if ($classes !== false) {
+				$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '').implode(' ', $classes);
+			}
+			self::$linkCache[$target->getText()] = $classes;
 		}
-		self::$linkCache[$target->getText()] = $classes;
 
 		return true;
 	}
