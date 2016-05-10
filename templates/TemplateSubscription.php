@@ -69,7 +69,6 @@ class TemplateSubscription {
 							<th".($sortKey == 'plan_name' ? " data-selected='true'" : '')."><span data-sort='plan_name'".($sortKey == 'plan_name' ? " data-selected='true'" : '').">".wfMessage('sub_th_plan_name')->escaped()."</span></th>
 							<th".($sortKey == 'price' ? " data-selected='true'" : '')." class='collapse'><span data-sort='price'".($sortKey == 'price' ? " data-selected='true'" : '').">".wfMessage('sub_th_price')->escaped()."</span></th>
 							<th".($sortKey == 'subscription_id' ? " data-selected='true'" : '')."><span data-sort='subscription_id'".($sortKey == 'subscription_id' ? " data-selected='true'" : '').">".wfMessage('sub_th_subscription_id')->escaped()."</span></th>
-							<th class='controls unsortable'>&nbsp;</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -88,10 +87,6 @@ class TemplateSubscription {
 							<td>".(isset($subscription['plan_name']) && !empty($subscription['plan_name']) ? $subscription['plan_name'] : "&nbsp;").(isset($subscription['plan_id']) && !empty($subscription['plan_id']) ? " <em>({$subscription['plan_id']})</em>" : "&nbsp;")."</td>
 							<td class='collapse'>".number_format($subscription['price'], 2)."</td>
 							<td>{$subscription['subscription_id']}</td>
-							<td class='controls collapse'>
-								<a href='{$subscriptionURL}?action=createComped&amp;globalId={$subscription['global_id']}' title='".wfMessage('create_comped_subscription')->escaped()."'>".➕."</a>
-								<a href='{$subscriptionURL}?action=cancelComped&amp;globalId={$subscription['global_id']}' title='".wfMessage('cancel_comped_subscription')->escaped()."'>".➖."</a>
-							</td>
 						</tr>
 ";
 			}
