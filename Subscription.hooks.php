@@ -72,6 +72,81 @@ class SubscriptionHooks {
 	}
 
 	/**
+	 * Handle automatically sending people back to regular HTTP if not premium.
+	 *
+	 * @access	public
+	 * @param	object	Title
+	 * @param	object	Article
+	 * @param	object	Output
+	 * @param	object	User
+	 * @param	object	WebRequest
+	 * @param	object	Mediawiki
+	 * @return	boolean	True
+	 */
+	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
+		global $wgSecureLogin;
+
+		list($specialPage,) = SpecialPageFactory::resolveAlias($title->getDBkey());
+
+		if (!empty($user) && $user->getId()) {
+			$subscription = \Hydra\Subscription::newFromUser($user);
+			if ($subscription !== false) {
+				if ($subscription->hasSubscription()) {
+					return true;
+				}
+			}
+		}
+
+		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
+			$output->enableClientCache(false);
+			$output->redirect($redirect);
+		}
+
+		//We cannot accept forced HTTPS right now.
+		//TODO remove in the future when always-on HTTPS is a possibility.
+		if ($request->getCookie('forceHTTPS', '')) {
+			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
+		}
+	}
+
+	/**
+	 * Handle automatically sending people back to regular HTTP.
+	 *
+	 * @access	public
+	 * @param	object	OutputPage
+	 * @param	string	Redirect URL
+	 * @param	string	HTTP Status Code
+	 * @return	boolean	True
+	 */
+	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
+		global $wgUser, $wgServer, $wgRequest, $wgSecureLogin;
+
+		self::init();
+
+		if (!empty($wgUser) && $wgUser->getId()) {
+			$subscription = \Hydra\Subscription::newFromUser($wgUser);
+			if ($subscription !== false) {
+				if ($subscription->hasSubscription()) {
+					return true;
+				}
+			}
+		}
+
+		$server = str_ireplace(['https://', 'http://', '//'], '', $wgServer);
+		if (strpos($redirect, $server) === false) {
+			//Do not mess with external redirects.
+			return true;
+		}
+
+		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
+			$redirect = substr_replace($redirect, 'http://', 0, 8);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Setups and Modifies Database Information
 	 *
 	 * @access	public

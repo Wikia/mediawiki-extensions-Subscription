@@ -53,6 +53,12 @@
 		"remoteExtPath": "Subscription"
 	},
 	"Hooks": {
+		"BeforeInitialize": [
+			"SubscriptionHooks::onBeforeInitialize"
+		],
+		"BeforePageRedirect": [
+			"SubscriptionHooks::onBeforePageRedirect"
+		],
 		"LinkEnd": [
 			"SubscriptionHooks::onLinkEnd"
 		],
