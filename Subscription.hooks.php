@@ -86,6 +86,10 @@ class SubscriptionHooks {
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgSecureLogin;
 
+		if (defined('MW_API') && MW_API === true) {
+			return true;
+		}
+
 		list($specialPage,) = SpecialPageFactory::resolveAlias($title->getDBkey());
 
 		if (!empty($user) && $user->getId()) {
@@ -114,6 +118,8 @@ class SubscriptionHooks {
 		if ($request->getCookie('forceHTTPS', '')) {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
 		}
+
+		return true;
 	}
 
 	/**
@@ -128,7 +134,9 @@ class SubscriptionHooks {
 	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
 		global $wgUser, $wgServer, $wgRequest, $wgSecureLogin;
 
-		self::init();
+		if (defined('MW_API') && MW_API === true) {
+			return true;
+		}
 
 		if (!empty($wgUser) && $wgUser->getId()) {
 			$subscription = \Hydra\Subscription::newFromUser($wgUser);
