@@ -237,7 +237,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		$wgCache = wfGetCache(CACHE_ANYTHING);
 
 		//Cache for thirty minutes.
-		return $wgCache->set(wfMemcKey($pieces), $response, 1800);
+		return $wgCache->set(call_user_func_array('wfMemcKey', $pieces), $response, 1800);
 	}
 
 	/**
