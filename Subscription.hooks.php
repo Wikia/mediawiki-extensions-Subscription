@@ -96,11 +96,11 @@ class SubscriptionHooks {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			if ($subscription !== false) {
 				if ($subscription->hasSubscription()) {
-					/*if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
 						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 						$output->enableClientCache(false);
 						$output->redirect($redirect);
-					}*/
+					}
 
 					return true;
 				}
