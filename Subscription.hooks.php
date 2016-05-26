@@ -91,8 +91,7 @@ class SubscriptionHooks {
 					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
 						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 						$output->enableClientCache(false);
-						$output->getRequest()->response()->statusHeader('307'); //This has to be done manually since MediaWiki does not respect anything other than 301 or 303.
-						$output->redirect($redirect, '307');
+						$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
 					}
 
 					return true;
@@ -103,8 +102,7 @@ class SubscriptionHooks {
 		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
-			$output->getRequest()->response()->statusHeader('307'); //This has to be done manually since MediaWiki does not respect anything other than 301 or 303.
-			$output->redirect($redirect, '307');
+			$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
 		}
 
 		//We cannot accept forced HTTPS right now.
@@ -149,7 +147,6 @@ class SubscriptionHooks {
 
 		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
 			$redirect = substr_replace($redirect, 'http://', 0, 8);
-			$output->getRequest()->response()->statusHeader('307');
 			$code = '307';
 		}
 
