@@ -91,7 +91,12 @@ class SubscriptionHooks {
 					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
 						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 						$output->enableClientCache(false);
-						$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
+						if ($request->wasPosted()) {
+							$request->response()->statusHeader('307');
+							$output->redirect($redirect, '307');
+						} else {
+							$output->redirect($redirect);
+						}
 					}
 
 					return true;
@@ -102,7 +107,12 @@ class SubscriptionHooks {
 		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
-			$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
+			if ($request->wasPosted()) {
+				$request->response()->statusHeader('307');
+				$output->redirect($redirect, '307');
+			} else {
+				$output->redirect($redirect);
+			}
 		}
 
 		//We cannot accept forced HTTPS right now.
@@ -147,7 +157,12 @@ class SubscriptionHooks {
 
 		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
 			$redirect = substr_replace($redirect, 'http://', 0, 8);
-			$code = '307';
+			if ($output->getRequest()->wasPosted()) {
+				$output->getRequest()->response()->statusHeader('307');
+				$output->redirect($redirect, '307');
+			} else {
+				$output->redirect($redirect);
+			}
 		}
 
 		return true;
