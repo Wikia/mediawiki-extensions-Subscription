@@ -30,6 +30,13 @@ class Subscription {
 	private $config;
 
 	/**
+	 * Use Local Cache Only
+	 *
+	 * @var		boolean
+	 */
+	static private $useLocalCacheOnly = false;
+
+	/**
 	 * Main Constructor
 	 *
 	 * @access	public
@@ -147,6 +154,21 @@ class Subscription {
 
 		return $subscriptionProviders;
 	}
+
+	/**
+	 * Get if local cache only should be used or to change its setting.
+	 *
+	 * @access	public
+	 * @param	boolean	[Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 * @return	boolean	Enabled or Disabled
+	 */
+	static public function useLocalCacheOnly($local = null) {
+		$return = self::$useLocalCacheOnly; //Copy so the return value is the old value if being changed.
+		if (is_bool($local)) {
+			self::$useLocalCacheOnly = $local;
+		}
+		return $return;
+	}
 }
 
 abstract class SubscriptionProvider {
@@ -250,6 +272,16 @@ abstract class SubscriptionProvider {
 	 */
 	public function getFlairClass() {
 		return false;
+	}
+
+	/**
+	 * Return the duration to cache API responses in seconds.
+	 *
+	 * @access	public
+	 * @return	integer	Duration to cache API responses in seconds.
+	 */
+	public function getCacheDuration() {
+		return 1209600; //Cache for two weeks.
 	}
 }
 

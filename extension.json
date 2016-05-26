@@ -64,6 +64,9 @@
 		],
 		"LoadExtensionSchemaUpdates": [
 			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
+		],
+		"UserLoggedIn": [
+			"SubscriptionHooks::onUserLoggedIn"
 		]
 	},
 	"JobClasses": {

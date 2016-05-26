@@ -187,6 +187,10 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 			if (!empty($cached)) {
 				return $cached;
 			}
+			if (\Hydra\Subscription::useLocalCacheOnly()) {
+				//Do not call out to the API if local cache only is set.
+				return false;
+			}
 		}
 
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
@@ -237,7 +241,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		$wgCache = wfGetCache(CACHE_ANYTHING);
 
 		//Cache for thirty minutes.
-		return $wgCache->set(call_user_func_array('wfMemcKey', $pieces), $response, 600);
+		return $wgCache->set(call_user_func_array('wfMemcKey', $pieces), $response, $this->getCacheDuration());
 	}
 
 	/**

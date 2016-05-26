@@ -54,7 +54,9 @@ class SubscriptionHooks {
 				if (!empty($user) && $user->getId()) {
 					$subscription = \Hydra\Subscription::newFromUser($user);
 					if ($subscription !== false) {
-						$classes = $subscription->getFlairClasses();
+						$_cacheSetting = \Hydra\Subscription::useLocalCacheOnly(true);
+						$classes = $subscription->getFlairClasses(true);
+						\Hydra\Subscription::useLocalCacheOnly($_cacheSetting);
 						if (empty($classes)) {
 							$classes = false; //Enforce sanity.
 						}
@@ -155,6 +157,24 @@ class SubscriptionHooks {
 
 		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
 			$redirect = substr_replace($redirect, 'http://', 0, 8);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Overloads for UserLoadAfterLoadFromSession
+	 *
+	 * @access	public
+	 * @param	object	User Object
+	 * @return	boolean	True
+	 */
+	static public function onUserLoggedIn(User $user) {
+		self::init();
+
+		if ($user->isLoggedIn()) {
+			$subscription = \Hydra\Subscription::newFromUser($user);
+			$subscription->getSubscription(); //Don't care about the return.  This just forces a recache.
 		}
 
 		return true;
