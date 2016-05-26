@@ -21,16 +21,6 @@ class SubscriptionHooks {
 	static private $linkCache = [];
 
 	/**
-	 * Function Documentation
-	 *
-	 * @access	public
-	 * @return	void
-	 */
-	public function init() {
-		# code...
-	}
-
-	/**
 	 * Handle adding premium flair.
 	 *
 	 * @access	public
@@ -101,7 +91,7 @@ class SubscriptionHooks {
 					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
 						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 						$output->enableClientCache(false);
-						$output->redirect($redirect);
+						$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
 					}
 
 					return true;
@@ -112,7 +102,7 @@ class SubscriptionHooks {
 		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
-			$output->redirect($redirect);
+			$output->redirect($redirect, ($_SERVER['REQUEST_METHOD'] === 'POST' ? '307' : '302'));
 		}
 
 		//We cannot accept forced HTTPS right now.
@@ -170,8 +160,6 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onUserLoggedIn(User $user) {
-		self::init();
-
 		if ($user->isLoggedIn()) {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			$subscription->getSubscription(); //Don't care about the return.  This just forces a recache.
