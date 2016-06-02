@@ -100,6 +100,6 @@ class SpecialSubscription extends SpecialPage {
 	 * @return string
 	 */
 	protected function getGroupName() {
-		return 'user';
+		return 'users';
 	}
 }
