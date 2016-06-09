@@ -61,9 +61,10 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @access	public
 	 * @param	integer	Global User ID
+	 * @param	boolean	[Optional] Use cached information.
 	 * @return	mixed	Subscription information, null on missing subscription, false on API failure.
 	 */
-	public function getSubscription($globalId) {
+	public function getSubscription($globalId, $useCache = true) {
 		if ($globalId < 1) {
 			return false;
 		}
@@ -73,7 +74,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 			$globalId
 		];
 
-		$data = self::callApi($pieces);
+		$data = self::callApi($pieces, $useCache);
 
 		if ($data !== false && $data !== null) {
 			if (isset($data['errorCode']) || isset($data['planId']) || isset($data['goodThru'])) {
