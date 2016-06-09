@@ -150,8 +150,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 */
 	public function cancelCompedSubscription($globalId) {
 		$globalId = intval($globalId);
-		$months = intval($months);
-		if ($globalId < 1 || $months < 1) {
+		if ($globalId < 1) {
 			return false;
 		}
 
