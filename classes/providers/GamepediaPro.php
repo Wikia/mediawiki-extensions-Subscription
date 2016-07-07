@@ -180,7 +180,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 * @return	mixed	JSON data on success, null on 404, false on a fatal error.
 	 */
 	private function callApi($pieces, $useCache = true) {
-		if ($useCache === true) {
+		if (!\Hydra\Subscription::skipCache() && $useCache === true) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
 			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)));
