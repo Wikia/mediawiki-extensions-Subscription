@@ -165,7 +165,9 @@ class SubscriptionHooks {
 	static public function onUserLoggedIn(User $user) {
 		if ($user->isLoggedIn()) {
 			$subscription = \Hydra\Subscription::newFromUser($user);
+			$_cacheSetting = \Hydra\Subscription::skipCache(true);
 			$subscription->getSubscription(); //Don't care about the return.  This just forces a recache.
+			\Hydra\Subscription::skipCache($_cacheSetting);
 		}
 
 		return true;

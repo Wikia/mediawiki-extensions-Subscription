@@ -61,10 +61,9 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @access	public
 	 * @param	integer	Global User ID
-	 * @param	boolean	[Optional] Use cached information.
 	 * @return	mixed	Subscription information, null on missing subscription, false on API failure.
 	 */
-	public function getSubscription($globalId, $useCache = true) {
+	public function getSubscription($globalId) {
 		if ($globalId < 1) {
 			return false;
 		}
@@ -74,7 +73,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 			$globalId
 		];
 
-		$data = self::callApi($pieces, $useCache);
+		$data = self::callApi($pieces);
 
 		if ($data !== false && $data !== null) {
 			if (isset($data['errorCode']) || isset($data['planId']) || isset($data['goodThru'])) {
@@ -176,11 +175,10 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @access	private
 	 * @param	array	URL pieces between slashes.  Example ['get-user-subscription', 9001] would become 'https://www.exmaple.com/get-user-subscription/9001'.
-	 * @param	boolean	[Optional] Use Cached Responses
 	 * @return	mixed	JSON data on success, null on 404, false on a fatal error.
 	 */
-	private function callApi($pieces, $useCache = true) {
-		if ($useCache === true) {
+	private function callApi($pieces) {
+		if (!\Hydra\Subscription::skipCache()) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
 			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)));

@@ -30,6 +30,13 @@ class Subscription {
 	private $config;
 
 	/**
+	 * Skip using the cache
+	 *
+	 * @var		boolean
+	 */
+	static private $skipCache = false;
+
+	/**
 	 * Use Local Cache Only
 	 *
 	 * @var		boolean
@@ -157,10 +164,26 @@ class Subscription {
 
 	/**
 	 * Get if local cache only should be used or to change its setting.
+	 * Setting this to true will cause $useLocalCacheOnly to have no effect.
 	 *
 	 * @access	public
 	 * @param	boolean	[Optional] True or False to enable or disable.  Not passing this argument results in no change.
-	 * @return	boolean	Enabled or Disabled
+	 * @return	boolean	Previous value, Enabled or Disabled
+	 */
+	static public function skipCache($skip = null) {
+		$return = self::$skipCache; //Copy so the return value is the old value if being changed.
+		if (is_bool($skip)) {
+			self::$skipCache = $skip;
+		}
+		return $return;
+	}
+
+	/**
+	 * Get if local cache only should be used or to change its setting.
+	 *
+	 * @access	public
+	 * @param	boolean	[Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 * @return	boolean	Previous value, Enabled or Disabled
 	 */
 	static public function useLocalCacheOnly($local = null) {
 		$return = self::$useLocalCacheOnly; //Copy so the return value is the old value if being changed.
