@@ -108,6 +108,12 @@ class SubscriptionHooks {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			if ($subscription !== false) {
 				if ($subscription->hasSubscription()) {
+					if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
+						$output->enableClientCache(false);
+						$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
+					}
+
 					return true;
 				}
 			}
@@ -148,12 +154,6 @@ class SubscriptionHooks {
 			$subscription = \Hydra\Subscription::newFromUser($wgUser);
 			if ($subscription !== false) {
 				if ($subscription->hasSubscription()) {
-					if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
-						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
-						$output->enableClientCache(false);
-						$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-					}
-
 					return true;
 				}
 			}
