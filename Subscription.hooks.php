@@ -64,6 +64,28 @@ class SubscriptionHooks {
 	}
 
 	/**
+	 * Handle setting if the user requires HTTPS per subscription.
+	 *
+	 * @access	public
+	 * @param	object	User
+	 * @param	boolean	Requires HTTPS
+	 * @return	boolean	True
+	 */
+	static public function onUserRequiresHTTPS($user, &$requiresHttps) {
+		$requiresHttps = false;
+
+		if (!empty($user) && $user->getId()) {
+			$subscription = \Hydra\Subscription::newFromUser($user);
+			if ($subscription !== false) {
+				if ($subscription->hasSubscription() && $wgSecureLogin === true) {
+					$requiresHttps = true;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
 	 * @access	public
@@ -88,12 +110,6 @@ class SubscriptionHooks {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			if ($subscription !== false) {
 				if ($subscription->hasSubscription()) {
-					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
-						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
-						$output->enableClientCache(false);
-						$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-					}
-
 					return true;
 				}
 			}
