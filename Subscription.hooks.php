@@ -99,16 +99,16 @@ class SubscriptionHooks {
 			}
 		}
 
-		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
-			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
-			$output->enableClientCache(false);
-			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-		}
-
 		//We cannot accept forced HTTPS right now.
 		//TODO remove in the future when always-on HTTPS is a possibility.
 		if ($request->getCookie('forceHTTPS', '')) {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
+		}
+
+		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
+			$output->enableClientCache(false);
+			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 		}
 
 		return true;
