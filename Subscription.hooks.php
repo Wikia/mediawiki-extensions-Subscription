@@ -77,7 +77,7 @@ class SubscriptionHooks {
 		if (!empty($user) && $user->getId()) {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			if ($subscription !== false) {
-				if ($subscription->hasSubscription() && $wgSecureLogin === true) {
+				if ($subscription->hasSubscription()) {
 					$requiresHttps = true;
 				}
 			}
@@ -98,8 +98,6 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
-		global $wgSecureLogin;
-
 		if (defined('MW_API') && MW_API === true) {
 			return true;
 		}
@@ -121,7 +119,7 @@ class SubscriptionHooks {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
 		}
 
-		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+		if ($specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
 			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
@@ -140,7 +138,7 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
-		global $wgUser, $wgServer, $wgRequest, $wgSecureLogin;
+		global $wgUser, $wgServer, $wgRequest;
 
 		if (defined('MW_API') && MW_API === true) {
 			return true;
@@ -161,7 +159,7 @@ class SubscriptionHooks {
 			return true;
 		}
 
-		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
+		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0) {
 			$redirect = substr_replace($redirect, 'http://', 0, 8);
 			if ($output->getRequest()->wasPosted()) {
 				$code = '307';
