@@ -125,7 +125,11 @@ class SubscriptionHooks {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
 		}
 
-		if ($specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+		$secureSpecialPages = ['Userlogin', 'Preferences'];
+
+		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
+
+		if (!in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
 			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
