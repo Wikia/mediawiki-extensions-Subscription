@@ -64,6 +64,28 @@ class SubscriptionHooks {
 	}
 
 	/**
+	 * Handle setting if the user requires HTTPS per subscription.
+	 *
+	 * @access	public
+	 * @param	object	User
+	 * @param	boolean	Requires HTTPS
+	 * @return	boolean	True
+	 */
+	static public function onUserRequiresHTTPS($user, &$requiresHttps) {
+		$requiresHttps = false;
+
+		if (!empty($user) && $user->getId()) {
+			$subscription = \Hydra\Subscription::newFromUser($user);
+			if ($subscription !== false) {
+				if ($subscription->hasSubscription()) {
+					$requiresHttps = true;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
 	 * @access	public
@@ -76,8 +98,6 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
-		global $wgSecureLogin;
-
 		if (defined('MW_API') && MW_API === true) {
 			return true;
 		}
@@ -88,7 +108,7 @@ class SubscriptionHooks {
 			$subscription = \Hydra\Subscription::newFromUser($user);
 			if ($subscription !== false) {
 				if ($subscription->hasSubscription()) {
-					if ($wgSecureLogin === true && $request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+					if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
 						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 						$output->enableClientCache(false);
 						$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
@@ -99,16 +119,20 @@ class SubscriptionHooks {
 			}
 		}
 
-		if ($wgSecureLogin === true && $specialPage != 'Userlogin' && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
-			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
-			$output->enableClientCache(false);
-			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-		}
-
 		//We cannot accept forced HTTPS right now.
 		//TODO remove in the future when always-on HTTPS is a possibility.
 		if ($request->getCookie('forceHTTPS', '')) {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
+		}
+
+		$secureSpecialPages = ['Userlogin', 'Preferences'];
+
+		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
+
+		if (!in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
+			$output->enableClientCache(false);
+			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 		}
 
 		return true;
@@ -124,7 +148,7 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
-		global $wgUser, $wgServer, $wgRequest, $wgSecureLogin;
+		global $wgUser, $wgServer, $wgRequest;
 
 		if (defined('MW_API') && MW_API === true) {
 			return true;
@@ -145,7 +169,7 @@ class SubscriptionHooks {
 			return true;
 		}
 
-		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0 && $wgSecureLogin === true) {
+		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0) {
 			$redirect = substr_replace($redirect, 'http://', 0, 8);
 			if ($output->getRequest()->wasPosted()) {
 				$code = '307';

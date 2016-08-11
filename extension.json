@@ -67,6 +67,9 @@
 		],
 		"UserLoggedIn": [
 			"SubscriptionHooks::onUserLoggedIn"
+		],
+		"UserRequiresHTTPS": [
+			"SubscriptionHooks::onUserRequiresHTTPS"
 		]
 	},
 	"JobClasses": {
