@@ -104,18 +104,20 @@ class SubscriptionHooks {
 
 		list($specialPage,) = SpecialPageFactory::resolveAlias($title->getDBkey());
 
+		$secureSpecialPages = ['Userlogin', 'Preferences'];
+
+		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
+
 		if (!empty($user) && $user->getId()) {
 			$subscription = \Hydra\Subscription::newFromUser($user);
-			if ($subscription !== false) {
-				if ($subscription->hasSubscription()) {
-					if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
-						$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
-						$output->enableClientCache(false);
-						$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-					}
-
-					return true;
+			if (($subscription !== false && $subscription->hasSubscription()) || in_array($specialPage, $secureSpecialPages)) {
+				if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+					$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
+					$output->enableClientCache(false);
+					$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 				}
+
+				return true;
 			}
 		}
 
@@ -124,10 +126,6 @@ class SubscriptionHooks {
 		if ($request->getCookie('forceHTTPS', '')) {
 			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
 		}
-
-		$secureSpecialPages = ['Userlogin', 'Preferences'];
-
-		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
 
 		if (!in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
