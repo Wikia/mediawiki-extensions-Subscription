@@ -5,7 +5,7 @@ The Subscription extension can consume internal and external subscription servic
 ## Developers
 ###How do I check if an user has an active subscription?
 
-If the wiki is using a Central ID provider such as CentrlAuth or CurseAuth then construct a Subscription object from an existing valid User object.  If the user is not attached to a global account then `newFromUser()` will return false.
+If the wiki is using a Central ID provider such as CentrlAuth or HydraAuth then construct a Subscription object from an existing valid User object.  If the user is not attached to a global account then `newFromUser()` will return false.
 	$subscription = \Hydra\Subscription::newFromUser($user);
 
 Otherwise, the Subscription can be constructed manually with a known global ID relevant to the Subscription service being used.  

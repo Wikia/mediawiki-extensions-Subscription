@@ -1,12 +1,12 @@
 <?php
 /**
- * CurseAuth
+ * Subscription
  * Gamepedia Pro API and Access
  *
  * @author		Alexia E. Smith
  * @copyright	(c) 2016 Curse Inc.
  * @license		All Rights Reserved
- * @package		CurseAuth
+ * @package		Subscription
  * @link		http://www.curse.com/
  *
  */
