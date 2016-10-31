@@ -37,7 +37,7 @@
 				"js/subscription.js"
 			],
 			"dependencies": [
-				"ext.curse.pagination",
+				"ext.hydraCore.pagination",
 				"jquery.ui.datepicker",
 				"jquery.ui.slider"
 			],

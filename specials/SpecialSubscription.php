@@ -87,7 +87,7 @@ class SpecialSubscription extends SpecialPage {
 			}
 		}
 
-		$pagination = Curse::generatePaginationHtml($total, $itemsPerPage, $start, 4, implode('&', $extra));
+		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start, 4, implode('&', $extra));
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
