@@ -304,7 +304,7 @@ abstract class SubscriptionProvider {
 	 * @return	integer	Duration to cache API responses in seconds.
 	 */
 	public function getCacheDuration() {
-		return 1209600; //Cache for two weeks.
+		return 600; //Cache for ten minutes.
 	}
 }
 

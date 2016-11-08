@@ -181,7 +181,9 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		if (!\Hydra\Subscription::skipCache()) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
-			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)));
+			array_unshift($pieces, 'GamepediaPro', 'v1');
+
+			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', $pieces));
 			if (!empty($cached)) {
 				return $cached;
 			}
@@ -236,8 +238,9 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	private function cacheApiResponse($pieces, $response) {
 		$wgCache = wfGetCache(CACHE_ANYTHING);
 
-		//Cache for thirty minutes.
-		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)), $response, $this->getCacheDuration());
+		array_unshift($pieces, 'GamepediaPro', 'v1');
+
+		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', $pieces), $response, $this->getCacheDuration());
 	}
 
 	/**
