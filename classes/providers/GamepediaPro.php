@@ -43,7 +43,6 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		}
 
 		$pieces = [
-			'v1',
 			'get-user-entitlement',
 			$globalId
 		];
@@ -70,7 +69,6 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		}
 
 		$pieces = [
-			'v1',
 			'get-user-subscription',
 			$globalId
 		];
@@ -124,7 +122,6 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		}
 
 		$pieces = [
-			'v1',
 			'create-comped-subscription',
 			$globalId,
 			$months
@@ -158,7 +155,6 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		}
 
 		$pieces = [
-			'v1',
 			'cancel-comped-subscription',
 			$globalId
 		];
@@ -187,7 +183,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 			array_unshift($pieces, 'GamepediaPro');
 
-			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', $pieces));
+			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', $pieces).':v1');
 			if (!empty($cached)) {
 				return $cached;
 			}
@@ -244,7 +240,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 		array_unshift($pieces, 'GamepediaPro');
 
-		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', $pieces), $response, $this->getCacheDuration());
+		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', $pieces).':v1', $response, $this->getCacheDuration());
 	}
 
 	/**
