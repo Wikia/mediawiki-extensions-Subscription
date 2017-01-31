@@ -75,12 +75,7 @@ class SubscriptionHooks {
 		$requiresHttps = false;
 
 		if (!empty($user) && $user->getId()) {
-			$subscription = \Hydra\Subscription::newFromUser($user);
-			if ($subscription !== false) {
-				if ($subscription->hasSubscription()) {
-					$requiresHttps = true;
-				}
-			}
+			$requiresHttps = true;
 		}
 		return true;
 	}
@@ -108,26 +103,17 @@ class SubscriptionHooks {
 
 		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
 
-		if (!empty($user) && $user->getId()) {
-			$subscription = \Hydra\Subscription::newFromUser($user);
-			if (($subscription !== false && $subscription->hasSubscription()) || in_array($specialPage, $secureSpecialPages)) {
-				if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
-					$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
-					$output->enableClientCache(false);
-					$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
-				}
-
-				return true;
+		if (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages)) {
+			if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+				$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
+				$output->enableClientCache(false);
+				$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 			}
+
+			return true;
 		}
 
-		//We cannot accept forced HTTPS right now.
-		//TODO remove in the future when always-on HTTPS is a possibility.
-		if ($request->getCookie('forceHTTPS', '')) {
-			$request->response()->setcookie('forceHTTPS', '', time() - 86400, ['prefix' => '', 'secure' => false]);
-		}
-
-		if (!in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
 			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
@@ -153,12 +139,7 @@ class SubscriptionHooks {
 		}
 
 		if (!empty($wgUser) && $wgUser->getId()) {
-			$subscription = \Hydra\Subscription::newFromUser($wgUser);
-			if ($subscription !== false) {
-				if ($subscription->hasSubscription()) {
-					return true;
-				}
-			}
+			return true;
 		}
 
 		$server = str_ireplace(['https://', 'http://', '//'], '', $wgServer);
