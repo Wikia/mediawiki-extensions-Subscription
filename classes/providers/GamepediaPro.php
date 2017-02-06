@@ -216,7 +216,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		if ($status->isOK()) {
 			$data = @json_decode($request->getContent(), true);
 
-			self::cacheApiResponse($pieces, $data);
+			$this->cacheApiResponse($pieces, $data);
 
 			return $data;
 		} elseif (!$status->isOK() && $request->getStatus() == 404) {
