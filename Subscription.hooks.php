@@ -114,6 +114,19 @@ class SubscriptionHooks {
 		}
 
 		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+			$response = $request->response();
+			$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+			$response->clearCookie(
+				'forceHTTPS',
+				[
+					'prefix' => '',
+					'secure' => false,
+					'path' => $config->get('CookiePath'),
+					'domain' => $config->get('CookieDomain'),
+					'httpOnly' => $config->get('CookieHttpOnly')
+				]
+			);
+
 			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
 			$output->enableClientCache(false);
 			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
