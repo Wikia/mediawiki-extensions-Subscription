@@ -16,6 +16,7 @@
 		]
 	},
 	"ExtensionMessagesFiles": {
+		"SpecialSubscription": "Subscription.alias.php",
 		"SubscriptionMagic": "Subscription.i18n.magic.php"
 	},
 	"AutoloadClasses": {
