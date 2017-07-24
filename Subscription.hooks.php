@@ -102,7 +102,7 @@ class SubscriptionHooks {
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgFullHTTPSExperiment;
 
-		if ($wgFullHTTPSExperiment && (defined('MW_API') && MW_API === true)) {
+		if ($wgFullHTTPSExperiment || (defined('MW_API') && MW_API === true)) {
 			return true;
 		}
 
@@ -156,7 +156,7 @@ class SubscriptionHooks {
 	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
 		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
 
-		if ($wgFullHTTPSExperiment && defined('MW_API') && MW_API === true) {
+		if ($wgFullHTTPSExperiment || (defined('MW_API') && MW_API === true)) {
 			return true;
 		}
 
