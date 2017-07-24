@@ -84,7 +84,8 @@
 		},
 		"SubscriptionProvider": "GamepediaPro",
 		"GProApiConfig": {},
-		"SubscriptionMasterDB": "master"
+		"SubscriptionMasterDB": "master",
+		"FullHTTPSExperiment": true
 	},
 	"manifest_version": 1
 }

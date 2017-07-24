@@ -72,6 +72,13 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onUserRequiresHTTPS($user, &$requiresHttps) {
+		global $wgFullHTTPSExperiment;
+
+		if ($wgFullHTTPSExperiment) {
+			//Short circuit this function just so it does not mess with MediaWiki internals.
+			return true;
+		}
+
 		$requiresHttps = false;
 
 		if (!empty($user) && $user->getId()) {
@@ -93,7 +100,9 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
-		if (defined('MW_API') && MW_API === true) {
+		global $wgFullHTTPSExperiment;
+
+		if ($wgFullHTTPSExperiment && (defined('MW_API') && MW_API === true)) {
 			return true;
 		}
 
@@ -145,9 +154,9 @@ class SubscriptionHooks {
 	 * @return	boolean	True
 	 */
 	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
-		global $wgUser, $wgServer, $wgRequest;
+		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
 
-		if (defined('MW_API') && MW_API === true) {
+		if ($wgFullHTTPSExperiment && defined('MW_API') && MW_API === true) {
 			return true;
 		}
 
