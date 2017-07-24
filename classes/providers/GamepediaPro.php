@@ -201,8 +201,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		$options = [
 			'method'			=> 'POST',
 			'postData'			=> '=',
-			'timeout'			=> 'default',
-			'connectTimeout'	=> 'default'
+			'timeout'			=> 1,
+			'connectTimeout'	=> 1
 		];
 		if ($apiConfig['ssl_verify'] === false) {
 			$options['sslVerifyHost'] = false;

@@ -75,7 +75,7 @@ class SubscriptionHooks {
 		global $wgFullHTTPSExperiment;
 
 		if ($wgFullHTTPSExperiment) {
-			//Short circuit this function just so it does not mess with MediaWiki internals.
+			$requiresHttps = true;
 			return true;
 		}
 
@@ -102,7 +102,7 @@ class SubscriptionHooks {
 	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgFullHTTPSExperiment;
 
-		if ($wgFullHTTPSExperiment || (defined('MW_API') && MW_API === true)) {
+		if (defined('MW_API') && MW_API === true) {
 			return true;
 		}
 
@@ -111,9 +111,8 @@ class SubscriptionHooks {
 		$secureSpecialPages = ['Userlogin', 'Preferences'];
 
 		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
-
-		if (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages)) {
-			if ($request->getProtocol() !== 'https' && strpos($request->getFullRequestURL(), 'http://') === 0) {
+		if ($wgFullHTTPSExperiment || (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages))) {
+			if ($request->getProtocol() !== 'https') {
 				$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
 				$output->enableClientCache(false);
 				$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
@@ -122,7 +121,7 @@ class SubscriptionHooks {
 			return true;
 		}
 
-		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http' && strpos($request->getFullRequestURL(), 'https://') === 0) {
+		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http') {
 			$response = $request->response();
 			$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 			$response->clearCookie(
