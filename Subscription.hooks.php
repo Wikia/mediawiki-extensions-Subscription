@@ -138,7 +138,10 @@ class SubscriptionHooks {
 				]
 			);
 
-			$redirect = substr_replace($request->getFullRequestURL(), 'http://', 0, 8);
+			$redirect = $request->getFullRequestURL();
+			if (strpos($request->getFullRequestURL(), 'https://') === 0) {
+				$redirect = substr_replace($redirect, 'http://', 0, 8);
+			}
 			$output->enableClientCache(false);
 			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 		}
