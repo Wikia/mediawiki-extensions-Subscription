@@ -375,7 +375,7 @@ class SubscriptionCache {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {
-			$db = \LBFactory::singleton()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+			$db = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);
 		} else {
 			$db = wfGetDB(DB_MASTER);
 		}
