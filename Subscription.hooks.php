@@ -113,7 +113,10 @@ class SubscriptionHooks {
 		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
 		if ($wgFullHTTPSExperiment || (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages))) {
 			if ($request->getProtocol() !== 'https') {
-				$redirect = substr_replace($request->getFullRequestURL(), 'https://', 0, 7);
+				$redirect = $request->getFullRequestURL();
+				if (strpos($request->getFullRequestURL(), 'http://') === 0) {
+					$redirect = substr_replace($redirect, 'https://', 0, 7);
+				}
 				$output->enableClientCache(false);
 				$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
 			}
