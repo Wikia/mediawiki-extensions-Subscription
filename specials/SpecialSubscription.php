@@ -79,15 +79,9 @@ class SpecialSubscription extends SpecialPage {
 
 		$total = \Hydra\SubscriptionCache::getLastSearchTotal();
 
-		$extra = [];
 		$userFilters = $this->wgRequest->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
-		if (!empty($userFilters) && is_array($userFilters)) {
-			foreach ($userFilters as $key => $value) {
-				$extra[] = $key.'='.$value;
-			}
-		}
 
-		$pagination = HydraCore::generatePaginationHtml($total, $itemsPerPage, $start, 4, implode('&', $extra));
+		$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $total, $itemsPerPage, $start, 4, (array) $userFilters);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
