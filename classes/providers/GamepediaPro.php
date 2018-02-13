@@ -124,7 +124,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		$pieces = [
 			'create-comped-subscription',
 			$globalId,
-			$months
+			$months,
+			1
 		];
 
 		$data = self::callApi($pieces, false);
