@@ -73,24 +73,30 @@ class SubscriptionCache {
 		);
 		$exists = $result->fetchObject();
 
-		$db->begin();
+		$db->startAtomic(__METHOD__);
+		$success = false;
 		if (isset($exists->sid)) {
-			$db->update(
+			$result = $db->update(
 				'subscription',
 				$save,
 				['sid' => $exists->sid],
 				__METHOD__
 			);
 		} else {
-			$db->insert(
+			$result = $db->insert(
 				'subscription',
 				$save,
 				__METHOD__
 			);
 		}
-		$db->commit();
+		if (!$result) {
+			$db->cancelAtomic(__METHOD__);
+		} else {
+			$success = true;
+		}
+		$db->endAtomic(__METHOD__);
 
-		return true;
+		return $success;
 	}
 
 	/**
