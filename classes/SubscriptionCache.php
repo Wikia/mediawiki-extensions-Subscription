@@ -93,8 +93,8 @@ class SubscriptionCache {
 			$db->cancelAtomic(__METHOD__);
 		} else {
 			$success = true;
+			$db->endAtomic(__METHOD__);
 		}
-		$db->endAtomic(__METHOD__);
 
 		return $success;
 	}
