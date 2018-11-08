@@ -12,6 +12,8 @@
  *
 **/
 
+use DynamicSettings\Environment;
+
 class SubscriptionHooks {
 	/**
 	 * Link cache for onLinkEnd look ups.
@@ -217,7 +219,7 @@ class SubscriptionHooks {
 
 		//Install
 		//Tables
-		if (defined('MASTER_WIKI') && MASTER_WIKI === true) {
+		if (Environment::isMasterWiki()) {
 			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
 		}
 
