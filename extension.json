@@ -6,7 +6,15 @@
 		"Hydra Wiki Platform Team"
 	],
 	"descriptionmsg": "subscription_description",
+	"license-name": "GPL-2.0-or-later",
 	"type": "specialpage",
+	"requires": {
+		"MediaWiki": ">= 1.29.0",
+		"extensions": {
+			"DynamicSettings": ">= 3.0.0",
+			"HydraCore": ">= 3.0.0"
+		}
+	},
 	"SpecialPages": {
 		"Subscription": "SpecialSubscription"
 	},
