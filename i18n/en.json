@@ -21,5 +21,6 @@
 	"begins_after": "Begins after:",
 	"expires_before": "Expires before:",
 	"search_users": "Search users...",
-	"subscriber_statistics": "$1 / $2 users subscribed, $3%"
+	"subscriber_statistics": "$1 / $2 users subscribed, $3%",
+	"right-subscription": "View or modify subscriptions"
 }
