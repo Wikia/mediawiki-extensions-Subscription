@@ -15,6 +15,9 @@
 			"HydraCore": ">= 3.0.0"
 		}
 	},
+	"AvailableRights": [
+		"subscription"
+	],
 	"SpecialPages": {
 		"Subscription": "SpecialSubscription"
 	},
