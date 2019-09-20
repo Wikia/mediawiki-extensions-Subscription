@@ -3,8 +3,10 @@
 		"authors": ["Alexia E. Smith"]
 	},
 	"subscription": "Subscription",
+	"subscription_grant": "Subscription Grant",
 	"subscriptions": "Subscriptions",
 	"action-subscription": "view or modify subscriptions",
+	"grant-subscription": "Grant Subscription",
 	"subscription_description": "Paid subscription system for Hydra Wiki Platform.",
 	"sub_th_user": "User",
 	"sub_th_provider_id": "Provider",
@@ -22,5 +24,9 @@
 	"expires_before": "Expires before:",
 	"search_users": "Search users...",
 	"subscriber_statistics": "$1 / $2 users subscribed, $3%",
-	"right-subscription": "View or modify subscriptions"
+	"subscription_duration": "Duration (months):",
+	"subscription_overwrite": "Overwrite existing:",
+	"duration_placeholder": "Duration (1-100 months)",
+	"right-subscription": "View or modify subscriptions",
+	"username": "Username"
 }

@@ -105,4 +105,35 @@ class TemplateSubscription {
 
 		return $html;
 	}
+
+	/**
+	 * Wiki Sites
+	 *
+	 * @access	public
+	 * @param	array
+	 * @return	string	Built HTML
+	 */
+	public function subscriptionGrant($formValues = null) {
+
+		$subscriptionPage = Title::newFromText('Special:Subscription_Grant');
+		$subscriptionURL = $subscriptionPage->getFullURL();
+
+		$html = "
+			<div id='sub-grant'>
+				<form method='get' action='{$subscriptionURL}'>
+					<fieldset>
+						<input type='hidden' name='do' value='grant_subscription'/>
+						<input type='text' name='username' value='".htmlentities((!empty($formValues['username']) ? $formValues['username'] : ''))."' placeholder='".wfMessage('username')->escaped()."'/>
+						<label for='duration'>".wfMessage('subscription_duration')->escaped()."</label>
+						<input type='duration' id='duration' name='duration' value='".htmlentities((!empty($formValues['duration']) ? $formValues['duration'] : ''))."' placeholder='".wfMessage('duration_placeholder')->escaped()."'/>
+						<label for='overwriteSub'>".wfMessage('subscription_overwrite')->escaped()."</label>
+						<input type='checkbox' id='overwriteSub' name='overwriteSub' value='checked' ".htmlentities((!empty($formValues['overwriteSub']) ? $formValues['overwriteSub'] : '')).">
+						<button type='submit' class='mw-ui-button mw-ui-progressive'>".wfMessage('grant-subscription')->escaped()."</button>
+					</fieldset>
+				</form>
+			</div>
+				";
+
+		return $html;
+	}
 }

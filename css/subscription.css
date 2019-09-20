@@ -177,3 +177,24 @@
 .skin-hydradark #subscription_list .controls a {
 	filter: invert(100%);
 }
+
+/*********************/
+/* Subscription Grant */
+/*********************/
+#sub-grant input {
+	padding: 5px;
+}
+
+#sub-grant fieldset {
+	padding: 10px;
+}
+
+#sub-grant label {
+	padding-left: 20px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+#sub-grant button {
+	margin-left: 15px;
+}
