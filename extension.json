@@ -19,7 +19,8 @@
 		"subscription"
 	],
 	"SpecialPages": {
-		"Subscription": "SpecialSubscription"
+		"Subscription": "SpecialSubscription",
+		"Subscription_Grant": "SpecialSubscriptionGrant"
 	},
 	"MessagesDirs": {
 		"Subscription": [
@@ -38,6 +39,7 @@
 		"Hydra\\SubscriptionProvider": "classes/Subscription.php",
 		"SubscriptionHooks": "Subscription.hooks.php",
 		"SpecialSubscription": "specials/SpecialSubscription.php",
+		"SpecialSubscriptionGrant": "specials/SpecialSubscriptionGrant.php",
 		"TemplateSubscription": "templates/TemplateSubscription.php"
 	},
 	"ResourceModules": {
