@@ -4,60 +4,71 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @package   Subscription
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 use DynamicSettings\Environment;
+use Hydra\Subscription;
+use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Linker\LinkTarget;
 
 class SubscriptionHooks {
 	/**
 	 * Link cache for onLinkEnd look ups.
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	static private $linkCache = [];
 
 	/**
-	 * Handle adding premium flair.
+	 * Handle adding premium flair
 	 *
-	 * @access	public
-	 * @param	object	DummyLinker
-	 * @param	object	Title
-	 * @param	array	Options
-	 * @param	string	HTML that goes inside the anchor tag.
-	 * @param	array	HTML anchor tag attributes.
-	 * @param	string	Complete override of the HTML return; if needed to not use an achor tag.
-	 * @return	boolean	True
+	 * @param LinkRenderer  $linkRenderer
+	 * @param LinkTarget    $target
+	 * @param bool          $isKnown
+	 * @param string|object $text
+	 * @param array         $attribs
+	 * @param string        $ret
+	 *
+	 * @return void
 	 */
-	static public function onLinkEnd($dummy, $target, $options, &$html, &$attribs, &$returnOverride) {
+	public static function onHtmlPageLinkRendererEnd(
+		LinkRenderer $linkRenderer,
+		LinkTarget $target,
+		$isKnown,
+		&$text,
+		&$attribs,
+		&$ret
+	) {
 		$classes = false;
-
-		if (!empty($target) && !empty($target->getText()) && $target->getNamespace() === NS_USER && mb_strpos(trim(strip_tags($html)), $target->getText()) === 0) {
+		$defaultText = trim(strip_tags(HtmlArmor::getHtml($text)));
+		if (!empty($target) && !empty($target->getText()) && $target->getNamespace() === NS_USER
+			&& mb_strpos($defaultText, $target->getText()) === 0) {
 			if (array_key_exists($target->getText(), self::$linkCache)) {
 				$classes = self::$linkCache[$target->getText()];
 			} else {
 				$user = User::newFromName($target->getText());
 
 				if (!empty($user) && $user->getId()) {
-					$subscription = \Hydra\Subscription::newFromUser($user);
+					$subscription = Subscription::newFromUser($user);
 					if ($subscription !== false) {
-						$_cacheSetting = \Hydra\Subscription::useLocalCacheOnly(true);
+						$_cacheSetting = Subscription::useLocalCacheOnly(true);
 						$classes = $subscription->getFlairClasses(true);
-						\Hydra\Subscription::useLocalCacheOnly($_cacheSetting);
+						Subscription::useLocalCacheOnly($_cacheSetting);
 						if (empty($classes)) {
-							$classes = false; //Enforce sanity.
+							// Enforce sanity.
+							$classes = false;
 						}
 					}
 				}
 			}
 
 			if ($classes !== false) {
-				$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'].' ' : '').implode(' ', $classes);
+				$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'] . ' ' : '') . implode(' ', $classes);
 			}
 			self::$linkCache[$target->getText()] = $classes;
 		}
@@ -68,12 +79,12 @@ class SubscriptionHooks {
 	/**
 	 * Handle setting if the user requires HTTPS per subscription.
 	 *
-	 * @access	public
-	 * @param	object	User
-	 * @param	boolean	Requires HTTPS
-	 * @return	boolean	True
+	 * @param object  $user          User
+	 * @param boolean $requiresHttps Requires HTTPS
+	 *
+	 * @return boolean	True
 	 */
-	static public function onUserRequiresHTTPS($user, &$requiresHttps) {
+	public static function onUserRequiresHTTPS($user, &$requiresHttps) {
 		global $wgFullHTTPSExperiment;
 
 		if ($wgFullHTTPSExperiment) {
@@ -92,16 +103,16 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
-	 * @access	public
-	 * @param	object	Title
-	 * @param	object	Article
-	 * @param	object	Output
-	 * @param	object	User
-	 * @param	object	WebRequest
-	 * @param	object	Mediawiki
-	 * @return	boolean	True
+	 * @param object $title     Title
+	 * @param object $article   Article
+	 * @param object $output    Output
+	 * @param object $user      User
+	 * @param object $request   WebRequest
+	 * @param object $mediaWiki Mediawiki
+	 *
+	 * @return boolean	True
 	 */
-	static public function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
+	public static function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgFullHTTPSExperiment;
 
 		if (defined('MW_API') && MW_API === true) {
@@ -154,13 +165,13 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP.
 	 *
-	 * @access	public
-	 * @param	object	OutputPage
-	 * @param	string	Redirect URL
-	 * @param	string	HTTP Status Code
-	 * @return	boolean	True
+	 * @param object $output   OutputPage
+	 * @param string $redirect Redirect URL
+	 * @param string $code     HTTP Status Code
+	 *
+	 * @return boolean	True
 	 */
-	static public function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
+	public static function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
 		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
 
 		if ($wgFullHTTPSExperiment || (defined('MW_API') && MW_API === true)) {
@@ -173,7 +184,7 @@ class SubscriptionHooks {
 
 		$server = str_ireplace(['https://', 'http://', '//'], '', $wgServer);
 		if (strpos($redirect, $server) === false) {
-			//Do not mess with external redirects.
+			// Do not mess with external redirects.
 			return true;
 		}
 
@@ -190,17 +201,17 @@ class SubscriptionHooks {
 	/**
 	 * Overloads for UserLoadAfterLoadFromSession
 	 *
-	 * @access	public
-	 * @param	object	User Object
-	 * @return	boolean	True
+	 * @param object $user User Object
+	 *
+	 * @return boolean true
 	 */
-	static public function onUserLoggedIn(User $user) {
+	public static function onUserLoggedIn(User $user) {
 		if ($user->isLoggedIn()) {
-			$subscription = \Hydra\Subscription::newFromUser($user);
+			$subscription = Subscription::newFromUser($user);
 			if ($subscription !== false) {
-				$_cacheSetting = \Hydra\Subscription::skipCache(true);
-				$subscription->getSubscription(); //Don't care about the return.  This just forces a recache.
-				\Hydra\Subscription::skipCache($_cacheSetting);
+				$_cacheSetting = Subscription::skipCache(true);
+				$subscription->getSubscription(); // Don't care about the return.  This just forces a recache.
+				Subscription::skipCache($_cacheSetting);
 			}
 		}
 
@@ -210,15 +221,15 @@ class SubscriptionHooks {
 	/**
 	 * Setups and Modifies Database Information
 	 *
-	 * @access	public
-	 * @param	object	[Optional] DatabaseUpdater Object
-	 * @return	boolean	true
+	 * @param object $updater [Optional] DatabaseUpdater Object
+	 *
+	 * @return boolean true
 	 */
-	static public function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
+	public static function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
 		$extDir = __DIR__;
 
-		//Install
-		//Tables
+		// Install
+		// Tables
 		if (Environment::isMasterWiki()) {
 			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
 		}
