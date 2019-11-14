@@ -73,8 +73,8 @@
 		"BeforePageRedirect": [
 			"SubscriptionHooks::onBeforePageRedirect"
 		],
-		"LinkEnd": [
-			"SubscriptionHooks::onLinkEnd"
+		"HtmlPageLinkRendererEnd": [
+			"SubscriptionHooks::onHtmlPageLinkRendererEnd"
 		],
 		"LoadExtensionSchemaUpdates": [
 			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
