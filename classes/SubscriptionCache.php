@@ -4,11 +4,11 @@
  * Subscription
  * Subscription Caching
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
+ * @author Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license GNU General Public License v2.0 or later
+ * @package Subscription
+ * @link https://gitlab.com/hydrawiki
  *
 **/
 
@@ -23,7 +23,7 @@ class SubscriptionCache {
 	/**
 	 * Last serach result total.
 	 *
-	 * @var		integer
+	 * @var integer
 	 */
 	static private $lastSearchResultTotal = 0;
 
@@ -34,7 +34,7 @@ class SubscriptionCache {
 	 * @param string $providerId Provider ID - As defined in $wgSubscriptionProviders.
 	 * @param array $subscription Subscription data as returned by a subscription provider.
 	 *
-	 * @return boolean	Success
+	 * @return boolean Success
 	 */
 	static public function updateLocalCache($userId, $providerId, $subscription) {
 		$db = self::getDb();
@@ -190,8 +190,7 @@ class SubscriptionCache {
 			['*'],
 			$where,
 			__METHOD__,
-			$options,
-			$joins
+			$options
 		);
 
 		if (!$results) {
@@ -207,8 +206,7 @@ class SubscriptionCache {
 			['count(*) as total'],
 			$where,
 			__METHOD__,
-			null,
-			$joins
+			null
 		);
 		$resultsTotal = $resultsTotal->fetchRow();
 		self::$lastSearchResultTotal = intval($resultsTotal['total']);

@@ -4,53 +4,55 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license GNU General Public License v2.0 or later
+ * @package Subscription
+ * @link https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
+
+use Exception;
+use User;
 
 class Subscription {
 	/**
 	 * User ID
 	 *
-	 * @var		integer
+	 * @var integer
 	 */
 	private $userId;
 
 	/**
 	 * Main Config Factory
 	 *
-	 * @var		object
+	 * @var object
 	 */
 	private $config;
 
 	/**
 	 * Skip using the cache
 	 *
-	 * @var		boolean
+	 * @var boolean
 	 */
 	static private $skipCache = false;
 
 	/**
 	 * Use Local Cache Only
 	 *
-	 * @var		boolean
+	 * @var boolean
 	 */
 	static private $useLocalCacheOnly = false;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @param	integer	User ID
-	 * @return	void
+	 * @param integer $userId User ID
+	 *
+	 * @return void
 	 */
-	public function __construct($userId) {
+	public function __construct(int $userId) {
 		$this->userId = intval($userId);
 
 		$this->config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
@@ -59,11 +61,10 @@ class Subscription {
 	/**
 	 * Return an initialized instance from a given User object.
 	 *
-	 * @access	public
-	 * @param	object $user User
-	 * @return	void
+	 * @param User $user User
+	 * @return void
 	 */
-	static public function newFromUser($user) {
+	static public function newFromUser(User $user) {
 		if (!$user->getId()) {
 			return false;
 		}
@@ -74,12 +75,12 @@ class Subscription {
 	/**
 	 * Does this user have a valid active subscription?
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
-	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
-	 * @return	boolean
+	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 *                           If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 *
+	 * @return boolean
 	 */
-	public function hasSubscription($providerId = null) {
+	public function hasSubscription(?string $providerId = null) {
 		foreach ($this->getSubscriptionProviders() as $subscription) {
 			if ($subscription !== null && $subscription->hasSubscription($this->userId)) {
 				return true;
@@ -92,12 +93,12 @@ class Subscription {
 	/**
 	 * Does this user have a valid active subscription?
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
 	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
-	 * @return	array	Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
+	 *
+	 * @return array Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
 	 */
-	public function getSubscription($providerId = null) {
+	public function getSubscription(?string $providerId = null) {
 		$_subscriptions = [];
 		foreach ($this->getSubscriptionProviders() as $subscription) {
 			$_subscriptions[$providerId] = false;
@@ -113,11 +114,11 @@ class Subscription {
 	/**
 	 * Does this user have a valid active subscription?
 	 *
-	 * @access	public
-	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
-	 * @return	array	CSS classes.
+	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 *
+	 * @return array CSS classes.
 	 */
-	public function getFlairClasses($providerId = null) {
+	public function getFlairClasses(?string $providerId = null) {
 		$classess = [];
 		foreach ($this->getSubscriptionProviders() as $subscription) {
 			if ($subscription !== null && !empty($subscription->getFlairClass()) && $subscription->hasSubscription($this->userId)) {
@@ -131,12 +132,12 @@ class Subscription {
 	/**
 	 * Return specified or all subscription providers.
 	 *
-	 * @access	private
-	 * @param	string	[Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * @param string $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
 	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
-	 * @return	array	Subscription Providers.
+	 *
+	 * @return array Subscription Providers.
 	 */
-	private function getSubscriptionProviders($providerId = null) {
+	private function getSubscriptionProviders(?string $providerId = null) {
 		$providers = $this->config->get('SubscriptionProviders');
 
 		$subscriptionProviders = [];
@@ -164,11 +165,11 @@ class Subscription {
 	 * Get if local cache only should be used or to change its setting.
 	 * Setting this to true will cause $useLocalCacheOnly to have no effect.
 	 *
-	 * @access	public
-	 * @param	boolean	[Optional] True or False to enable or disable.  Not passing this argument results in no change.
-	 * @return	boolean	Previous value, Enabled or Disabled
+	 * @param boolean $skip [Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 *
+	 * @return boolean Previous value, Enabled or Disabled
 	 */
-	static public function skipCache($skip = null) {
+	static public function skipCache(?bool $skip = null) {
 		$return = self::$skipCache; //Copy so the return value is the old value if being changed.
 		if (is_bool($skip)) {
 			self::$skipCache = $skip;
@@ -179,9 +180,9 @@ class Subscription {
 	/**
 	 * Get if local cache only should be used or to change its setting.
 	 *
-	 * @access	public
-	 * @param	boolean	[Optional] True or False to enable or disable.  Not passing this argument results in no change.
-	 * @return	boolean	Previous value, Enabled or Disabled
+	 * @param boolean $local [Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 *
+	 * @return boolean Previous value, Enabled or Disabled
 	 */
 	static public function useLocalCacheOnly($local = null) {
 		$return = self::$useLocalCacheOnly; //Copy so the return value is the old value if being changed.
@@ -196,24 +197,25 @@ abstract class SubscriptionProvider {
 	/**
 	 * Provider Instances
 	 *
-	 * @var		array
+	 * @var array
 	 */
 	static private $instances = [];
 
 	/**
 	 * Provider ID of this instance.
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	private $providerId;
 
 	/**
 	 * Get a subscription provider.
 	 *
-	 * @param	string	Provider ID from $wgSusbcriptionProvider
+	 * @param ?string $providerId Provider ID from $wgSusbcriptionProvider
+	 *
 	 * @return CentralIdLookup|null
 	 */
-	static public function factory($providerId = null) {
+	static public function factory(?string $providerId = null) {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$wgSusbcriptionProviders = $config->get('SubscriptionProviders');
 
@@ -239,14 +241,14 @@ abstract class SubscriptionProvider {
 	}
 
 	/**
-	 * Get if a specific global user ID has a subscription.
+	 * Get if a specific user ID has a subscription.
 	 * Just a basic true or false, nothing more.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	boolean	Has Subscription
+	 * @param integer $userId User ID
+	 *
+	 * @return boolean Has Subscription
 	 */
-	abstract public function hasSubscription($userId);
+	abstract public function hasSubscription(int $userId);
 
 	/**
 	 * Get the subscription information for a specific global user ID.
@@ -261,35 +263,33 @@ abstract class SubscriptionProvider {
 	 * 		'subscription_id'	=> '123456abcdef' //Unique ID generated for the user's subscription.
 	 * ]
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	mixed	Subscription information, false on API failure.
+	 * @param integer $userId User ID
+	 *
+	 * @return mixed Subscription information, false on API failure.
 	 */
-	abstract public function getSubscription($userId);
+	abstract public function getSubscription(int $userId);
 
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @param	integer	Number of months to compensate.
+	 * @param integer $userId User ID
+	 * @param integer $months Number of months to compensate.
 	 */
-	abstract public function createCompedSubscription($userId, $months);
+	abstract public function createCompedSubscription(int $userId, int $months);
 
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	mixed	Response message such as below or false on API failure.
+	 * @param integer $userId User ID
+	 *
+	 * @return mixed Response message such as below or false on API failure.
 	 */
-	abstract public function cancelCompedSubscription($userId);
+	abstract public function cancelCompedSubscription(int $userId);
 
 	/**
 	 * Return a valid CSS class for flair display.
 	 *
-	 * @access	public
-	 * @return	mixed	False for no flair, string otherwise.
+	 * @return mixed False for no flair, string otherwise.
 	 */
 	public function getFlairClass() {
 		return false;
@@ -298,13 +298,12 @@ abstract class SubscriptionProvider {
 	/**
 	 * Return the duration to cache API responses in seconds.
 	 *
-	 * @access	public
-	 * @return	integer	Duration to cache API responses in seconds.
+	 * @return integer Duration to cache API responses in seconds.
 	 */
 	public function getCacheDuration() {
 		return 600; //Cache for ten minutes.
 	}
 }
 
-class SubscriptionProviderException extends \Exception {
+class SubscriptionProviderException extends Exception {
 }

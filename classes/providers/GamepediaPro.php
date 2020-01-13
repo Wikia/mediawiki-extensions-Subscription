@@ -6,7 +6,7 @@
  * @author		Alexia E. Smith
  * @copyright	(c) 2016 Curse Inc.
  * @license		GNU General Public License v2.0 or later
- * @package		Subscription
+ * @package Subscription
  * @link		https://gitlab.com/hydrawiki
  *
  */
@@ -17,15 +17,15 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * API configuration.
 	 *
-	 * @access	private
-	 * @var		array
+	 * @access private
+	 * @var array
 	 */
 	static private $apiConfig = [];
 
 	/**
 	 * API Key
 	 *
-	 * @var		string
+	 * @var string
 	 */
 	static private $apiKey = '';
 
@@ -33,18 +33,18 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 * Get if a specific global user ID has an entitlement.
 	 * Just a basic true or false, nothing more.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	boolean	Has Subscription
+	 * @param integer $userId User ID
+	 *
+	 * @return boolean Has Subscription
 	 */
-	public function hasSubscription($globalId) {
-		if ($globalId < 1) {
+	public function hasSubscription(int $userId) {
+		if ($userId < 1) {
 			return false;
 		}
 
 		$pieces = [
 			'get-user-entitlement',
-			$globalId
+			$userId
 		];
 
 		$data = self::callApi($pieces);
@@ -59,18 +59,18 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Get the subscription information for a specific global user ID.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	mixed	Subscription information, null on missing subscription, false on API failure.
+	 * @param integer $userId User ID
+	 *
+	 * @return mixed Subscription information, null on missing subscription, false on API failure.
 	 */
-	public function getSubscription($globalId) {
-		if ($globalId < 1) {
+	public function getSubscription(int $userId) {
+		if ($userId < 1) {
 			return false;
 		}
 
 		$pieces = [
 			'get-user-subscription',
-			$globalId
+			$userId
 		];
 
 		$data = self::callApi($pieces);
@@ -106,24 +106,22 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @param	integer	Number of months to compensate.
-	 * @return	mixed	Response message such as below or false on API failure.
+	 * @param integer $userId User ID
+	 * @param integer $months Number of months to compensate.
+	 *
+	 * @return mixed Response message such as below or false on API failure.
 	 *		{"code":200,"message":"Comped subscription successfully created."}
 	 *		{"code":500,"message":"Could not create comped subscription. Error message:..."}
 	 *		{"errorCode":500,"errorMessage":"An unhandled exception occurred while processing the request."}
 	 */
-	public function createCompedSubscription($globalId, $months) {
-		$globalId = intval($globalId);
-		$months = intval($months);
-		if ($globalId < 1 || $months < 1) {
+	public function createCompedSubscription(int $userId, int $months) {
+		if ($userId < 1 || $months < 1) {
 			return false;
 		}
 
 		$pieces = [
 			'create-comped-subscription',
-			$globalId,
+			$userId,
 			$months,
 			1
 		];
@@ -142,22 +140,21 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @return	mixed	Response message such as below or false on API failure.
+	 * @param integer $userId User ID
+	 *
+	 * @return mixed Response message such as below or false on API failure.
 	 *		{"code":200,"message":"Comped subscription successfully created."}
 	 *		{"code":500,"message":"Could not create comped subscription. Error message:..."}
 	 *		{"errorCode":500,"errorMessage":"An unhandled exception occurred while processing the request."}
 	 */
-	public function cancelCompedSubscription($globalId) {
-		$globalId = intval($globalId);
-		if ($globalId < 1) {
+	public function cancelCompedSubscription(int $userId) {
+		if ($userId < 1) {
 			return false;
 		}
 
 		$pieces = [
 			'cancel-comped-subscription',
-			$globalId
+			$userId
 		];
 
 		$data = self::callApi($pieces, false);
@@ -174,11 +171,11 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Make API call.
 	 *
-	 * @access	private
-	 * @param	array	URL pieces between slashes.  Example ['get-user-subscription', 9001] would become 'https://www.exmaple.com/get-user-subscription/9001'.
-	 * @return	mixed	JSON data on success, null on 404, false on a fatal error.
+	 * @param array $pieces URL pieces between slashes.  Example ['get-user-subscription', 9001] would become 'https://www.exmaple.com/get-user-subscription/9001'.
+	 *
+	 * @return mixed JSON data on success, null on 404, false on a fatal error.
 	 */
-	private function callApi($pieces) {
+	private function callApi(array $pieces) {
 		if (!\Hydra\Subscription::skipCache()) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
@@ -230,11 +227,12 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Cache API Response into memory.
 	 *
-	 * @access	private
-	 * @param	array	URL pieces between slashes as originally given to self::callApi().
-	 * @return	boolean	Success
+	 * @param array $pieces URL pieces between slashes as originally given to self::callApi().
+	 * @param mixed $response The response to cache.
+	 *
+	 * @return boolean Success
 	 */
-	private function cacheApiResponse($pieces, $response) {
+	private function cacheApiResponse(array $pieces, $response) {
 		$wgCache = wfGetCache(CACHE_ANYTHING);
 
 		//Cache for thirty minutes.
@@ -244,8 +242,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Return a valid CSS class for flair display.
 	 *
-	 * @access	public
-	 * @return	mixed	False for no flair, string otherwise.
+	 * @return mixed False for no flair, string otherwise.
 	 */
 	public function getFlairClass() {
 		return 'gamepedia_pro_user';

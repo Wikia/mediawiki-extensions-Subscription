@@ -7,7 +7,7 @@
  * @author		Alexia E. Smith
  * @copyright	(c) 2016 Curse Inc.
  * @license		GNU General Public License v2.0 or later
- * @package		Subscription
+ * @package Subscription
  * @link		https://gitlab.com/hydrawiki
  *
 **/
@@ -16,14 +16,13 @@ class TemplateSubscription {
 	/**
 	 * Wiki Sites
 	 *
-	 * @access	public
-	 * @param	array	Array of subscription information.
-	 * @param	array	Pagination
-	 * @param	array	Minimum and Maximum Filter Values
-	 * @param	string	[Optional] Data sorting key
-	 * @param	string	[Optional] Data sorting direction
-	 * @param	string	[Optional] Search Term
-	 * @return	string	Built HTML
+	 * @param array Array of subscription information.
+	 * @param array Pagination
+	 * @param array Minimum and Maximum Filter Values
+	 * @param string [Optional] Data sorting key
+	 * @param string [Optional] Data sorting direction
+	 * @param string [Optional] Search Term
+	 * @return string Built HTML
 	 */
 	public function subscriptionList($subscriptions, $pagination, $filterValues, $sortKey = 'user_id', $sortDir = 'ASC', $searchTerm = null) {
 		global $wgOut, $wgUser, $wgRequest;
@@ -75,8 +74,8 @@ class TemplateSubscription {
 				";
 		if (is_array($subscriptions) && count($subscriptions)) {
 			foreach ($subscriptions as $subscription) {
-				$lookup = \CentralIdLookup::factory();
-				$user = $lookup->localUserFromCentralId($subscription['global_id'], \CentralIdLookup::AUDIENCE_RAW);
+				$lookup = CentralIdLookup::factory();
+				$user = User::newFromId($subscription['user_id']);
 				$html .= "
 						<tr>
 							<td>".($user !== null ? $user->getName() : $subscription['global_id'])."</td>
@@ -109,9 +108,8 @@ class TemplateSubscription {
 	/**
 	 * Wiki Sites
 	 *
-	 * @access	public
-	 * @param	array
-	 * @return	string	Built HTML
+	 * @param array
+	 * @return string Built HTML
 	 */
 	public function subscriptionGrant($formValues = null) {
 

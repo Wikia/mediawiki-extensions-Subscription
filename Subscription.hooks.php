@@ -4,7 +4,7 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
- * @package   Subscription
+ * @package Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
@@ -79,10 +79,10 @@ class SubscriptionHooks {
 	/**
 	 * Handle setting if the user requires HTTPS per subscription.
 	 *
-	 * @param object  $user          User
+	 * @param object  $user User
 	 * @param boolean $requiresHttps Requires HTTPS
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onUserRequiresHTTPS($user, &$requiresHttps) {
 		global $wgFullHTTPSExperiment;
@@ -103,14 +103,14 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
-	 * @param object $title     Title
-	 * @param object $article   Article
-	 * @param object $output    Output
-	 * @param object $user      User
-	 * @param object $request   WebRequest
+	 * @param object $title Title
+	 * @param object $article Article
+	 * @param object $output Output
+	 * @param object $user User
+	 * @param object $request WebRequest
 	 * @param object $mediaWiki Mediawiki
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgFullHTTPSExperiment;
@@ -165,11 +165,11 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP.
 	 *
-	 * @param object $output   OutputPage
+	 * @param object $output OutputPage
 	 * @param string $redirect Redirect URL
-	 * @param string $code     HTTP Status Code
+	 * @param string $code HTTP Status Code
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
 		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
