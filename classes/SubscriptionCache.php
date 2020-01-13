@@ -4,12 +4,11 @@
  * Subscription
  * Subscription Caching
  *
- * @author Alexia E. Smith
+ * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
- * @license GNU General Public License v2.0 or later
- * @package Subscription
- * @link https://gitlab.com/hydrawiki
- *
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
@@ -30,13 +29,13 @@ class SubscriptionCache {
 	/**
 	 * Update the local subscription cache for a global ID and provider ID.
 	 *
-	 * @param integer $userId User ID
-	 * @param string $providerId Provider ID - As defined in $wgSubscriptionProviders.
-	 * @param array $subscription Subscription data as returned by a subscription provider.
+	 * @param integer $userId       User ID
+	 * @param string  $providerId   Provider ID - As defined in $wgSubscriptionProviders.
+	 * @param array   $subscription Subscription data as returned by a subscription provider.
 	 *
 	 * @return boolean Success
 	 */
-	static public function updateLocalCache($userId, $providerId, $subscription) {
+	public static function updateLocalCache($userId, $providerId, $subscription) {
 		$db = self::getDb();
 
 		if ($userId < 1 || empty($providerId)) {
@@ -107,16 +106,16 @@ class SubscriptionCache {
 	/**
 	 * Return a filtered search of subscriptions.
 	 *
-	 * @param integer $start Zero based start position.
-	 * @param integer $itemsPerPage Total number of results to return.
-	 * @param string|null $searchTerm [Optional] Search term to filter by.
-	 * @param array $filters [Optional] Filters for where statement.
-	 * @param string $sortKey [Optional] Database field name to sort by, defaults to 'sid'.
-	 * @param string $sortDir [Optional] Database sort direction, defaults to 'ASC'.
+	 * @param integer     $start        Zero based start position.
+	 * @param integer     $itemsPerPage Total number of results to return.
+	 * @param string|null $searchTerm   [Optional] Search term to filter by.
+	 * @param array       $filters      [Optional] Filters for where statement.
+	 * @param string      $sortKey      [Optional] Database field name to sort by, defaults to 'sid'.
+	 * @param string      $sortDir      [Optional] Database sort direction, defaults to 'ASC'.
 	 *
 	 * @return array An array of resulting objects, possibly empty.
 	 */
-	static public function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'sid', string $sortDir = 'ASC') {
+	public static function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'sid', string $sortDir = 'ASC') {
 		$db = self::getDb();
 
 		$searchableFields = ['user_id', 'provider_id', 'active'];
@@ -126,7 +125,7 @@ class SubscriptionCache {
 			$searchResults = $db->select(
 				['user'],
 				['*'],
-				['CONVERT(user_name USING utf8) LIKE "%'.$db->strencode($searchTerm).'%"'],
+				['CONVERT(user_name USING utf8) LIKE "%' . $db->strencode($searchTerm) . '%"'],
 				__METHOD__
 			);
 
@@ -140,43 +139,43 @@ class SubscriptionCache {
 				$userIds[] = $user->getId();
 			}
 			if (!empty($userIds)) {
-				$and[] = "user_id IN(".$db->makeList($userIds).")";
+				$and[] = "user_id IN(" . $db->makeList($userIds) . ")";
 			} else {
-				//This is a dumb helper to produce "No results" when no valid user was foudn.
+				// This is a dumb helper to produce "No results" when no valid user was foudn.
 				$and[] = "user_id = -2";
 			}
 		}
 
 		if (isset($filters['date']['min_date'])) {
-			$and[] = "begins >= ".$db->strencode(intval($filters['date']['min_date']));
+			$and[] = "begins >= " . $db->strencode(intval($filters['date']['min_date']));
 		}
 		if (isset($filters['date']['max_date'])) {
-			$and[] = "expires <= ".$db->strencode(intval($filters['date']['max_date']));
+			$and[] = "expires <= " . $db->strencode(intval($filters['date']['max_date']));
 		}
 
 		if (isset($filters['price']['min_price'])) {
-			$and[] = "price >= ".$db->strencode(intval($filters['price']['min_price']));
+			$and[] = "price >= " . $db->strencode(intval($filters['price']['min_price']));
 		}
 		if (isset($filters['price']['max_price'])) {
-			$and[] = "price <= ".$db->strencode(intval($filters['price']['max_price']));
+			$and[] = "price <= " . $db->strencode(intval($filters['price']['max_price']));
 		}
 
 		if (isset($filters['providers']) && !empty($filters['providers'])) {
-			$and[] = "provider_id IN(".$db->makeList($filters['providers']).")";
+			$and[] = "provider_id IN(" . $db->makeList($filters['providers']) . ")";
 		}
 		if (isset($filters['plans']) && !empty($filters['plans'])) {
-			$and[] = "plan_name IN(".$db->makeList($filters['plans']).")";
+			$and[] = "plan_name IN(" . $db->makeList($filters['plans']) . ")";
 		}
 
 		if (count($and)) {
 			if (!empty($where)) {
-				$where .= ' AND ('.implode(' AND ', $and).')';
+				$where .= ' AND (' . implode(' AND ', $and) . ')';
 			} else {
 				$where = implode(' AND ', $and);
 			}
 		}
 
-		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid').' '.($sortDir == 'DESC' ? 'DESC' : 'ASC');
+		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
 		if ($start !== null) {
 			$options['OFFSET'] = $start;
 		}
@@ -219,7 +218,7 @@ class SubscriptionCache {
 	 *
 	 * @return integer Total
 	 */
-	static public function getLastSearchTotal() {
+	public static function getLastSearchTotal() {
 		return intval(self::$lastSearchResultTotal);
 	}
 
@@ -228,8 +227,8 @@ class SubscriptionCache {
 	 *
 	 * @return array Filter Values
 	 */
-	static public function getSearchFilterValues() {
-		//Filter types that need to be strictly clamped and checked.
+	public static function getSearchFilterValues() {
+		// Filter types that need to be strictly clamped and checked.
 		$_clamps = [
 			'date'	=> ['min_date', 'max_date'],
 			'price'	=> ['min_price', 'max_price']
@@ -320,7 +319,7 @@ class SubscriptionCache {
 				if (!isset($userFilters[$value])) {
 					$userFilters[$type][$value] = $filters[$type][$value];
 				} else {
-					//These are intentionally backwards so that users can not set out of bound values.
+					// These are intentionally backwards so that users can not set out of bound values.
 					if (strpos($value, 'min_') === 0) {
 						$userFilters[$type][$value] = max($filters[$type][$value], $userFilters[$value]);
 					} else {
@@ -342,7 +341,7 @@ class SubscriptionCache {
 	 *
 	 * @return array Active subscriptions, total users, and percentage.
 	 */
-	static public function getStatistics() {
+	public static function getStatistics() {
 		$db = self::getDb();
 
 		$result = $db->select(
@@ -374,7 +373,7 @@ class SubscriptionCache {
 	 *
 	 * @return object Database
 	 */
-	static private function getDb() {
+	private static function getDb() {
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {

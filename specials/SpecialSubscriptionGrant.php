@@ -4,12 +4,11 @@
  * Subscription
  * Subscription Grant Special Page
  *
- * @author		Michel Chaudhary
- * @copyright	(c) 2019 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Michel Chaudhary
+ * @copyright (c) 2019 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 class SpecialSubscriptionGrant extends SpecialPage {
@@ -29,7 +28,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param string Sub page passed in the URL.
+	 * @param  string Sub page passed in the URL.
 	 * @return void [Outputs to screen]
 	 */
 	public function execute($path) {
@@ -83,18 +82,18 @@ class SpecialSubscriptionGrant extends SpecialPage {
 					$subInfo = $gamepediaPro->getSubscription($userId);
 					if ($subInfo !== null) {
 						$expiresAt = $subInfo['expires']->getHumanTimestamp();
-						$this->output->addHTML("<span class='error'>Subscription for ".htmlspecialchars($username)."
-												already exists,ending on ".$expiresAt."<br />
+						$this->output->addHTML("<span class='error'>Subscription for " . htmlspecialchars($username) . "
+												already exists,ending on " . $expiresAt . "<br />
 												You'll need to overwrite the existing subscription.</span><br />");
 					}
 				} else {
-					$this->output->addHTML("<span class='success'>".$createSubResult["message"]."</span><br />");
+					$this->output->addHTML("<span class='success'>" . $createSubResult["message"] . "</span><br />");
 				}
-			} else if(!$this->isValidSubscriptionDuration($subscriptionDuration)) {
+			} elseif (!$this->isValidSubscriptionDuration($subscriptionDuration)) {
 				$this->output->addHTML("<span class='error'>Invalid subscription duration</span><br />");
 			} else {
 				$this->output->addHTML("<span class='error'>Invalid username</span><br />");
-				$this->output->addHTML(htmlspecialchars($username) . " User ID: ". $userId);
+				$this->output->addHTML(htmlspecialchars($username) . " User ID: " . $userId);
 			}
 		}
 
@@ -114,11 +113,11 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Ensure Subscription duration is valid
 	 *
-	 * @param int $duration  Subscription Duration
+	 * @param  int $duration Subscription Duration
 	 * @return boolean
 	 */
 	private function isValidSubscriptionDuration($duration) {
-		if(!is_numeric($duration) || $duration < 1 || $duration > 100) {
+		if (!is_numeric($duration) || $duration < 1 || $duration > 100) {
 			return false;
 		}
 		return true;

@@ -4,7 +4,7 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
- * @package Subscription
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
@@ -79,7 +79,7 @@ class SubscriptionHooks {
 	/**
 	 * Handle setting if the user requires HTTPS per subscription.
 	 *
-	 * @param object  $user User
+	 * @param object  $user          User
 	 * @param boolean $requiresHttps Requires HTTPS
 	 *
 	 * @return boolean True
@@ -103,11 +103,11 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
-	 * @param object $title Title
-	 * @param object $article Article
-	 * @param object $output Output
-	 * @param object $user User
-	 * @param object $request WebRequest
+	 * @param object $title     Title
+	 * @param object $article   Article
+	 * @param object $output    Output
+	 * @param object $user      User
+	 * @param object $request   WebRequest
 	 * @param object $mediaWiki Mediawiki
 	 *
 	 * @return boolean True
@@ -165,9 +165,9 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP.
 	 *
-	 * @param object $output OutputPage
+	 * @param object $output   OutputPage
 	 * @param string $redirect Redirect URL
-	 * @param string $code HTTP Status Code
+	 * @param string $code     HTTP Status Code
 	 *
 	 * @return boolean True
 	 */
@@ -238,7 +238,7 @@ class SubscriptionHooks {
 			$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
 
 			// Uncomment in the future to remove global ID column once migration is complete. - 2020-01-13 Alexia E. Smith
-			//$updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
+			// $updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
 		}
 
 		return true;

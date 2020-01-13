@@ -4,11 +4,11 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
- * @author Alexia E. Smith
+ * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
- * @license GNU General Public License v2.0 or later
- * @package Subscription
- * @link https://gitlab.com/hydrawiki
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
@@ -61,10 +61,10 @@ class Subscription {
 	/**
 	 * Return an initialized instance from a given User object.
 	 *
-	 * @param User $user User
+	 * @param  User $user User
 	 * @return void
 	 */
-	static public function newFromUser(User $user) {
+	public static function newFromUser(User $user) {
 		if (!$user->getId()) {
 			return false;
 		}
@@ -76,7 +76,7 @@ class Subscription {
 	 * Does this user have a valid active subscription?
 	 *
 	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
-	 *                           If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 *                                If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
 	 *
 	 * @return boolean
 	 */
@@ -94,7 +94,7 @@ class Subscription {
 	 * Does this user have a valid active subscription?
 	 *
 	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
-	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 *                                If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
 	 *
 	 * @return array Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
 	 */
@@ -133,7 +133,7 @@ class Subscription {
 	 * Return specified or all subscription providers.
 	 *
 	 * @param string $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
-	 * 					If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
+	 *                           If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
 	 *
 	 * @return array Subscription Providers.
 	 */
@@ -144,13 +144,13 @@ class Subscription {
 		if (isset($providers) && is_array($providers)) {
 			if ($providerId !== null) {
 				if (!array_key_exists($providerId, $providers)) {
-					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
+					throw new SubscriptionProviderException(__METHOD__ . ": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
 				}
 				$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
 			} else {
 				foreach ($providers as $providerId => $details) {
 					if ($details === null) {
-						//Provider has been nulled out to prevent processing it.
+						// Provider has been nulled out to prevent processing it.
 						continue;
 					}
 					$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
@@ -169,8 +169,8 @@ class Subscription {
 	 *
 	 * @return boolean Previous value, Enabled or Disabled
 	 */
-	static public function skipCache(?bool $skip = null) {
-		$return = self::$skipCache; //Copy so the return value is the old value if being changed.
+	public static function skipCache(?bool $skip = null) {
+		$return = self::$skipCache; // Copy so the return value is the old value if being changed.
 		if (is_bool($skip)) {
 			self::$skipCache = $skip;
 		}
@@ -184,8 +184,8 @@ class Subscription {
 	 *
 	 * @return boolean Previous value, Enabled or Disabled
 	 */
-	static public function useLocalCacheOnly($local = null) {
-		$return = self::$useLocalCacheOnly; //Copy so the return value is the old value if being changed.
+	public static function useLocalCacheOnly($local = null) {
+		$return = self::$useLocalCacheOnly; // Copy so the return value is the old value if being changed.
 		if (is_bool($local)) {
 			self::$useLocalCacheOnly = $local;
 		}
@@ -215,7 +215,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return CentralIdLookup|null
 	 */
-	static public function factory(?string $providerId = null) {
+	public static function factory(?string $providerId = null) {
 		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$wgSusbcriptionProviders = $config->get('SubscriptionProviders');
 
@@ -232,7 +232,7 @@ abstract class SubscriptionProvider {
 					$provider->providerId = $providerId;
 					self::$instances[$providerId] = $provider;
 				} else {
-					throw new SubscriptionProviderException(__METHOD__.": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend ".__CLASS__.".");
+					throw new SubscriptionProviderException(__METHOD__ . ": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend " . __CLASS__ . ".");
 				}
 			}
 		}
@@ -301,7 +301,7 @@ abstract class SubscriptionProvider {
 	 * @return integer Duration to cache API responses in seconds.
 	 */
 	public function getCacheDuration() {
-		return 600; //Cache for ten minutes.
+		return 600; // Cache for ten minutes.
 	}
 }
 

@@ -4,15 +4,14 @@
  * Subscription
  * Queue Subscription Updates
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
-require_once(dirname(__DIR__, 3).'/maintenance/Maintenance.php');
+require_once dirname(__DIR__, 3) . '/maintenance/Maintenance.php';
 
 namespace Hydra\Maintenance;
 
@@ -86,4 +85,4 @@ class QueueSubscriptionUpdates extends Maintenance {
 }
 
 $maintClass = "Hydra\Maintenance\QueueSubscriptionUpdates";
-require_once(RUN_MAINTENANCE_IF_MAIN);
+require_once RUN_MAINTENANCE_IF_MAIN;

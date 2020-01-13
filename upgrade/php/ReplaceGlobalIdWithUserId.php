@@ -2,7 +2,7 @@
 /**
  * Replace Global ID with User ID Maintenance Script
  *
- * @package Subscription
+ * @package   Subscription
  * @copyright (c) 2020 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki

@@ -4,12 +4,11 @@
  * Subscription
  * Subscription Special Page
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 class SpecialSubscription extends SpecialPage {
@@ -29,7 +28,7 @@ class SpecialSubscription extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param string Sub page passed in the URL.
+	 * @param  string Sub page passed in the URL.
 	 * @return void [Outputs to screen]
 	 */
 	public function execute($path) {
@@ -78,7 +77,7 @@ class SpecialSubscription extends SpecialPage {
 
 		$userFilters = $this->wgRequest->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
 
-		$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $total, $itemsPerPage, $start, 4, (array) $userFilters);
+		$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $total, $itemsPerPage, $start, 4, (array)$userFilters);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
 		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, '', 'DESC', $searchTerm));

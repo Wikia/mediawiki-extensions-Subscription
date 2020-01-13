@@ -3,12 +3,11 @@
  * Subscription
  * Gamepedia Pro API and Access
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
  */
 
 namespace Hydra\Provider;
@@ -18,7 +17,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 * API configuration.
 	 *
 	 * @access private
-	 * @var array
+	 * @var    array
 	 */
 	static private $apiConfig = [];
 
@@ -179,12 +178,12 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 		if (!\Hydra\Subscription::skipCache()) {
 			$wgCache = wfGetCache(CACHE_ANYTHING);
 
-			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)).':v1');
+			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)) . ':v1');
 			if (!empty($cached)) {
 				return $cached;
 			}
 			if (\Hydra\Subscription::useLocalCacheOnly()) {
-				//Do not call out to the API if local cache only is set.
+				// Do not call out to the API if local cache only is set.
 				return false;
 			}
 		}
@@ -194,7 +193,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 
 		$endPoint = wfExpandUrl($apiConfig['endpoint'], ($apiConfig['https'] ? PROTO_HTTPS : PROTO_CURRENT));
 
-		$url = $endPoint.implode('/', $pieces);
+		$url = $endPoint . implode('/', $pieces);
 
 		$options = [
 			'method'			=> 'POST',
@@ -227,7 +226,7 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	/**
 	 * Cache API Response into memory.
 	 *
-	 * @param array $pieces URL pieces between slashes as originally given to self::callApi().
+	 * @param array $pieces   URL pieces between slashes as originally given to self::callApi().
 	 * @param mixed $response The response to cache.
 	 *
 	 * @return boolean Success
@@ -235,8 +234,8 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	private function cacheApiResponse(array $pieces, $response) {
 		$wgCache = wfGetCache(CACHE_ANYTHING);
 
-		//Cache for thirty minutes.
-		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)).':v1', $response, $this->getCacheDuration());
+		// Cache for thirty minutes.
+		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)) . ':v1', $response, $this->getCacheDuration());
 	}
 
 	/**
