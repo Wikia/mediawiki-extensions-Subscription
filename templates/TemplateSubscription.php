@@ -78,7 +78,7 @@ class TemplateSubscription {
 				$user = User::newFromId($subscription['user_id']);
 				$html .= "
 						<tr>
-							<td>".($user !== null ? $user->getName() : $subscription['global_id'])."</td>
+							<td>".($user !== null ? $user->getName() : $subscription['user_id'])."</td>
 							<td>{$subscription['provider_id']}</td>
 							<td class='active'>".(isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;")."</td>
 							<td>".(isset($subscription['begins']) ? wfTimestamp(TS_DB, $subscription['begins']) : "&nbsp;")."</td>
