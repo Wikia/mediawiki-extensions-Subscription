@@ -16,11 +16,11 @@ namespace Hydra;
 
 class Subscription {
 	/**
-	 * Global User ID
+	 * User ID
 	 *
 	 * @var		integer
 	 */
-	private $globalId;
+	private $userId;
 
 	/**
 	 * Main Config Factory
@@ -47,11 +47,11 @@ class Subscription {
 	 * Main Constructor
 	 *
 	 * @access	public
-	 * @param	integer	Global User ID
+	 * @param	integer	User ID
 	 * @return	void
 	 */
-	public function __construct($globalId) {
-		$this->globalId = intval($globalId);
+	public function __construct($userId) {
+		$this->userId = intval($userId);
 
 		$this->config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
 	}
@@ -60,17 +60,15 @@ class Subscription {
 	 * Return an initialized instance from a given User object.
 	 *
 	 * @access	public
-	 * @param	object	User
+	 * @param	object $user User
 	 * @return	void
 	 */
 	static public function newFromUser($user) {
-		$lookup = \CentralIdLookup::factory();
-		$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
-		if (!$globalId) {
+		if (!$user->getId()) {
 			return false;
 		}
 
-		return new self($globalId);
+		return new self($user->getId());
 	}
 
 	/**
@@ -83,7 +81,7 @@ class Subscription {
 	 */
 	public function hasSubscription($providerId = null) {
 		foreach ($this->getSubscriptionProviders() as $subscription) {
-			if ($subscription !== null && $subscription->hasSubscription($this->globalId)) {
+			if ($subscription !== null && $subscription->hasSubscription($this->userId)) {
 				return true;
 			}
 		}
@@ -105,7 +103,7 @@ class Subscription {
 			$_subscriptions[$providerId] = false;
 			$subscription = SubscriptionProvider::factory($providerId);
 			if ($subscription !== null) {
-				$_subscriptions[$providerId] = $subscription->getSubscription($this->globalId);
+				$_subscriptions[$providerId] = $subscription->getSubscription($this->userId);
 			}
 		}
 
@@ -122,7 +120,7 @@ class Subscription {
 	public function getFlairClasses($providerId = null) {
 		$classess = [];
 		foreach ($this->getSubscriptionProviders() as $subscription) {
-			if ($subscription !== null && !empty($subscription->getFlairClass()) && $subscription->hasSubscription($this->globalId)) {
+			if ($subscription !== null && !empty($subscription->getFlairClass()) && $subscription->hasSubscription($this->userId)) {
 				$classess[] = $subscription->getFlairClass();
 			}
 		}
@@ -248,7 +246,7 @@ abstract class SubscriptionProvider {
 	 * @param	integer	Global User ID
 	 * @return	boolean	Has Subscription
 	 */
-	abstract public function hasSubscription($globalId);
+	abstract public function hasSubscription($userId);
 
 	/**
 	 * Get the subscription information for a specific global user ID.
@@ -267,7 +265,7 @@ abstract class SubscriptionProvider {
 	 * @param	integer	Global User ID
 	 * @return	mixed	Subscription information, false on API failure.
 	 */
-	abstract public function getSubscription($globalId);
+	abstract public function getSubscription($userId);
 
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
@@ -276,7 +274,7 @@ abstract class SubscriptionProvider {
 	 * @param	integer	Global User ID
 	 * @param	integer	Number of months to compensate.
 	 */
-	abstract public function createCompedSubscription($globalId, $months);
+	abstract public function createCompedSubscription($userId, $months);
 
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
@@ -285,7 +283,7 @@ abstract class SubscriptionProvider {
 	 * @param	integer	Global User ID
 	 * @return	mixed	Response message such as below or false on API failure.
 	 */
-	abstract public function cancelCompedSubscription($globalId);
+	abstract public function cancelCompedSubscription($userId);
 
 	/**
 	 * Return a valid CSS class for flair display.

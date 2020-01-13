@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/subscription ADD `user_id` INT(16) NOT NULL DEFAULT '0' AFTER `global_id`;

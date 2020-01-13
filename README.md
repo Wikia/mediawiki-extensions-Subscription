@@ -10,10 +10,10 @@ If the wiki is using a Central ID provider such as CentrlAuth or HydraAuth then 
 $subscription = \Hydra\Subscription::newFromUser($user);
 ```
 
-Otherwise, the Subscription can be constructed manually with a known global ID relevant to the Subscription service being used.  
+Otherwise, the Subscription can be constructed manually with a known user ID relevant to the Subscription service being used.  
 ```php
-$globalId = $example->getOtherServiceGlobalId();
-$subscription = new \Hydra\Subscription($globalId);
+$userId = $example->getOtherServiceUserId();
+$subscription = new \Hydra\Subscription($userId);
 ```
 
 Finally, call `hasSubscription()` on the object which return a boolean.

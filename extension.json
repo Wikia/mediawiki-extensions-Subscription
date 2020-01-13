@@ -37,9 +37,10 @@
 		"Hydra\\Subscription": "classes/Subscription.php",
 		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
 		"Hydra\\SubscriptionProvider": "classes/Subscription.php",
-		"SubscriptionHooks": "Subscription.hooks.php",
+		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
 		"SpecialSubscription": "specials/SpecialSubscription.php",
 		"SpecialSubscriptionGrant": "specials/SpecialSubscriptionGrant.php",
+		"SubscriptionHooks": "Subscription.hooks.php",
 		"TemplateSubscription": "templates/TemplateSubscription.php"
 	},
 	"ResourceModules": {
