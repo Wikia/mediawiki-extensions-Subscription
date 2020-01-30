@@ -12,6 +12,7 @@
 
 namespace Hydra\SubscriptionProvider;
 
+use Hydra\Subscription;
 use Hydra\SubscriptionProvider;
 use MWTimestamp;
 
@@ -50,7 +51,7 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = wfGetDB(DB_REPLICA);
+		$db = Subscription::getSharedDb(DB_REPLICA);
 		$result = $db->select(
 			['subscription_comp'],
 			['*'],
@@ -90,7 +91,7 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = wfGetDB(DB_MASTER);
+		$db = Subscription::getSharedDb(DB_MASTER);
 		$result = $db->upsert(
 			'subscription_comp',
 			[
@@ -121,7 +122,7 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = wfGetDB(DB_MASTER);
+		$db = Subscription::getSharedDb(DB_MASTER);
 		$result = $db->update(
 			'subscription',
 			[
