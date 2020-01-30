@@ -20,7 +20,7 @@
 	],
 	"SpecialPages": {
 		"Subscription": "SpecialSubscription",
-		"Subscription_Grant": "SpecialSubscriptionGrant"
+		"SubscriptionGrant": "SpecialSubscriptionGrant"
 	},
 	"MessagesDirs": {
 		"Subscription": [
@@ -33,12 +33,12 @@
 	},
 	"AutoloadClasses": {
 		"Hydra\\Job\\UpdateUserSubscriptionsJob": "classes/jobs/UpdateUserSubscriptionsJob.php",
-		"Hydra\\Provider\\GamepediaPro": "classes/providers/GamepediaPro.php",
+		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
 		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
 		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",
 		"Hydra\\SubscriptionProviderException": "classes/SubscriptionProviderException.php",
-		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
+		"Hydra\\SubscriptionProvider\\GamepediaPro": "classes/providers/GamepediaPro.php",
 		"SpecialSubscription": "specials/SpecialSubscription.php",
 		"SpecialSubscriptionGrant": "specials/SpecialSubscriptionGrant.php",
 		"SubscriptionHooks": "Subscription.hooks.php",
@@ -94,7 +94,7 @@
 	"config": {
 		"SubscriptionProviders": {
 			"GamepediaPro": {
-				"class": "Hydra\\Provider\\GamepediaPro"
+				"class": "Hydra\\SubscriptionProvider\\GamepediaPro"
 			}
 		},
 		"SubscriptionProvider": "GamepediaPro",

@@ -111,7 +111,7 @@ class TemplateSubscription {
 	 * @return string Built HTML
 	 */
 	public function subscriptionGrant($formValues = null) {
-		$subscriptionPage = Title::newFromText('Special:Subscription_Grant');
+		$subscriptionPage = Title::newFromText('Special:SubscriptionGrant');
 		$subscriptionURL = $subscriptionPage->getFullURL();
 
 		$html = "

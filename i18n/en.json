@@ -3,7 +3,7 @@
 		"authors": ["Alexia E. Smith"]
 	},
 	"subscription": "Subscription",
-	"subscription_grant": "Subscription Grant",
+	"subscriptiongrant": "Subscription Grant",
 	"subscriptions": "Subscriptions",
 	"action-subscription": "view or modify subscriptions",
 	"grant-subscription": "Grant Subscription",

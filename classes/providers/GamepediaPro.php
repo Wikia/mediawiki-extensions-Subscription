@@ -10,24 +10,12 @@
  * @link      https://gitlab.com/hydrawiki
  */
 
-namespace Hydra\Provider;
+namespace Hydra\SubscriptionProvider;
 
-class GamepediaPro extends \Hydra\SubscriptionProvider {
-	/**
-	 * API configuration.
-	 *
-	 * @access private
-	 * @var    array
-	 */
-	static private $apiConfig = [];
+use Hydra\SubscriptionProvider;
+use MWTimestamp;
 
-	/**
-	 * API Key
-	 *
-	 * @var string
-	 */
-	static private $apiKey = '';
-
+class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * Get if a specific global user ID has an entitlement.
 	 * Just a basic true or false, nothing more.
@@ -41,15 +29,10 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 			return false;
 		}
 
-		$pieces = [
-			'get-user-entitlement',
-			$userId
-		];
+		$data = $this->getSubscription($userId);
 
-		$data = self::callApi($pieces);
-
-		if ($data !== false && isset($data['hasEntitlement'])) {
-			return $data['hasEntitlement'];
+		if ($data !== false && isset($data['active'])) {
+			return $data['active'];
 		}
 
 		return false;
@@ -60,43 +43,35 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @param integer $userId User ID
 	 *
-	 * @return mixed Subscription information, null on missing subscription, false on API failure.
+	 * @return array|boolean Subscription information, null on missing subscription, false on failure.
 	 */
 	public function getSubscription(int $userId) {
 		if ($userId < 1) {
 			return false;
 		}
 
-		$pieces = [
-			'get-user-subscription',
-			$userId
-		];
+		$db = wfGetDB(DB_REPLICA);
+		$result = $db->select(
+			['subscription_comp'],
+			['*'],
+			[
+				'user_id'		=> $userId
+			],
+			__METHOD__
+		);
+		$data = $result->fetchRow();
 
-		$data = self::callApi($pieces);
-
-		if ($data !== false && $data !== null) {
-			if (isset($data['errorCode']) || isset($data['planId']) || isset($data['goodThru'])) {
-				if (isset($data['goodThru'])) {
-					$expires = new \MWTimestamp($data['goodThru']);
-				} elseif (isset($data['paidThruDate'])) {
-					$expires = new \MWTimestamp($data['paidThruDate']);
-				} else {
-					$expires = false;
-				}
-
-				$subscription = [
-					'active'			=> (isset($data['status']) && $data['status'] == 1 ? true : false),
-					'begins'			=> false,
-					'expires'			=> $expires,
-					'plan_id'			=> (isset($data['planId']) ? $data['planId'] : 'complimentary'),
-					'plan_name'			=> (isset($data['planName']) ? $data['planName'] : 'Complimentary'),
-					'price'				=> (isset($data['planPrice']) ? floatval($data['planPrice']) : 0.00),
-					'subscription_id'	=> (isset($data['subscriptionId']) ? floatval($data['subscriptionId']) : '')
-				];
-				return $subscription;
-			}
-		} elseif ($data === null) {
-			return null;
+		if (!empty($data)) {
+			$subscription = [
+				'active'			=> boolval($data),
+				'begins'			=> false,
+				'expires'			=> new MWTimestamp($data['expires']),
+				'plan_id'			=> 'complimentary',
+				'plan_name'			=> 'Complimentary',
+				'price'				=> 0.00,
+				'subscription_id'	=> 'comped_' . $userId
+			];
+			return $subscription;
 		}
 
 		return false;
@@ -108,32 +83,30 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 * @param integer $userId User ID
 	 * @param integer $months Number of months to compensate.
 	 *
-	 * @return mixed Response message such as below or false on API failure.
-	 *		{"code":200,"message":"Comped subscription successfully created."}
-	 *		{"code":500,"message":"Could not create comped subscription. Error message:..."}
-	 *		{"errorCode":500,"errorMessage":"An unhandled exception occurred while processing the request."}
+	 * @return boolean Success
 	 */
 	public function createCompedSubscription(int $userId, int $months) {
 		if ($userId < 1 || $months < 1) {
 			return false;
 		}
 
-		$pieces = [
-			'create-comped-subscription',
-			$userId,
-			$months,
-			1
-		];
+		$db = wfGetDB(DB_MASTER);
+		$result = $db->upsert(
+			'subscription_comp',
+			[
+				'active' => 1,
+				'expires' => strtotime('+' . $months . ' months'),
+				'user_id' => $userId
+			],
+			['scid', 'user_id'],
+			[
+				'active' => 1,
+				'expires' => strtotime('+' . $months . ' months')
+			],
+			__METHOD__
+		);
 
-		$data = self::callApi($pieces, false);
-
-		if ($data !== false) {
-			if (isset($data['code']) || isset($data['errorCode'])) {
-				return $data;
-			}
-		}
-
-		return false;
+		return $result;
 	}
 
 	/**
@@ -141,101 +114,24 @@ class GamepediaPro extends \Hydra\SubscriptionProvider {
 	 *
 	 * @param integer $userId User ID
 	 *
-	 * @return mixed Response message such as below or false on API failure.
-	 *		{"code":200,"message":"Comped subscription successfully created."}
-	 *		{"code":500,"message":"Could not create comped subscription. Error message:..."}
-	 *		{"errorCode":500,"errorMessage":"An unhandled exception occurred while processing the request."}
+	 * @return boolean Success
 	 */
 	public function cancelCompedSubscription(int $userId) {
 		if ($userId < 1) {
 			return false;
 		}
 
-		$pieces = [
-			'cancel-comped-subscription',
-			$userId
-		];
+		$db = wfGetDB(DB_MASTER);
+		$result = $db->update(
+			'subscription',
+			[
+				'active' => 0
+			],
+			['user_id' => $userId],
+			__METHOD__
+		);
 
-		$data = self::callApi($pieces, false);
-
-		if ($data !== false) {
-			if (isset($data['code']) || isset($data['errorCode'])) {
-				return $data;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Make API call.
-	 *
-	 * @param array $pieces URL pieces between slashes.  Example ['get-user-subscription', 9001] would become 'https://www.exmaple.com/get-user-subscription/9001'.
-	 *
-	 * @return mixed JSON data on success, null on 404, false on a fatal error.
-	 */
-	private function callApi(array $pieces) {
-		if (!\Hydra\Subscription::skipCache()) {
-			$wgCache = wfGetCache(CACHE_ANYTHING);
-
-			$cached = $wgCache->get(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)) . ':v1');
-			if (!empty($cached)) {
-				return $cached;
-			}
-			if (\Hydra\Subscription::useLocalCacheOnly()) {
-				// Do not call out to the API if local cache only is set.
-				return false;
-			}
-		}
-
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
-		$apiConfig = $config->get('GProApiConfig');
-
-		$endPoint = wfExpandUrl($apiConfig['endpoint'], ($apiConfig['https'] ? PROTO_HTTPS : PROTO_CURRENT));
-
-		$url = $endPoint . implode('/', $pieces);
-
-		$options = [
-			'method'			=> 'POST',
-			'postData'			=> '=',
-			'timeout'			=> 1,
-			'connectTimeout'	=> 1
-		];
-		if ($apiConfig['ssl_verify'] === false) {
-			$options['sslVerifyHost'] = false;
-			$options['sslVerifyCert'] = false;
-		}
-
-		$request = \MWHttpRequest::factory($url, $options, __METHOD__);
-		$request->setHeader('x-api-key', $apiConfig['api_key']);
-		$status = $request->execute();
-
-		if ($status->isOK()) {
-			$data = @json_decode($request->getContent(), true);
-
-			$this->cacheApiResponse($pieces, $data);
-
-			return $data;
-		} elseif (!$status->isOK() && $request->getStatus() == 404) {
-			return null;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Cache API Response into memory.
-	 *
-	 * @param array $pieces   URL pieces between slashes as originally given to self::callApi().
-	 * @param mixed $response The response to cache.
-	 *
-	 * @return boolean Success
-	 */
-	private function cacheApiResponse(array $pieces, $response) {
-		$wgCache = wfGetCache(CACHE_ANYTHING);
-
-		// Cache for thirty minutes.
-		return $wgCache->set(call_user_func_array('wfGlobalCacheKey', array_merge(['GamepediaPro'], $pieces)) . ':v1', $response, $this->getCacheDuration());
+		return $result;
 	}
 
 	/**

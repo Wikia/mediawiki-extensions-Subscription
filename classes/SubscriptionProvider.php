@@ -97,6 +97,8 @@ abstract class SubscriptionProvider {
 	 *
 	 * @param integer $userId User ID
 	 * @param integer $months Number of months to compensate.
+	 *
+	 * @return boolean Success
 	 */
 	abstract public function createCompedSubscription(int $userId, int $months);
 
@@ -105,7 +107,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @param integer $userId User ID
 	 *
-	 * @return mixed Response message such as below or false on API failure.
+	 * @return boolean Success
 	 */
 	abstract public function cancelCompedSubscription(int $userId);
 

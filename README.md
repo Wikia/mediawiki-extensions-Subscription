@@ -34,5 +34,5 @@ Extend the abstract class \Hydra\SubscriptionProvider.  The class has documentat
 Then add the class to $wgSubscriptionProviders.
 
 ```php
-$wgSubscriptionProviders["CursePremium"] = ["class" => "Hydra\\Provider\\ExampleSubscription"];
+$wgSubscriptionProviders["CursePremium"] = ["class" => "Hydra\\SubscriptionProvider\\ExampleSubscription"];
 ```

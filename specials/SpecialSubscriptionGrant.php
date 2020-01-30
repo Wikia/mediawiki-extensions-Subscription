@@ -18,7 +18,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		parent::__construct('Subscription_Grant', 'subscription', true);
+		parent::__construct('SubscriptionGrant', 'subscription', true);
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -50,7 +50,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 */
 	public function subscriptionGrantForm() {
 		$formData = null;
-		$this->output->setPageTitle(wfMessage('subscription_grant')->escaped());
+		$this->output->setPageTitle(wfMessage('subscriptiongrant')->escaped());
 
 		if ($this->wgRequest->getVal('do') == 'grant_subscription') {
 			$username = trim($this->wgRequest->getVal('username'));
@@ -64,6 +64,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			$user = User::newFromName($username);
 
 			if ($user->getId() && $this->isValidSubscriptionDuration($subscriptionDuration)) {
+				$userId = $user->getId();
 				$gamepediaPro = \Hydra\SubscriptionProvider::factory('GamepediaPro');
 				\Hydra\Subscription::skipCache(true);
 
@@ -87,7 +88,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 												You'll need to overwrite the existing subscription.</span><br />");
 					}
 				} else {
-					$this->output->addHTML("<span class='success'>" . $createSubResult["message"] . "</span><br />");
+					$this->output->addHTML("<span class='success'>" . $createSubResult ? 'Comped subscription successfully created.' : 'Failed to create comped subscription.' . "</span><br />");
 				}
 			} elseif (!$this->isValidSubscriptionDuration($subscriptionDuration)) {
 				$this->output->addHTML("<span class='error'>Invalid subscription duration</span><br />");
