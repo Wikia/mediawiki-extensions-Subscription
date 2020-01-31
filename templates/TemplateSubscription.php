@@ -116,7 +116,7 @@ class TemplateSubscription {
 
 		$html = "
 			<div id='sub-grant'>
-				<form method='get' action='{$subscriptionURL}'>
+				<form method='POST' action='{$subscriptionURL}'>
 					<fieldset>
 						<input type='hidden' name='do' value='grant_subscription'/>
 						<input type='text' name='username' value='" . htmlentities((!empty($formValues['username']) ? $formValues['username'] : '')) . "' placeholder='" . wfMessage('username')->escaped() . "'/>

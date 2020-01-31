@@ -52,7 +52,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 		$formData = null;
 		$this->output->setPageTitle(wfMessage('subscriptiongrant')->escaped());
 
-		if ($this->wgRequest->getVal('do') == 'grant_subscription') {
+		if ($this->wgRequest->getVal('do') == 'grant_subscription' && $this->wgRequest->wasPosted()) {
 			$username = trim($this->wgRequest->getVal('username'));
 			$subscriptionDuration = trim($this->wgRequest->getVal('duration'));
 			$overwriteSub = $this->wgRequest->getVal('overwriteSub');
@@ -69,25 +69,27 @@ class SpecialSubscriptionGrant extends SpecialPage {
 				\Hydra\Subscription::skipCache(true);
 
 				// Cancel any existing subscription before applying a new one
-				if ($overwriteSub == 'checked') {
+				$cancel = false;
+				if ($overwriteSub === 'checked' || $subscriptionDuration == 0) {
 					$cancel = $gamepediaPro->cancelCompedSubscription($userId);
+					$this->output->addHTML("<span class='success'>" . $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.' . "</span><br />");
 				}
 
-				$createSubResult = $gamepediaPro->createCompedSubscription($userId, $subscriptionDuration);
+				if ($subscriptionDuration > 0) {
+					$createSubResult = $gamepediaPro->createCompedSubscription($userId, $subscriptionDuration);
+					if ($createSubResult === false) {
+						$this->output->addHTML("<span class='error'>Error creating subscription</span><br />");
 
-				// Something went wrong creating the subscription
-				if ($createSubResult === false) {
-					$this->output->addHTML("<span class='error'>Error creating subscription</span><br />");
-
-					// Usually what went wrong is the existing subscritpion wasn't cancelled first
-					$subInfo = $gamepediaPro->getSubscription($userId);
-					if ($subInfo !== null) {
-						$expiresAt = $subInfo['expires']->getHumanTimestamp();
-						$this->output->addHTML("<span class='error'>Subscription for " . htmlspecialchars($username) . "
-												already exists,ending on " . $expiresAt . "<br />
-												You'll need to overwrite the existing subscription.</span><br />");
+						// Usually what went wrong is the existing subscritpion wasn't cancelled first
+						$subInfo = $gamepediaPro->getSubscription($userId);
+						if (!$cancel = is_array($subInfo) && $subInfo['active']) {
+							$expiresAt = $subInfo['expires']->getHumanTimestamp();
+							$this->output->addHTML("<span class='error'>Subscription for " . htmlspecialchars($username) . "
+													already exists, ending on " . $expiresAt . "<br />
+													You'll need to overwrite the existing subscription.</span><br />");
+						}
 					}
-				} else {
+
 					$this->output->addHTML("<span class='success'>" . $createSubResult ? 'Comped subscription successfully created.' : 'Failed to create comped subscription.' . "</span><br />");
 				}
 			} elseif (!$this->isValidSubscriptionDuration($subscriptionDuration)) {
@@ -118,7 +120,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 * @return boolean
 	 */
 	private function isValidSubscriptionDuration($duration) {
-		if (!is_numeric($duration) || $duration < 1 || $duration > 100) {
+		if (!is_numeric($duration) || $duration < 0 || $duration > 100) {
 			return false;
 		}
 		return true;

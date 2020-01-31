@@ -124,7 +124,7 @@ class GamepediaPro extends SubscriptionProvider {
 
 		$db = Subscription::getSharedDb(DB_MASTER);
 		$result = $db->update(
-			'subscription',
+			'subscription_comp',
 			[
 				'active' => 0
 			],
