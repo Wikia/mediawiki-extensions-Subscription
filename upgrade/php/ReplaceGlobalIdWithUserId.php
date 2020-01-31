@@ -71,11 +71,22 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	protected function cleanup(
 		string $table, string $primaryKey, array $globalIdFields, array $orderby
 	) {
+		$dbw = $this->getDB(DB_MASTER);
+
+		foreach ($globalIdFields as $key => $value) {
+			if (!$dbw->fieldExists($table, $key)) {
+				unset($globalIdFields[$key]);
+			}
+		}
+		if (empty($globalIdFields)) {
+			$this->output("Skipping due to global ID fields not being present.\n");
+			return;
+		}
+
 		$this->output(
 			"Beginning cleanup of $table\n"
 		);
 
-		$dbw = $this->getDB(DB_MASTER);
 		$next = '1=1';
 		$count = 0;
 		while (true) {

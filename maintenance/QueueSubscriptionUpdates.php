@@ -31,7 +31,7 @@ class QueueSubscriptionUpdates extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 
-		$this->mDescription = "Update subscriptions from providers for given list of global user IDs.";
+		$this->mDescription = "Update subscriptions from providers for given list of user IDs.";
 	}
 
 	/**
