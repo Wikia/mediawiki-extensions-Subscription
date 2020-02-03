@@ -4,7 +4,7 @@
  * Subscription
  * Subscription Grant Special Page
  *
- * @author    Michel Chaudhary
+ * @author    Michael Chaudhary
  * @copyright (c) 2019 Curse Inc.
  * @license   GPL-2.0-or-later
  * @package   Subscription
