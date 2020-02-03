@@ -192,10 +192,7 @@ class SubscriptionCache {
 			$options
 		);
 
-		if (!$results) {
-			self::$lastSearchResultTotal = 0;
-			return [];
-		}
+		$subscriptions = [];
 		while ($row = $results->fetchRow()) {
 			$subscriptions[] = $row;
 		}
