@@ -17,5 +17,6 @@ $specialPageAliases = [];
  * English (English)
 */
 $specialPageAliases['en'] = [
-	'Subscription' => ['Subscription']
+	'Subscription' => ['Subscription'],
+	'SubscriptionGrant' => ['SubscriptionGrant']
 ];
