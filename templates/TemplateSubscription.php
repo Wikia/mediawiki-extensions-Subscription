@@ -55,7 +55,7 @@ class TemplateSubscription {
 				</form>
 			</div>
 			<div id='subscription_list'>
-				<div>{$pagination}<span id='subscription_statistics'>" . wfMessage("subscriber_statistics")->params(\Hydra\SubscriptionCache::getStatistics())->escaped() . "</span></div>
+				<div>{$pagination}<span id='subscription_statistics'>" . wfMessage("subscriber_statistics")->params(array_values(\Hydra\SubscriptionCache::getStatistics()))->escaped() . "</span></div>
 				<table class='with_filters'>
 					<thead>
 						<tr class='sortable' data-sort-dir='" . ($sortDir == 'desc' ? 'desc' : 'asc') . "'>
