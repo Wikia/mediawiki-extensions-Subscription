@@ -4,37 +4,41 @@
  * Subscription
  * Subscription Caching
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
+
+use ConfigFactory;
+use MediaWiki\MediaWikiServices;
+use RequestContext;
+use User;
 
 class SubscriptionCache {
 	/**
 	 * Last serach result total.
 	 *
-	 * @var		integer
+	 * @var integer
 	 */
 	static private $lastSearchResultTotal = 0;
 
 	/**
 	 * Update the local subscription cache for a global ID and provider ID.
 	 *
-	 * @access	public
-	 * @param	integer	Global User ID
-	 * @param	string	Provider ID - As defined in $wgSubscriptionProviders.
-	 * @param	array	Subscription data as returned by a subscription provider.
-	 * @return	boolean	Success
+	 * @param integer $userId       User ID
+	 * @param string  $providerId   Provider ID - As defined in $wgSubscriptionProviders.
+	 * @param array   $subscription Subscription data as returned by a subscription provider.
+	 *
+	 * @return boolean Success
 	 */
-	static public function updateLocalCache($globalId, $providerId, $subscription) {
+	public static function updateLocalCache($userId, $providerId, $subscription) {
 		$db = self::getDb();
 
-		if ($globalId < 1 || empty($providerId)) {
+		if ($userId < 1 || empty($providerId)) {
 			return false;
 		}
 
@@ -42,7 +46,7 @@ class SubscriptionCache {
 			$success = $db->delete(
 				'subscription',
 				[
-					'global_id'		=> $globalId,
+					'user_id'		=> $userId,
 					'provider_id'	=> $providerId
 				],
 				__METHOD__
@@ -51,7 +55,7 @@ class SubscriptionCache {
 		}
 
 		$save = [
-			'global_id'			=> $globalId,
+			'user_id'			=> $userId,
 			'provider_id'		=> $providerId,
 			'active'			=> $subscription['active'],
 			'begins'			=> ($subscription['begins'] !== false ? $subscription['begins']->getTimestamp(TS_MW) : null),
@@ -66,7 +70,7 @@ class SubscriptionCache {
 			['subscription'],
 			['*'],
 			[
-				'global_id'		=> $globalId,
+				'user_id'		=> $userId,
 				'provider_id'	=> $providerId
 			],
 			__METHOD__
@@ -102,78 +106,76 @@ class SubscriptionCache {
 	/**
 	 * Return a filtered search of subscriptions.
 	 *
-	 * @access	public
-	 * @param	integer	Zero based start position.
-	 * @param	integer	Total number of results to return.
-	 * @param	string	[Optional] Search term to filter by.
-	 * @param	array	[Optional] Filters for where statement.
-	 * @param	string	[Optional] Database field name to sort by, defaults to 'wiki_name'.
-	 * @param	string	[Optional] Database sort direction, defaults to 'ASC'.
-	 * @return	array	an array of resulting objects, possibly empty.
+	 * @param integer     $start        Zero based start position.
+	 * @param integer     $itemsPerPage Total number of results to return.
+	 * @param string|null $searchTerm   [Optional] Search term to filter by.
+	 * @param array       $filters      [Optional] Filters for where statement.
+	 * @param string      $sortKey      [Optional] Database field name to sort by, defaults to 'sid'.
+	 * @param string      $sortDir      [Optional] Database sort direction, defaults to 'ASC'.
+	 *
+	 * @return array An array of resulting objects, possibly empty.
 	 */
-	static public function filterSearch($start, $itemsPerPage, $searchTerm = null, $filters, $sortKey = 'sid', $sortDir = 'ASC') {
+	public static function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'sid', string $sortDir = 'ASC') {
 		$db = self::getDb();
 
-		$searchableFields = ['global_id', 'provider_id', 'active'];
+		$searchableFields = ['user_id', 'provider_id', 'active'];
 		$tables = ['subscription'];
 
 		if (!empty($searchTerm)) {
 			$searchResults = $db->select(
 				['user'],
 				['*'],
-				['CONVERT(user_name USING utf8) LIKE "%'.$db->strencode($searchTerm).'%"'],
+				['CONVERT(user_name USING utf8) LIKE "%' . $db->strencode($searchTerm) . '%"'],
 				__METHOD__
 			);
 
-			$lookup = \CentralIdLookup::factory();
-			$globalIds = [];
+			$userIds = [];
 			while ($row = $searchResults->fetchObject()) {
-				$user = \User::newFromRow($row);
-				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
-				if (!$globalId) {
+				$user = User::newFromRow($row);
+				if (!$user->getId()) {
 					continue;
 				}
 
-				$globalIds[] = $globalId;
+				$userIds[] = $user->getId();
 			}
-			if (!empty($globalIds)) {
-				$and[] = "global_id IN(".$db->makeList($globalIds).")";
+			if (!empty($userIds)) {
+				$and[] = "user_id IN(" . $db->makeList($userIds) . ")";
 			} else {
-				//This is a dumb helper to produce "No results" when no valid user was foudn.
-				$and[] = "global_id = -2";
+				// This is a dumb helper to produce "No results" when no valid user was foudn.
+				$and[] = "user_id = -2";
 			}
 		}
 
 		if (isset($filters['date']['min_date'])) {
-			$and[] = "begins >= ".$db->strencode(intval($filters['date']['min_date']));
+			$and[] = "begins >= " . $db->strencode(intval($filters['date']['min_date']));
 		}
 		if (isset($filters['date']['max_date'])) {
-			$and[] = "expires <= ".$db->strencode(intval($filters['date']['max_date']));
+			$and[] = "expires <= " . $db->strencode(intval($filters['date']['max_date']));
 		}
 
 		if (isset($filters['price']['min_price'])) {
-			$and[] = "price >= ".$db->strencode(intval($filters['price']['min_price']));
+			$and[] = "price >= " . $db->strencode(intval($filters['price']['min_price']));
 		}
 		if (isset($filters['price']['max_price'])) {
-			$and[] = "price <= ".$db->strencode(intval($filters['price']['max_price']));
+			$and[] = "price <= " . $db->strencode(intval($filters['price']['max_price']));
 		}
 
 		if (isset($filters['providers']) && !empty($filters['providers'])) {
-			$and[] = "provider_id IN(".$db->makeList($filters['providers']).")";
+			$and[] = "provider_id IN(" . $db->makeList($filters['providers']) . ")";
 		}
 		if (isset($filters['plans']) && !empty($filters['plans'])) {
-			$and[] = "plan_name IN(".$db->makeList($filters['plans']).")";
+			$and[] = "plan_name IN(" . $db->makeList($filters['plans']) . ")";
 		}
 
 		if (count($and)) {
 			if (!empty($where)) {
-				$where .= ' AND ('.implode(' AND ', $and).')';
+				$where .= ' AND (' . implode(' AND ', $and) . ')';
 			} else {
 				$where = implode(' AND ', $and);
 			}
 		}
 
-		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid').' '.($sortDir == 'DESC' ? 'DESC' : 'ASC');
+		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
 		if ($start !== null) {
 			$options['OFFSET'] = $start;
 		}
@@ -187,14 +189,10 @@ class SubscriptionCache {
 			['*'],
 			$where,
 			__METHOD__,
-			$options,
-			$joins
+			$options
 		);
 
-		if (!$results) {
-			self::$lastSearchResultTotal = 0;
-			return [];
-		}
+		$subscriptions = [];
 		while ($row = $results->fetchRow()) {
 			$subscriptions[] = $row;
 		}
@@ -204,8 +202,7 @@ class SubscriptionCache {
 			['count(*) as total'],
 			$where,
 			__METHOD__,
-			null,
-			$joins
+			null
 		);
 		$resultsTotal = $resultsTotal->fetchRow();
 		self::$lastSearchResultTotal = intval($resultsTotal['total']);
@@ -216,21 +213,19 @@ class SubscriptionCache {
 	/**
 	 * Return the last search result total.
 	 *
-	 * @access	public
-	 * @return	integer	Total
+	 * @return integer Total
 	 */
-	static public function getLastSearchTotal() {
+	public static function getLastSearchTotal() {
 		return intval(self::$lastSearchResultTotal);
 	}
 
 	/**
 	 * Return values for use in search filters.
 	 *
-	 * @access	public
-	 * @return	array	Filter Values
+	 * @return array Filter Values
 	 */
-	static public function getSearchFilterValues() {
-		//Filter types that need to be strictly clamped and checked.
+	public static function getSearchFilterValues() {
+		// Filter types that need to be strictly clamped and checked.
 		$_clamps = [
 			'date'	=> ['min_date', 'max_date'],
 			'price'	=> ['min_price', 'max_price']
@@ -292,7 +287,7 @@ class SubscriptionCache {
 		$filters['providers'] = array_unique($filters['providers']);
 		$filters['plans'] = array_unique($filters['plans']);
 
-		$request = \RequestContext::getMain()->getRequest();
+		$request = RequestContext::getMain()->getRequest();
 
 		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
 
@@ -321,7 +316,7 @@ class SubscriptionCache {
 				if (!isset($userFilters[$value])) {
 					$userFilters[$type][$value] = $filters[$type][$value];
 				} else {
-					//These are intentionally backwards so that users can not set out of bound values.
+					// These are intentionally backwards so that users can not set out of bound values.
 					if (strpos($value, 'min_') === 0) {
 						$userFilters[$type][$value] = max($filters[$type][$value], $userFilters[$value]);
 					} else {
@@ -341,10 +336,9 @@ class SubscriptionCache {
 	/**
 	 * Get basic subscription statistics.
 	 *
-	 * @access	public
-	 * @return	array	Active subscriptions, total users, and percentage.
+	 * @return array Active subscriptions, total users, and percentage.
 	 */
-	static public function getStatistics() {
+	public static function getStatistics() {
 		$db = self::getDb();
 
 		$result = $db->select(
@@ -374,14 +368,13 @@ class SubscriptionCache {
 	/**
 	 * Get the database connection.
 	 *
-	 * @access	private
-	 * @return	object	Database
+	 * @return object Database
 	 */
-	static private function getDb() {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+	private static function getDb() {
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {
-			$db = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+			$db = MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);
 		} else {
 			$db = wfGetDB(DB_MASTER);
 		}

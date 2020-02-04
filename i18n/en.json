@@ -3,7 +3,7 @@
 		"authors": ["Alexia E. Smith"]
 	},
 	"subscription": "Subscription",
-	"subscription_grant": "Subscription Grant",
+	"subscriptiongrant": "Subscription Grant",
 	"subscriptions": "Subscriptions",
 	"action-subscription": "view or modify subscriptions",
 	"grant-subscription": "Grant Subscription",
@@ -26,7 +26,7 @@
 	"subscriber_statistics": "$1 / $2 users subscribed, $3%",
 	"subscription_duration": "Duration (months):",
 	"subscription_overwrite": "Overwrite existing:",
-	"duration_placeholder": "Duration (1-100 months)",
+	"duration_placeholder": "Duration (0-100 months)",
 	"right-subscription": "View or modify subscriptions",
 	"username": "Username"
 }

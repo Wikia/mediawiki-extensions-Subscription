@@ -82,7 +82,7 @@ class SubscriptionHooks {
 	 * @param object  $user          User
 	 * @param boolean $requiresHttps Requires HTTPS
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onUserRequiresHTTPS($user, &$requiresHttps) {
 		global $wgFullHTTPSExperiment;
@@ -110,7 +110,7 @@ class SubscriptionHooks {
 	 * @param object $request   WebRequest
 	 * @param object $mediaWiki Mediawiki
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
 		global $wgFullHTTPSExperiment;
@@ -169,7 +169,7 @@ class SubscriptionHooks {
 	 * @param string $redirect Redirect URL
 	 * @param string $code     HTTP Status Code
 	 *
-	 * @return boolean	True
+	 * @return boolean True
 	 */
 	public static function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
 		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
@@ -232,6 +232,14 @@ class SubscriptionHooks {
 		// Tables
 		if (Environment::isMasterWiki()) {
 			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+			$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
+			$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
+			$updater->addExtensionUpdate(['addIndex', 'subscription', 'user_id_provider_id', "{$extDir}/upgrade/sql/subscription/add_index_user_id_provider_id.sql", true]);
+			$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
+			$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
+
+			// Uncomment in the future to remove global ID column once migration is complete. - 2020-01-13 Alexia E. Smith
+			// $updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
 		}
 
 		return true;

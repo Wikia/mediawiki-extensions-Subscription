@@ -4,20 +4,18 @@
  * Subscription
  * Subscription Special Page
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
 class SpecialSubscription extends SpecialPage {
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct('Subscription', 'subscription', true);
@@ -30,9 +28,8 @@ class SpecialSubscription extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @access	public
-	 * @param	string	Sub page passed in the URL.
-	 * @return	void	[Outputs to screen]
+	 * @param  string Sub page passed in the URL.
+	 * @return void [Outputs to screen]
 	 */
 	public function execute($path) {
 		$this->templates = new TemplateSubscription;
@@ -49,8 +46,7 @@ class SpecialSubscription extends SpecialPage {
 	/**
 	 * Subscriptions List
 	 *
-	 * @access	public
-	 * @return	void	[Outputs to screen]
+	 * @return void [Outputs to screen]
 	 */
 	public function subscriptionList() {
 		$start = $this->wgRequest->getInt('st');
@@ -81,10 +77,10 @@ class SpecialSubscription extends SpecialPage {
 
 		$userFilters = $this->wgRequest->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
 
-		$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $total, $itemsPerPage, $start, 4, (array) $userFilters);
+		$pagination = HydraCore::generatePaginationHtml($this->getFullTitle(), $total, $itemsPerPage, $start, 4, (array)$userFilters);
 
 		$this->output->setPageTitle(wfMessage('subscriptions')->escaped());
-		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, $sortKey, $sortDir, $searchTerm));
+		$this->output->addHTML($this->templates->subscriptionList($subscriptions, $pagination, $filterValues, '', 'DESC', $searchTerm));
 	}
 
 	/**

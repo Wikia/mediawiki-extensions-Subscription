@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/subscription DROP `global_id`;

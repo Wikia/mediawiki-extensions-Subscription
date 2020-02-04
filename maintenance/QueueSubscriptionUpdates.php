@@ -4,41 +4,46 @@
  * Subscription
  * Queue Subscription Updates
  *
- * @author		Alexia E. Smith
- * @copyright	(c) 2016 Curse Inc.
- * @license		GNU General Public License v2.0 or later
- * @package		Subscription
- * @link		https://gitlab.com/hydrawiki
- *
+ * @author    Alexia E. Smith
+ * @copyright (c) 2016 Curse Inc.
+ * @license   GPL-2.0-or-later
+ * @package   Subscription
+ * @link      https://gitlab.com/hydrawiki
 **/
 
-namespace Hydra\Maintenance;
-require_once(dirname(__DIR__, 3).'/maintenance/Maintenance.php');
+require_once dirname(__DIR__, 3) . '/maintenance/Maintenance.php';
 
-class QueueSubscriptionUpdates extends \Maintenance {
+namespace Hydra\Maintenance;
+
+use ConfigFactory;
+use JobQueueGroup;
+use Maintenance;
+use MediaWiki\MediaWikiServices;
+use Title;
+use User;
+
+class QueueSubscriptionUpdates extends Maintenance {
 	/**
 	 * Main Constructor
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function __construct() {
 		parent::__construct();
 
-		$this->mDescription = "Update subscriptions from providers for given list of global user IDs.";
+		$this->mDescription = "Update subscriptions from providers for given list of user IDs.";
 	}
 
 	/**
 	 * Update subscriptions from providers for given list of global user IDs.
 	 *
-	 * @access	public
-	 * @return	void
+	 * @return void
 	 */
 	public function execute() {
-		$config = \ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {
-			$db = \MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);
+			$db = MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);
 		} else {
 			$db = wfGetDB(DB_MASTER);
 		}
@@ -63,24 +68,21 @@ class QueueSubscriptionUpdates extends \Maintenance {
 				]
 			);
 
-			$globalIds = [];
+			$userIds = [];
 			while ($row = $result->fetchObject()) {
-				$user = \User::newFromRow($row);
-
-				$lookup = \CentralIdLookup::factory();
-				$globalId = $lookup->centralIdFromLocalUser($user, \CentralIdLookup::AUDIENCE_RAW);
-				if (!$globalId) {
+				$user = User::newFromRow($row);
+				if (!$user->getId()) {
 					continue;
 				}
 
-				$title = \Title::newFromText($user->getTitleKey());
+				$title = Title::newFromText($user->getTitleKey());
 
-				$job = new \Hydra\Job\UpdateUserSubscriptionsJob($title, [$globalId]);
-				\JobQueueGroup::singleton()->push($job);
+				$job = new \Hydra\Job\UpdateUserSubscriptionsJob($title, [$user->getId()]);
+				JobQueueGroup::singleton()->push($job);
 			}
 		}
 	}
 }
 
 $maintClass = "Hydra\Maintenance\QueueSubscriptionUpdates";
-require_once(RUN_MAINTENANCE_IF_MAIN);
+require_once RUN_MAINTENANCE_IF_MAIN;

@@ -1,7 +1,7 @@
 <?php
 /**
  * Curse Inc.
- * Subscription
+ * Subscription Provider
  * Paid subscription system for Hydra Wiki Platform.
  *
  * @author    Alexia E. Smith
@@ -11,7 +11,9 @@
  * @link      https://gitlab.com/hydrawiki
 **/
 
-$magicWords = [];
-$magicWords['en'] = [
-//	'subscription' => array(0, 'subscription'),
-];
+namespace Hydra;
+
+use Exception;
+
+class SubscriptionProviderException extends Exception {
+}

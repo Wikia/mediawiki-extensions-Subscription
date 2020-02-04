@@ -1,0 +1,1 @@
+ALTER TABLE /*_*/subscription DROP INDEX `global_id_provider_id`;
