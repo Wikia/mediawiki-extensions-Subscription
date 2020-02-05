@@ -27,83 +27,6 @@ class SubscriptionCache {
 	static private $lastSearchResultTotal = 0;
 
 	/**
-	 * Update the local subscription cache for a global ID and provider ID.
-	 *
-	 * @param integer $userId       User ID
-	 * @param string  $providerId   Provider ID - As defined in $wgSubscriptionProviders.
-	 * @param array   $subscription Subscription data as returned by a subscription provider.
-	 *
-	 * @return boolean Success
-	 */
-	public static function updateLocalCache($userId, $providerId, $subscription) {
-		$db = self::getDb();
-
-		if ($userId < 1 || empty($providerId)) {
-			return false;
-		}
-
-		if ($subscription === null) {
-			$success = $db->delete(
-				'subscription',
-				[
-					'user_id'		=> $userId,
-					'provider_id'	=> $providerId
-				],
-				__METHOD__
-			);
-			return $success;
-		}
-
-		$save = [
-			'user_id'			=> $userId,
-			'provider_id'		=> $providerId,
-			'active'			=> $subscription['active'],
-			'begins'			=> ($subscription['begins'] !== false ? $subscription['begins']->getTimestamp(TS_MW) : null),
-			'expires'			=> ($subscription['expires'] !== false ? $subscription['expires']->getTimestamp(TS_MW) : null),
-			'plan_id'			=> $subscription['plan_id'],
-			'plan_name'			=> $subscription['plan_name'],
-			'price'				=> $subscription['price'],
-			'subscription_id'	=> $subscription['subscription_id']
-		];
-
-		$result = $db->select(
-			['subscription'],
-			['*'],
-			[
-				'user_id'		=> $userId,
-				'provider_id'	=> $providerId
-			],
-			__METHOD__
-		);
-		$exists = $result->fetchObject();
-
-		$db->startAtomic(__METHOD__);
-		$success = false;
-		if (isset($exists->sid)) {
-			$result = $db->update(
-				'subscription',
-				$save,
-				['sid' => $exists->sid],
-				__METHOD__
-			);
-		} else {
-			$result = $db->insert(
-				'subscription',
-				$save,
-				__METHOD__
-			);
-		}
-		if (!$result) {
-			$db->cancelAtomic(__METHOD__);
-		} else {
-			$success = true;
-			$db->endAtomic(__METHOD__);
-		}
-
-		return $success;
-	}
-
-	/**
 	 * Return a filtered search of subscriptions.
 	 *
 	 * @param integer     $start        Zero based start position.
@@ -118,8 +41,8 @@ class SubscriptionCache {
 	public static function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'sid', string $sortDir = 'ASC') {
 		$db = self::getDb();
 
-		$searchableFields = ['user_id', 'provider_id', 'active'];
-		$tables = ['subscription'];
+		$searchableFields = ['user_id', 'active'];
+		$tables = ['subscription_comp'];
 
 		if (!empty($searchTerm)) {
 			$searchResults = $db->select(
@@ -141,30 +64,13 @@ class SubscriptionCache {
 			if (!empty($userIds)) {
 				$and[] = "user_id IN(" . $db->makeList($userIds) . ")";
 			} else {
-				// This is a dumb helper to produce "No results" when no valid user was foudn.
+				// This is a dumb helper to produce "No results" when no valid user was found.
 				$and[] = "user_id = -2";
 			}
 		}
 
-		if (isset($filters['date']['min_date'])) {
-			$and[] = "begins >= " . $db->strencode(intval($filters['date']['min_date']));
-		}
 		if (isset($filters['date']['max_date'])) {
 			$and[] = "expires <= " . $db->strencode(intval($filters['date']['max_date']));
-		}
-
-		if (isset($filters['price']['min_price'])) {
-			$and[] = "price >= " . $db->strencode(intval($filters['price']['min_price']));
-		}
-		if (isset($filters['price']['max_price'])) {
-			$and[] = "price <= " . $db->strencode(intval($filters['price']['max_price']));
-		}
-
-		if (isset($filters['providers']) && !empty($filters['providers'])) {
-			$and[] = "provider_id IN(" . $db->makeList($filters['providers']) . ")";
-		}
-		if (isset($filters['plans']) && !empty($filters['plans'])) {
-			$and[] = "plan_name IN(" . $db->makeList($filters['plans']) . ")";
 		}
 
 		if (count($and)) {
@@ -227,38 +133,24 @@ class SubscriptionCache {
 	public static function getSearchFilterValues() {
 		// Filter types that need to be strictly clamped and checked.
 		$_clamps = [
-			'date'	=> ['min_date', 'max_date'],
-			'price'	=> ['min_price', 'max_price']
+			'date'	=> ['max_date']
 		];
 
 		$filters = [
-			'providers'	=> [],
-			'plans'	=> [],
 			'date' => [
-				'min_date'	=> false,
 				'max_date'	=> false
-			],
-			'price'	=> [
-				'min_price'	=> false,
-				'max_price'	=> false
 			]
 		];
 
 		$db = self::getDb();
 
 		$result = $db->select(
-			['subscription'],
+			['subscription_comp'],
 			[
-				'MIN(begins) AS min_date',
-				'MAX(expires) AS max_date',
-				'MIN(price) AS min_price',
-				'MAX(price) AS max_price',
-				'provider_id',
-				'plan_name'
+				'MAX(expires) AS max_date'
 			],
 			null,
-			__METHOD__,
-			['GROUP BY' => 'provider_id, plan_name']
+			__METHOD__
 		);
 
 		while ($row = $result->fetchRow()) {
@@ -275,21 +167,11 @@ class SubscriptionCache {
 					}
 				}
 			}
-
-			if (!empty($row['provider_id'])) {
-				$filters['providers'][] = $row['provider_id'];
-			}
-
-			if (!empty($row['plan_name'])) {
-				$filters['plans'][] = $row['plan_name'];
-			}
 		}
-		$filters['providers'] = array_unique($filters['providers']);
-		$filters['plans'] = array_unique($filters['plans']);
 
 		$request = RequestContext::getMain()->getRequest();
 
-		$userFilters = $request->getValues('list_search', 'providers', 'plans', 'min_date', 'max_date', 'min_price', 'max_price');
+		$userFilters = $request->getValues('list_search', 'max_date');
 
 		if (!isset($userFilters['providers'])) {
 			$userFilters['providers'] = [];
@@ -342,7 +224,7 @@ class SubscriptionCache {
 		$db = self::getDb();
 
 		$result = $db->select(
-			['subscription'],
+			['subscription_comp'],
 			['count(*) as total'],
 			['active' => 1],
 			__METHOD__

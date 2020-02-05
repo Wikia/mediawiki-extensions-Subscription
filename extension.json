@@ -32,7 +32,6 @@
 		"SubscriptionMagic": "Subscription.i18n.magic.php"
 	},
 	"AutoloadClasses": {
-		"Hydra\\Job\\UpdateUserSubscriptionsJob": "classes/jobs/UpdateUserSubscriptionsJob.php",
 		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
 		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
@@ -87,9 +86,6 @@
 		"UserRequiresHTTPS": [
 			"SubscriptionHooks::onUserRequiresHTTPS"
 		]
-	},
-	"JobClasses": {
-		"UpdateUserSubscriptionsJob": "Hydra\\Job\\UpdateUserSubscriptionsJob"
 	},
 	"config": {
 		"SubscriptionProviders": {
