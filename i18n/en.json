@@ -28,5 +28,6 @@
 	"subscription_overwrite": "Overwrite existing:",
 	"duration_placeholder": "Duration (0-100 months)",
 	"right-subscription": "View or modify subscriptions",
-	"username": "Username"
+	"username": "Username",
+	"give_grant": "Give Grant"
 }
