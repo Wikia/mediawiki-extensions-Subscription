@@ -81,7 +81,7 @@ class SubscriptionCache {
 			}
 		}
 
-		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'scid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
+		$options['ORDER BY'] = ($db->fieldExists('subscription_comp', $sortKey) ? $sortKey : 'scid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
 		if ($start !== null) {
 			$options['OFFSET'] = $start;
 		}
