@@ -53,7 +53,6 @@ class TemplateSubscription {
 							<th" . ($sortKey == 'user' ? " data-selected='true'" : '') . "><span data-sort='user'" . ($sortKey == 'user' ? " data-selected='true'" : '') . ">" . wfMessage('sub_th_user')->escaped() . "</span></th>
 							<th" . ($sortKey == 'active' ? " data-selected='true'" : '') . "><span data-sort='active'" . ($sortKey == 'active' ? " data-selected='true'" : '') . ">" . wfMessage('sub_th_active')->escaped() . "</span></th>
 							<th" . ($sortKey == 'expires' ? " data-selected='true'" : '') . "><span data-sort='expires'" . ($sortKey == 'expires' ? " data-selected='true'" : '') . ">" . wfMessage('sub_th_expires')->escaped() . "</span></th>
-							<th" . ($sortKey == 'subscription_id' ? " data-selected='true'" : '') . "><span data-sort='subscription_id'" . ($sortKey == 'subscription_id' ? " data-selected='true'" : '') . ">" . wfMessage('sub_th_subscription_id')->escaped() . "</span></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -67,7 +66,6 @@ class TemplateSubscription {
 							<td>" . ($user !== null ? $user->getName() : $subscription['user_id']) . "</td>
 							<td class='active'>" . (isset($subscription['active']) && $subscription['active'] ? "✅" : "&nbsp;") . "</td>
 							<td>" . (isset($subscription['expires']) ? wfTimestamp(TS_DB, $subscription['expires']) : "&nbsp;") . "</td>
-							<td>{$subscription['subscription_id']}</td>
 						</tr>
 ";
 			}

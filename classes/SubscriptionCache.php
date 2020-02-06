@@ -33,12 +33,12 @@ class SubscriptionCache {
 	 * @param integer     $itemsPerPage Total number of results to return.
 	 * @param string|null $searchTerm   [Optional] Search term to filter by.
 	 * @param array       $filters      [Optional] Filters for where statement.
-	 * @param string      $sortKey      [Optional] Database field name to sort by, defaults to 'sid'.
+	 * @param string      $sortKey      [Optional] Database field name to sort by, defaults to 'scid'.
 	 * @param string      $sortDir      [Optional] Database sort direction, defaults to 'ASC'.
 	 *
 	 * @return array An array of resulting objects, possibly empty.
 	 */
-	public static function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'sid', string $sortDir = 'ASC') {
+	public static function filterSearch(int $start, int $itemsPerPage, ?string $searchTerm = null, array $filters = [], string $sortKey = 'scid', string $sortDir = 'ASC') {
 		$db = self::getDb();
 
 		$searchableFields = ['user_id', 'active'];
@@ -81,7 +81,7 @@ class SubscriptionCache {
 			}
 		}
 
-		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'sid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
+		$options['ORDER BY'] = ($db->fieldExists('subscription', $sortKey) ? $sortKey : 'scid') . ' ' . ($sortDir == 'DESC' ? 'DESC' : 'ASC');
 		if ($start !== null) {
 			$options['OFFSET'] = $start;
 		}
