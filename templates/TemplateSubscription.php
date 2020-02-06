@@ -46,7 +46,7 @@ class TemplateSubscription {
 				</form>
 			</div>
 			<div id='subscription_list'>
-				<div>{$pagination}<span id='subscription_statistics'>" . wfMessage("subscriber_statistics")->params(array_values(\Hydra\SubscriptionCache::getStatistics()))->escaped() . "</span></div>
+				<div>{$pagination}<span id='subscription_statistics'>" . wfMessage("subscriber_statistics")->params(array_values(\Hydra\SubscriptionCache::getStatistics()))->escaped() . "<a href='".SpecialPage::getTitleFor('SubscriptionGrant')->getFullUrl()."' class='mw-ui-button'>" . wfMessage('give_grant')->escaped() . "</a></span></div>
 				<table class='with_filters'>
 					<thead>
 						<tr class='sortable' data-sort-dir='" . ($sortDir == 'desc' ? 'desc' : 'asc') . "'>

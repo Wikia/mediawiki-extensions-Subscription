@@ -165,6 +165,10 @@
 	float: right;
 }
 
+#subscription_list div span#subscription_statistics > a {
+	margin-left: 10px;
+}
+
 #subscription_list .collapse {
 	min-width: 1%;
 	white-space: nowrap;
