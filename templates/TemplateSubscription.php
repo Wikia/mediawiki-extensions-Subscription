@@ -59,7 +59,6 @@ class TemplateSubscription {
 				";
 		if (is_array($subscriptions) && count($subscriptions)) {
 			foreach ($subscriptions as $subscription) {
-				$lookup = CentralIdLookup::factory();
 				$user = User::newFromId($subscription['user_id']);
 				$html .= "
 						<tr>
