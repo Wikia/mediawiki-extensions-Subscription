@@ -36,7 +36,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @param ?string $providerId Provider ID from $wgSusbcriptionProvider
 	 *
-	 * @return CentralIdLookup|null
+	 * @return SubscriptionProvider|null
 	 */
 	public static function factory(?string $providerId = null) {
 		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
