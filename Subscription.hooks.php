@@ -11,7 +11,6 @@
  * @link      https://gitlab.com/hydrawiki
 **/
 
-use DynamicSettings\Environment;
 use Hydra\Subscription;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
