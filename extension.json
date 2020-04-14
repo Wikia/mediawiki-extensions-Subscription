@@ -76,6 +76,9 @@
 		"HtmlPageLinkRendererEnd": [
 			"SubscriptionHooks::onHtmlPageLinkRendererEnd"
 		],
+		"LoadExtensionSchemaUpdates": [
+			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
+		],
 		"UserLoggedIn": [
 			"SubscriptionHooks::onUserLoggedIn"
 		],

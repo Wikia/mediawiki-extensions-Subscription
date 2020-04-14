@@ -224,26 +224,20 @@ class SubscriptionHooks {
 	 *
 	 * @return boolean true
 	 */
-	/*
 	public static function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
 		$extDir = __DIR__;
-		
-		
+
 		// Install
 		// Tables
-		if (Environment::isMasterWiki()) {
-			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
-			$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
-			$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
-			$updater->addExtensionUpdate(['addIndex', 'subscription', 'user_id_provider_id', "{$extDir}/upgrade/sql/subscription/add_index_user_id_provider_id.sql", true]);
-			$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
-			$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
+		$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+		$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
+		$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
+		$updater->addExtensionUpdate(['addIndex', 'subscription', 'user_id_provider_id', "{$extDir}/upgrade/sql/subscription/add_index_user_id_provider_id.sql", true]);
+		$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
+		$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
 
-			// Uncomment in the future to remove global ID column once migration is complete. - 2020-01-13 Alexia E. Smith
-			// $updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
-		}
+		$updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
 
 		return true;
 	}
-	*/
 }
