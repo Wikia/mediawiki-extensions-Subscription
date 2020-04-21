@@ -253,7 +253,7 @@ class SubscriptionCache {
 	 * @return object Database
 	 */
 	private static function getDb() {
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$masterDb = $config->get('SubscriptionMasterDB');
 		if ($masterDb !== false) {
 			$db = MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getExternalLB($masterDb)->getConnection(DB_MASTER);

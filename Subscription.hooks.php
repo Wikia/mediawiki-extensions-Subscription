@@ -14,6 +14,7 @@
 use Hydra\Subscription;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 
 class SubscriptionHooks {
 	/**
@@ -138,7 +139,7 @@ class SubscriptionHooks {
 
 		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http') {
 			$response = $request->response();
-			$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$response->clearCookie(
 				'forceHTTPS',
 				[
@@ -229,14 +230,17 @@ class SubscriptionHooks {
 
 		// Install
 		// Tables
-		$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
-		$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
-		$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
-		$updater->addExtensionUpdate(['addIndex', 'subscription', 'user_id_provider_id', "{$extDir}/upgrade/sql/subscription/add_index_user_id_provider_id.sql", true]);
-		$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
-		$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+		if ($config->get('InstallSubscriptionTables')) {
+			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
+			$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
+			$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
+			$updater->addExtensionUpdate(['addIndex', 'subscription', 'user_id_provider_id', "{$extDir}/upgrade/sql/subscription/add_index_user_id_provider_id.sql", true]);
+			$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
+			$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
 
-		$updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
+			$updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
+		}
 
 		return true;
 	}
