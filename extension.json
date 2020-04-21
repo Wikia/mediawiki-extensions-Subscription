@@ -76,6 +76,9 @@
 		"HtmlPageLinkRendererEnd": [
 			"SubscriptionHooks::onHtmlPageLinkRendererEnd"
 		],
+		"LoadExtensionSchemaUpdates": [
+			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
+		],
 		"UserLoggedIn": [
 			"SubscriptionHooks::onUserLoggedIn"
 		],
@@ -84,15 +87,16 @@
 		]
 	},
 	"config": {
+		"FullHTTPSExperiment": true,
+		"GProApiConfig": {},
+		"InstallSubscriptionTables": false,
+		"SubscriptionMasterDB": "master",
+		"SubscriptionProvider": "GamepediaPro",
 		"SubscriptionProviders": {
 			"GamepediaPro": {
 				"class": "Hydra\\SubscriptionProvider\\GamepediaPro"
 			}
-		},
-		"SubscriptionProvider": "GamepediaPro",
-		"GProApiConfig": {},
-		"SubscriptionMasterDB": "master",
-		"FullHTTPSExperiment": true
+		}
 	},
 	"manifest_version": 1
 }

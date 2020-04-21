@@ -57,7 +57,7 @@ class Subscription {
 	public function __construct(int $userId) {
 		$this->userId = intval($userId);
 
-		$this->config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$this->config = MediaWikiServices::getInstance()->getMainConfig();
 	}
 
 	/**

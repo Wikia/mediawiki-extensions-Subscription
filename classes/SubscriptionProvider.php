@@ -14,6 +14,7 @@
 namespace Hydra;
 
 use ConfigFactory;
+use MediaWiki\MediaWikiServices;
 use ObjectFactory;
 
 abstract class SubscriptionProvider {
@@ -39,7 +40,7 @@ abstract class SubscriptionProvider {
 	 * @return SubscriptionProvider|null
 	 */
 	public static function factory(?string $providerId = null) {
-		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$wgSusbcriptionProviders = $config->get('SubscriptionProviders');
 
 		if ($providerId === null) {

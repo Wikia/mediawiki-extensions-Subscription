@@ -14,6 +14,7 @@
 use Hydra\Subscription;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 
 class SubscriptionHooks {
 	/**
@@ -138,7 +139,7 @@ class SubscriptionHooks {
 
 		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http') {
 			$response = $request->response();
-			$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$response->clearCookie(
 				'forceHTTPS',
 				[
@@ -224,14 +225,13 @@ class SubscriptionHooks {
 	 *
 	 * @return boolean true
 	 */
-	/*
 	public static function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
 		$extDir = __DIR__;
-		
-		
+
 		// Install
 		// Tables
-		if (Environment::isMasterWiki()) {
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+		if ($config->get('InstallSubscriptionTables')) {
 			$updater->addExtensionUpdate(['addTable', 'subscription', "{$extDir}/install/sql/table_subscription.sql", true]);
 			$updater->addExtensionUpdate(['addTable', 'subscription_comp', "{$extDir}/install/sql/table_subscription_comp.sql", true]);
 			$updater->addExtensionUpdate(['addField', 'subscription', 'user_id', "{$extDir}/upgrade/sql/subscription/add_field_user_id.sql", true]);
@@ -239,11 +239,9 @@ class SubscriptionHooks {
 			$updater->addExtensionUpdate(['dropIndex', 'subscription', 'global_id_provider_id', "{$extDir}/upgrade/sql/subscription/drop_index_global_id_provider_id.sql", true]);
 			$updater->addPostDatabaseUpdateMaintenance(\Hydra\Maintenance\ReplaceGlobalIdWithUserId::class);
 
-			// Uncomment in the future to remove global ID column once migration is complete. - 2020-01-13 Alexia E. Smith
-			// $updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
+			$updater->addExtensionUpdate(['dropField', 'subscription', 'global_id', "{$extDir}/upgrade/sql/subscription/drop_field_global_id.sql", true]);
 		}
 
 		return true;
 	}
-	*/
 }
