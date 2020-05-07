@@ -14,8 +14,6 @@
 namespace Hydra;
 
 use ConfigFactory;
-use Exception;
-use MediaWiki\MediaWikiServices;
 use User;
 
 class Subscription {
@@ -192,18 +190,5 @@ class Subscription {
 			self::$useLocalCacheOnly = $local;
 		}
 		return $return;
-	}
-
-	/**
-	 * Get the shared database.
-	 *
-	 * @param integer $dbType Database type, DB_MASTER or DB_REPLICA.
-	 *
-	 * @return DBConnRef
-	 */
-	public static function getSharedDb(int $dbType = DB_MASTER) {
-		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
-		$sharedDB = $mainConfig->get('SharedDB');
-		return MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getMainLB($sharedDB)->getConnectionRef($dbType, [], $sharedDB);
 	}
 }

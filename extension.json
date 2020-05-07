@@ -19,7 +19,6 @@
 		"subscription"
 	],
 	"SpecialPages": {
-		"Subscription": "SpecialSubscription",
 		"SubscriptionGrant": "SpecialSubscriptionGrant"
 	},
 	"MessagesDirs": {
@@ -34,7 +33,6 @@
 	"AutoloadClasses": {
 		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
 		"Hydra\\Subscription": "classes/Subscription.php",
-		"Hydra\\SubscriptionCache": "classes/SubscriptionCache.php",
 		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",
 		"Hydra\\SubscriptionProviderException": "classes/SubscriptionProviderException.php",
 		"Hydra\\SubscriptionProvider\\GamepediaPro": "classes/providers/GamepediaPro.php",
@@ -68,24 +66,13 @@
 		"remoteExtPath": "Subscription"
 	},
 	"Hooks": {
-		"BeforeInitialize": [
-			"SubscriptionHooks::onBeforeInitialize"
-		],
-		"BeforePageRedirect": [
-			"SubscriptionHooks::onBeforePageRedirect"
-		],
-		"HtmlPageLinkRendererEnd": [
-			"SubscriptionHooks::onHtmlPageLinkRendererEnd"
-		],
-		"LoadExtensionSchemaUpdates": [
-			"SubscriptionHooks::onLoadExtensionSchemaUpdates"
-		],
-		"UserLoggedIn": [
-			"SubscriptionHooks::onUserLoggedIn"
-		],
-		"UserRequiresHTTPS": [
-			"SubscriptionHooks::onUserRequiresHTTPS"
-		]
+		"BeforeInitialize": "SubscriptionHooks::onBeforeInitialize",
+		"BeforePageRedirect": "SubscriptionHooks::onBeforePageRedirect",
+		"GetPreferences": "SubscriptionHooks::onGetPreferences",
+		"HtmlPageLinkRendererEnd": "SubscriptionHooks::onHtmlPageLinkRendererEnd",
+		"LoadExtensionSchemaUpdates": "SubscriptionHooks::onLoadExtensionSchemaUpdates",
+		"UserLoggedIn": "SubscriptionHooks::onUserLoggedIn",
+		"UserRequiresHTTPS": "SubscriptionHooks::onUserRequiresHTTPS"
 	},
 	"config": {
 		"SubscriptionProviders": {
