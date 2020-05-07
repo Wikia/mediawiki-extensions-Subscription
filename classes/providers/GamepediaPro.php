@@ -3,10 +3,10 @@
  * Subscription
  * Gamepedia Pro API and Access
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
  */
 

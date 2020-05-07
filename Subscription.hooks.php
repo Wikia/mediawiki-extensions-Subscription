@@ -11,7 +11,6 @@
  * @link      https://gitlab.com/hydrawiki
 **/
 
-use DynamicSettings\Environment;
 use Hydra\Subscription;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
@@ -210,7 +209,8 @@ class SubscriptionHooks {
 			$subscription = Subscription::newFromUser($user);
 			if ($subscription !== false) {
 				$_cacheSetting = Subscription::skipCache(true);
-				$subscription->getSubscription(); // Don't care about the return.  This just forces a recache.
+				// Don't care about the return.  This just forces a recache.
+				$subscription->getSubscription();
 				Subscription::skipCache($_cacheSetting);
 			}
 		}

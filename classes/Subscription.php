@@ -4,10 +4,10 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
 **/
 
@@ -61,7 +61,8 @@ class Subscription {
 	/**
 	 * Return an initialized instance from a given User object.
 	 *
-	 * @param  User $user User
+	 * @param User $user User
+	 *
 	 * @return void
 	 */
 	public static function newFromUser(User $user) {

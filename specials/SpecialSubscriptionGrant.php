@@ -4,10 +4,10 @@
  * Subscription
  * Subscription Grant Special Page
  *
+ * @package   Subscription
  * @author    Michael Chaudhary
  * @copyright (c) 2019 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
 **/
 
@@ -31,7 +31,8 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Main Executor
 	 *
-	 * @param  string Sub page passed in the URL.
+	 * @param string $path Sub page passed in the URL.
+	 *
 	 * @return void [Outputs to screen]
 	 */
 	public function execute($path) {
@@ -144,7 +145,6 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Return the group name for this special page.
 	 *
-	 * @access protected
 	 * @return string
 	 */
 	protected function getGroupName() {
@@ -154,7 +154,8 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Ensure Subscription duration is valid
 	 *
-	 * @param  int $duration Subscription Duration
+	 * @param integer $duration Subscription Duration
+	 *
 	 * @return boolean
 	 */
 	private function isValidSubscriptionDuration($duration) {

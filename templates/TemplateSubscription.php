@@ -15,7 +15,8 @@ class TemplateSubscription {
 	/**
 	 * Grant Subscriptions
 	 *
-	 * @param  array
+	 * @param array $formValues
+	 *
 	 * @return string Built HTML
 	 */
 	public function subscriptionGrant($formValues = null) {
