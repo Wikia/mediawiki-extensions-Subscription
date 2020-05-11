@@ -10,7 +10,6 @@
 
 namespace Hydra\Maintenance;
 
-use HydraAuthUser;
 use LoggedUpdateMaintenance;
 use Wikimedia\Rdbms\IDatabase;
 use User;
@@ -78,7 +77,7 @@ class MigrateProSubscriptions extends LoggedUpdateMaintenance {
 			$res = $dbw->select(
 				'subscription_comp',
 				['*'],
-				array_merge(['expires > '.time()], [$next]),
+				array_merge(['expires > ' . time()], [$next]),
 				__METHOD__,
 				[
 					'ORDER BY' => $orderby,
