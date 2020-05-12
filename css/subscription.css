@@ -185,20 +185,20 @@
 /*********************/
 /* Subscription Grant */
 /*********************/
-#sub-grant input {
+#lookup input, #sub-grant input {
 	padding: 5px;
 }
 
-#sub-grant fieldset {
+#lookup fieldset, #sub-grant fieldset {
 	padding: 10px;
 }
 
-#sub-grant label {
+#lookup label, #sub-grant label {
 	padding-left: 20px;
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
 
-#sub-grant button {
+#lookup button, #sub-grant button {
 	margin-left: 15px;
 }

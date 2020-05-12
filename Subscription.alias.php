@@ -4,10 +4,10 @@
  * Subscription
  * Subscription Aliases
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2017 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
 **/
 
