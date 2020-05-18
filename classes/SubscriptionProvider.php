@@ -4,17 +4,16 @@
  * Subscription Provider
  * Paid subscription system for Hydra Wiki Platform.
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
 
 use ConfigFactory;
-use MediaWiki\MediaWikiServices;
 use ObjectFactory;
 
 abstract class SubscriptionProvider {
@@ -40,7 +39,7 @@ abstract class SubscriptionProvider {
 	 * @return SubscriptionProvider|null
 	 */
 	public static function factory(?string $providerId = null) {
-		$config = MediaWikiServices::getInstance()->getMainConfig();
+		$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 		$wgSusbcriptionProviders = $config->get('SubscriptionProviders');
 
 		if ($providerId === null) {

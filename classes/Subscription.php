@@ -4,18 +4,16 @@
  * Subscription
  * Paid subscription system for Hydra Wiki Platform.
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
 **/
 
 namespace Hydra;
 
 use ConfigFactory;
-use Exception;
-use MediaWiki\MediaWikiServices;
 use User;
 
 class Subscription {
@@ -57,13 +55,14 @@ class Subscription {
 	public function __construct(int $userId) {
 		$this->userId = intval($userId);
 
-		$this->config = MediaWikiServices::getInstance()->getMainConfig();
+		$this->config = ConfigFactory::getDefaultInstance()->makeConfig('main');
 	}
 
 	/**
 	 * Return an initialized instance from a given User object.
 	 *
-	 * @param  User $user User
+	 * @param User $user User
+	 *
 	 * @return void
 	 */
 	public static function newFromUser(User $user) {
@@ -192,18 +191,5 @@ class Subscription {
 			self::$useLocalCacheOnly = $local;
 		}
 		return $return;
-	}
-
-	/**
-	 * Get the shared database.
-	 *
-	 * @param integer $dbType Database type, DB_MASTER or DB_REPLICA.
-	 *
-	 * @return DBConnRef
-	 */
-	public static function getSharedDb(int $dbType = DB_MASTER) {
-		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
-		$sharedDB = $mainConfig->get('SharedDB');
-		return MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->getMainLB($sharedDB)->getConnectionRef($dbType, [], $sharedDB);
 	}
 }

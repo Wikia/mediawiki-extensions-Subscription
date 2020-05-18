@@ -1,6 +1,6 @@
 <?php
 /**
- * Replace Global ID with User ID Maintenance Script
+ * Migrate Gamepedia Pro Subscriptions
  *
  * @package   Subscription
  * @copyright (c) 2020 Curse Inc.
@@ -10,16 +10,16 @@
 
 namespace Hydra\Maintenance;
 
-use HydraAuthUser;
 use LoggedUpdateMaintenance;
 use Wikimedia\Rdbms\IDatabase;
+use User;
 
-require_once dirname(dirname(dirname(dirname(__DIR__)))) . '/maintenance/Maintenance.php';
+require_once dirname(dirname(dirname(__DIR__))) . '/maintenance/Maintenance.php';
 
 /**
  * Maintenance script that cleans up tables that have orphaned users.
  */
-class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
+class MigrateProSubscriptions extends LoggedUpdateMaintenance {
 	private $prefix;
 
 	private $table;
@@ -29,7 +29,7 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->addDescription('Replaces global ID with user ID in Subscription tables.');
+		$this->addDescription('Imports subscriptions from tables to user preferences.');
 		$this->setBatchSize(100);
 	}
 
@@ -48,53 +48,36 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	 * @return boolean True
 	 */
 	protected function doDBUpdates() {
-		$this->cleanup(
-			'subscription',
-			'sid',
-			['global_id' => 'user_id'],
-			['sid']
-		);
+		$this->import();
 
 		return true;
 	}
 
 	/**
-	 * Cleanup a table.
-	 *
-	 * @param string $table          Table to migrate
-	 * @param string $primaryKey     Primary key of the table.
-	 * @param array  $globalIdFields Global ID field to User ID field as $key => $value relation.
-	 * @param array  $orderby        Fields to order by
+	 * Import subscriptions.
 	 *
 	 * @return void
 	 */
-	protected function cleanup(
-		string $table, string $primaryKey, array $globalIdFields, array $orderby
-	) {
+	protected function import() {
 		$dbw = $this->getDB(DB_MASTER);
 
-		foreach ($globalIdFields as $key => $value) {
-			if (!$dbw->fieldExists($table, $key)) {
-				unset($globalIdFields[$key]);
-			}
-		}
-		if (empty($globalIdFields)) {
-			$this->output("Skipping due to global ID fields not being present.\n");
+		$orderby = ['user_id'];
+
+		if (!$dbw->tableExists('subscription_comp')) {
+			$this->output("Skipping due to `subscription_comp` table not existing.\n");
 			return;
 		}
 
-		$this->output(
-			"Beginning cleanup of $table\n"
-		);
+		$this->output("Migrating `subscription_comp` to user preferences...\n");
 
 		$next = '1=1';
 		$count = 0;
 		while (true) {
 			// Fetch the rows needing update
 			$res = $dbw->select(
-				$table,
-				array_merge([$primaryKey], array_keys($globalIdFields)),
-				[$next],
+				'subscription_comp',
+				['*'],
+				array_merge(['expires > ' . time()], [$next]),
 				__METHOD__,
 				[
 					'ORDER BY' => $orderby,
@@ -107,25 +90,14 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 
 			// Update the existing rows
 			foreach ($res as $row) {
-				$update = [];
-				foreach ($globalIdFields as $globalIdField => $userIdField) {
-					if ($row->$globalIdField) {
-						$userId = HydraAuthUser::userIdFromGlobalId($row->$globalIdField);
-						if ($userId > 0) {
-							$update[$userIdField] = $userId;
-						}
-					}
+				$user = User::newFromId($row->user_id);
+				if (!$user) {
+					return false;
 				}
-
-				if (!empty($update)) {
-					$dbw->update(
-						$table,
-						$update,
-						[$primaryKey => $row->$primaryKey],
-						__METHOD__
-					);
-					$count += $dbw->affectedRows();
-				}
+				$this->output("User ID {$row->user_id} expires {$row->expires}\n");
+				$user->setOption('gpro_expires', $row->expires);
+				$user->saveSettings();
+				$count++;
 			}
 
 			list($next, $display) = $this->makeNextCond($dbw, $orderby, $row);
@@ -134,7 +106,7 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 		}
 
 		$this->output(
-			"Cleanup complete: Replaced {$count} global IDs with user ID\n"
+			"Migration complete: Migrated {$count} subscriptions.\n"
 		);
 	}
 
@@ -165,5 +137,5 @@ class ReplaceGlobalIdWithUserId extends LoggedUpdateMaintenance {
 	}
 }
 
-$maintClass = \Hydra\Maintenance\ReplaceGlobalIdWithUserId::class;
+$maintClass = \Hydra\Maintenance\MigrateProSubscriptions::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

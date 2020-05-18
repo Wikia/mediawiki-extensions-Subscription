@@ -1,1 +1,0 @@
-ALTER TABLE /*_*/subscription ADD INDEX `user_id_provider_id` (`user_id`, `provider_id`);

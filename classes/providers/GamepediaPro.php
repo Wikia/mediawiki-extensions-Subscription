@@ -3,18 +3,18 @@
  * Subscription
  * Gamepedia Pro API and Access
  *
+ * @package   Subscription
  * @author    Alexia E. Smith
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
- * @package   Subscription
  * @link      https://gitlab.com/hydrawiki
  */
 
 namespace Hydra\SubscriptionProvider;
 
-use Hydra\Subscription;
 use Hydra\SubscriptionProvider;
 use MWTimestamp;
+use User;
 
 class GamepediaPro extends SubscriptionProvider {
 	/**
@@ -51,31 +51,22 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = Subscription::getSharedDb(DB_REPLICA);
-		$result = $db->select(
-			['subscription_comp'],
-			['*'],
-			[
-				'user_id'		=> $userId
-			],
-			__METHOD__
-		);
-		$data = $result->fetchRow();
-
-		if (!empty($data)) {
-			$subscription = [
-				'active'			=> boolval($data),
-				'begins'			=> false,
-				'expires'			=> new MWTimestamp($data['expires']),
-				'plan_id'			=> 'complimentary',
-				'plan_name'			=> 'Complimentary',
-				'price'				=> 0.00,
-				'subscription_id'	=> 'comped_' . $userId
-			];
-			return $subscription;
+		$user = User::newFromId($userId);
+		if (!$user) {
+			return false;
 		}
+		$expires = $user->getOption('gpro_expires');
 
-		return false;
+		$subscription = [
+			'active'			=> $expires > 0,
+			'begins'			=> false,
+			'expires'			=> new MWTimestamp($expires),
+			'plan_id'			=> 'complimentary',
+			'plan_name'			=> 'Complimentary',
+			'price'				=> 0.00,
+			'subscription_id'	=> 'comped_' . $userId
+		];
+		return $subscription;
 	}
 
 	/**
@@ -91,23 +82,14 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = Subscription::getSharedDb(DB_MASTER);
-		$result = $db->upsert(
-			'subscription_comp',
-			[
-				'active' => 1,
-				'expires' => strtotime('+' . $months . ' months'),
-				'user_id' => $userId
-			],
-			['scid', 'user_id'],
-			[
-				'active' => 1,
-				'expires' => strtotime('+' . $months . ' months')
-			],
-			__METHOD__
-		);
+		$user = User::newFromId($userId);
+		if (!$user) {
+			return false;
+		}
+		$user->setOption('gpro_expires', strtotime('+' . $months . ' months'));
+		$user->saveSettings();
 
-		return $result;
+		return true;
 	}
 
 	/**
@@ -122,17 +104,14 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$db = Subscription::getSharedDb(DB_MASTER);
-		$result = $db->update(
-			'subscription_comp',
-			[
-				'active' => 0
-			],
-			['user_id' => $userId],
-			__METHOD__
-		);
+		$user = User::newFromId($userId);
+		if (!$user) {
+			return false;
+		}
+		$user->setOption('gpro_expires', 0);
+		$user->saveSettings();
 
-		return $result;
+		return true;
 	}
 
 	/**
