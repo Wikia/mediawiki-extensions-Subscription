@@ -83,6 +83,7 @@ class GamepediaPro extends SubscriptionProvider {
 		}
 
 		$user = User::newFromId($userId);
+		$user = $user->getInstanceForUpdate();
 		if (!$user) {
 			return false;
 		}
@@ -105,6 +106,7 @@ class GamepediaPro extends SubscriptionProvider {
 		}
 
 		$user = User::newFromId($userId);
+		$user = $user->getInstanceForUpdate();
 		if (!$user) {
 			return false;
 		}
