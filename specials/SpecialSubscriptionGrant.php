@@ -84,7 +84,11 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
 			Subscription::skipCache(true);
 			$subInfo = $gamepediaPro->getSubscription($user->getId());
-			$this->output->addHTML("<span class='success'>The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}.</span><br/>");
+			if ($subInfo['active']) {
+				$this->output->addHTML("<span class='success'>The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}.</span><br/>");
+			} else {
+				$this->output->addHTML("<span class='success'>{$user->getName()} does not have an active subscription.</span><br/>");
+			}
 		}
 	}
 
