@@ -13,7 +13,7 @@
 
 namespace Hydra;
 
-use ConfigFactory;
+use MediaWiki\MediaWikiServices;
 use User;
 
 class Subscription {
@@ -55,7 +55,7 @@ class Subscription {
 	public function __construct(int $userId) {
 		$this->userId = intval($userId);
 
-		$this->config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Subscription {
 	 *
 	 * @param User $user User
 	 *
-	 * @return void
+	 * @return Subscription|boolean
 	 */
 	public static function newFromUser(User $user) {
 		if (!$user->getId()) {

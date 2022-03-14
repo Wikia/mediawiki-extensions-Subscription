@@ -13,6 +13,7 @@
 
 use Hydra\Subscription;
 use Hydra\SubscriptionProvider;
+use MediaWiki\MediaWikiServices;
 
 class SpecialSubscriptionGrant extends SpecialPage {
 	/**
@@ -77,7 +78,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 */
 	private	function lookup() {
 		$username = trim($this->wgRequest->getVal('username'));
-		$user = User::newFromName($username);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($username);
 		if (!$user || !$user->getId()) {
 			$this->output->addHTML("<span class='error'>User not found.</span><br/>");
 		} else {
@@ -106,10 +107,10 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			'duration' => $subscriptionDuration,
 			'overwriteSub' => $overwriteSub
 		];
-		$user = User::newFromName($username);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($username);
 
-		if ($user->getId() && $this->isValidSubscriptionDuration($subscriptionDuration)) {
-			$userId = $user->getId();
+		$userId = $user->getId();
+		if ($userId && $this->isValidSubscriptionDuration($subscriptionDuration)) {
 			$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
 			Subscription::skipCache(true);
 

@@ -11,6 +11,8 @@
 namespace Hydra\Maintenance;
 
 use LoggedUpdateMaintenance;
+use MediaWiki;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\IDatabase;
 use User;
 
@@ -59,7 +61,9 @@ class MigrateProSubscriptions extends LoggedUpdateMaintenance {
 	 * @return void
 	 */
 	protected function import() {
-		$dbw = $this->getDB(DB_MASTER);
+		$dbw = $this->getDB(DB_PRIMARY);
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
 
 		$orderby = ['user_id'];
 
@@ -90,19 +94,19 @@ class MigrateProSubscriptions extends LoggedUpdateMaintenance {
 
 			// Update the existing rows
 			foreach ($res as $row) {
-				$user = User::newFromId($row->user_id);
+				$user = $userFactory->newFromId($row->user_id);
 				if (!$user) {
 					return false;
 				}
 				$this->output("User ID {$row->user_id} expires {$row->expires}\n");
-				$user->setOption('gpro_expires', $row->expires);
+				$optionsManager->setOption($user, 'gpro_expires', $row->expires);
 				$user->saveSettings();
 				$count++;
 			}
 
 			list($next, $display) = $this->makeNextCond($dbw, $orderby, $row);
 			$this->output("... $display\n");
-			wfWaitForSlaves();
+			MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->waitForReplication();
 		}
 
 		$this->output(

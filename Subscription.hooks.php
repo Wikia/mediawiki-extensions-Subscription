@@ -14,6 +14,7 @@
 use Hydra\Subscription;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 
 class SubscriptionHooks {
 	/**
@@ -50,7 +51,7 @@ class SubscriptionHooks {
 			if (array_key_exists($target->getText(), self::$linkCache)) {
 				$classes = self::$linkCache[$target->getText()];
 			} else {
-				$user = User::newFromName($target->getText());
+				$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($target->getText());
 
 				if (!empty($user) && $user->getId()) {
 					$subscription = Subscription::newFromUser($user);
@@ -118,11 +119,12 @@ class SubscriptionHooks {
 			return true;
 		}
 
-		list($specialPage,) = SpecialPageFactory::resolveAlias($title->getDBkey());
+		list($specialPage,) = MediaWikiServices::getInstance()->getSpecialPageFactory()
+			->resolveAlias($title->getDBkey());
 
 		$secureSpecialPages = ['Userlogin', 'Preferences'];
 
-		Hooks::run('SecureSpecialPages', [&$secureSpecialPages]);
+		MediaWikiServices::getInstance()->getHookContainer->run('SecureSpecialPages', [&$secureSpecialPages]);
 		if ($wgFullHTTPSExperiment || (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages))) {
 			if ($request->getProtocol() !== 'https') {
 				$redirect = $request->getFullRequestURL();
@@ -138,7 +140,7 @@ class SubscriptionHooks {
 
 		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http') {
 			$response = $request->response();
-			$config = ConfigFactory::getDefaultInstance()->makeConfig('main');
+			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
 			$response->clearCookie(
 				'forceHTTPS',
 				[
