@@ -13,8 +13,8 @@
 namespace Hydra\SubscriptionProvider;
 
 use Hydra\SubscriptionProvider;
+use MediaWiki\MediaWikiServices;
 use MWTimestamp;
-use User;
 
 class GamepediaPro extends SubscriptionProvider {
 	/**
@@ -51,11 +51,12 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = User::newFromId($userId);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
 		if (!$user) {
 			return false;
 		}
-		$expires = $user->getOption('gpro_expires');
+		$optionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
+		$expires = $optionsLookup->getOption($user, 'gpro_expires');
 
 		$subscription = [
 			'active'			=> $expires > 0,
@@ -82,12 +83,13 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = User::newFromId($userId);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
 		$user = $user->getInstanceForUpdate();
 		if (!$user) {
 			return false;
 		}
-		$user->setOption('gpro_expires', strtotime('+' . $months . ' months'));
+		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+		$optionsManager->setOption($user, 'gpro_expires', strtotime('+' . $months . ' months'));
 		$user->saveSettings();
 
 		return true;
@@ -105,12 +107,13 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = User::newFromId($userId);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
 		$user = $user->getInstanceForUpdate();
 		if (!$user) {
 			return false;
 		}
-		$user->setOption('gpro_expires', 0);
+		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+		$optionsManager->setOption($user, 'gpro_expires', 0);
 		$user->saveSettings();
 
 		return true;
