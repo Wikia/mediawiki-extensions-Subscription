@@ -124,7 +124,7 @@ class SubscriptionHooks {
 
 		$secureSpecialPages = ['Userlogin', 'Preferences'];
 
-		MediaWikiServices::getInstance()->getHookContainer->run('SecureSpecialPages', [&$secureSpecialPages]);
+		MediaWikiServices::getInstance()->getHookContainer()->run('SecureSpecialPages', [&$secureSpecialPages]);
 		if ($wgFullHTTPSExperiment || (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages))) {
 			if ($request->getProtocol() !== 'https') {
 				$redirect = $request->getFullRequestURL();
