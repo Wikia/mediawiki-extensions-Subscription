@@ -1,0 +1,44 @@
+name: PHPUnit / PHPCS / Phan
+on:
+  pull_request:
+    branches: '**'
+
+  push:
+    branches: [ master, MW_1_37, REL1_39 ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        php_version: ['8.0']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php_version }}
+          # We don't run any coverage, so we should set this parameter to none
+          # as this will disable xdebug which slows all processes significantly
+          coverage: none
+          extensions: ast
+      - uses: actions/checkout@v3
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-v3-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPCS
+        run: composer phpcs
+
+      - name: Run Phan static analysis
+        run: composer phan
+
+      - name: Run Phan static analysis
+        run: composer jsonlint
