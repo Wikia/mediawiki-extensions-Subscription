@@ -9,7 +9,7 @@
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki
-**/
+ */
 
 namespace Subscription;
 
@@ -22,7 +22,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @var array
 	 */
-	static private $instances = [];
+	private static $instances = [];
 
 	/**
 	 * Provider ID of this instance.
@@ -38,24 +38,24 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return SubscriptionProvider|null
 	 */
-	public static function factory(?string $providerId = null) {
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
-		$wgSusbcriptionProviders = $config->get('SubscriptionProviders');
+	public static function factory( ?string $providerId = null ) {
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
+		$wgSusbcriptionProviders = $config->get( 'SubscriptionProviders' );
 
-		if ($providerId === null) {
-			$providerId = $config->get('SubscriptionProvider');
+		if ( $providerId === null ) {
+			$providerId = $config->get( 'SubscriptionProvider' );
 		}
 
-		if (!array_key_exists($providerId, self::$instances)) {
+		if ( !array_key_exists( $providerId, self::$instances ) ) {
 			self::$instances[$providerId] = null;
 
-			if (isset($wgSusbcriptionProviders[$providerId])) {
-				$provider = ObjectFactory::getObjectFromSpec($wgSusbcriptionProviders[$providerId]);
-				if ($provider instanceof SubscriptionProvider) {
+			if ( isset( $wgSusbcriptionProviders[$providerId] ) ) {
+				$provider = ObjectFactory::getObjectFromSpec( $wgSusbcriptionProviders[$providerId] );
+				if ( $provider instanceof SubscriptionProvider ) {
 					$provider->providerId = $providerId;
 					self::$instances[$providerId] = $provider;
 				} else {
-					throw new SubscriptionProviderException(__METHOD__ . ": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend " . __CLASS__ . ".");
+					throw new SubscriptionProviderException( __METHOD__ . ": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend " . __CLASS__ . "." );
 				}
 			}
 		}
@@ -67,11 +67,11 @@ abstract class SubscriptionProvider {
 	 * Get if a specific user ID has a subscription.
 	 * Just a basic true or false, nothing more.
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
-	 * @return boolean Has Subscription
+	 * @return bool Has Subscription
 	 */
-	abstract public function hasSubscription(int $userId);
+	abstract public function hasSubscription( int $userId );
 
 	/**
 	 * Get the subscription information for a specific global user ID.
@@ -86,30 +86,30 @@ abstract class SubscriptionProvider {
 	 * 		'subscription_id'	=> '123456abcdef' //Unique ID generated for the user's subscription.
 	 * ]
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
 	 * @return mixed Subscription information, false on API failure.
 	 */
-	abstract public function getSubscription(int $userId);
+	abstract public function getSubscription( int $userId );
 
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
 	 *
-	 * @param integer $userId User ID
-	 * @param integer $months Number of months to compensate.
+	 * @param int $userId User ID
+	 * @param int $months Number of months to compensate.
 	 *
-	 * @return boolean Success
+	 * @return bool Success
 	 */
-	abstract public function createCompedSubscription(int $userId, int $months);
+	abstract public function createCompedSubscription( int $userId, int $months );
 
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
-	 * @return boolean Success
+	 * @return bool Success
 	 */
-	abstract public function cancelCompedSubscription(int $userId);
+	abstract public function cancelCompedSubscription( int $userId );
 
 	/**
 	 * Return a valid CSS class for flair display.
@@ -123,7 +123,7 @@ abstract class SubscriptionProvider {
 	/**
 	 * Return the duration to cache API responses in seconds.
 	 *
-	 * @return integer Duration to cache API responses in seconds.
+	 * @return int Duration to cache API responses in seconds.
 	 */
 	public function getCacheDuration() {
 		return 600; // Cache for ten minutes.

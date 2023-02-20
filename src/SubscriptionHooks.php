@@ -9,7 +9,7 @@
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki
-**/
+ */
 
 namespace Subscription;
 
@@ -23,17 +23,17 @@ class SubscriptionHooks {
 	 *
 	 * @var array
 	 */
-	static private $linkCache = [];
+	private static $linkCache = [];
 
 	/**
 	 * Handle adding premium flair
 	 *
-	 * @param LinkRenderer  $linkRenderer
-	 * @param LinkTarget    $target
-	 * @param bool          $isKnown
-	 * @param string|object $text
-	 * @param array         $attribs
-	 * @param string        $ret
+	 * @param LinkRenderer $linkRenderer
+	 * @param LinkTarget $target
+	 * @param bool $isKnown
+	 * @param string|object &$text
+	 * @param array &$attribs
+	 * @param string &$ret
 	 *
 	 * @return void
 	 */
@@ -46,21 +46,21 @@ class SubscriptionHooks {
 		&$ret
 	) {
 		$classes = false;
-		$defaultText = trim(strip_tags(HtmlArmor::getHtml($text)));
-		if (!empty($target) && !empty($target->getText()) && $target->getNamespace() === NS_USER
-			&& mb_strpos($defaultText, $target->getText()) === 0) {
-			if (array_key_exists($target->getText(), self::$linkCache)) {
+		$defaultText = trim( strip_tags( HtmlArmor::getHtml( $text ) ) );
+		if ( !empty( $target ) && !empty( $target->getText() ) && $target->getNamespace() === NS_USER
+			&& mb_strpos( $defaultText, $target->getText() ) === 0 ) {
+			if ( array_key_exists( $target->getText(), self::$linkCache ) ) {
 				$classes = self::$linkCache[$target->getText()];
 			} else {
-				$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($target->getText());
+				$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $target->getText() );
 
-				if (!empty($user) && $user->getId()) {
-					$subscription = Subscription::newFromUser($user);
-					if ($subscription !== false) {
-						$_cacheSetting = Subscription::useLocalCacheOnly(true);
-						$classes = $subscription->getFlairClasses(true);
-						Subscription::useLocalCacheOnly($_cacheSetting);
-						if (empty($classes)) {
+				if ( !empty( $user ) && $user->getId() ) {
+					$subscription = Subscription::newFromUser( $user );
+					if ( $subscription !== false ) {
+						$_cacheSetting = Subscription::useLocalCacheOnly( true );
+						$classes = $subscription->getFlairClasses( true );
+						Subscription::useLocalCacheOnly( $_cacheSetting );
+						if ( empty( $classes ) ) {
 							// Enforce sanity.
 							$classes = false;
 						}
@@ -68,8 +68,8 @@ class SubscriptionHooks {
 				}
 			}
 
-			if ($classes !== false) {
-				$attribs['class'] = (!empty($attribs['class']) ? $attribs['class'] . ' ' : '') . implode(' ', $classes);
+			if ( $classes !== false ) {
+				$attribs['class'] = ( !empty( $attribs['class'] ) ? $attribs['class'] . ' ' : '' ) . implode( ' ', $classes );
 			}
 			self::$linkCache[$target->getText()] = $classes;
 		}
@@ -80,22 +80,22 @@ class SubscriptionHooks {
 	/**
 	 * Handle setting if the user requires HTTPS per subscription.
 	 *
-	 * @param object  $user          User
-	 * @param boolean $requiresHttps Requires HTTPS
+	 * @param object $user User
+	 * @param bool &$requiresHttps Requires HTTPS
 	 *
-	 * @return boolean True
+	 * @return bool True
 	 */
-	public static function onUserRequiresHTTPS($user, &$requiresHttps) {
+	public static function onUserRequiresHTTPS( $user, &$requiresHttps ) {
 		global $wgFullHTTPSExperiment;
 
-		if ($wgFullHTTPSExperiment) {
+		if ( $wgFullHTTPSExperiment ) {
 			$requiresHttps = true;
 			return true;
 		}
 
 		$requiresHttps = false;
 
-		if (!empty($user) && $user->getId()) {
+		if ( !empty( $user ) && $user->getId() ) {
 			$requiresHttps = true;
 		}
 		return true;
@@ -104,61 +104,61 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP if not premium.
 	 *
-	 * @param object $title     Title
-	 * @param object $article   Article
-	 * @param object $output    Output
-	 * @param object $user      User
-	 * @param object $request   WebRequest
+	 * @param object &$title Title
+	 * @param object &$article Article
+	 * @param object &$output Output
+	 * @param object &$user User
+	 * @param object $request WebRequest
 	 * @param object $mediaWiki Mediawiki
 	 *
-	 * @return boolean True
+	 * @return bool True
 	 */
-	public static function onBeforeInitialize(&$title, &$article, &$output, &$user, $request, $mediaWiki) {
+	public static function onBeforeInitialize( &$title, &$article, &$output, &$user, $request, $mediaWiki ) {
 		global $wgFullHTTPSExperiment;
 
-		if (defined('MW_API') && MW_API === true) {
+		if ( defined( 'MW_API' ) && MW_API === true ) {
 			return true;
 		}
 
-		list($specialPage,) = MediaWikiServices::getInstance()->getSpecialPageFactory()
-			->resolveAlias($title->getDBkey());
+		list( $specialPage, ) = MediaWikiServices::getInstance()->getSpecialPageFactory()
+			->resolveAlias( $title->getDBkey() );
 
-		$secureSpecialPages = ['Userlogin', 'Preferences'];
+		$secureSpecialPages = [ 'Userlogin', 'Preferences' ];
 
-		MediaWikiServices::getInstance()->getHookContainer()->run('SecureSpecialPages', [&$secureSpecialPages]);
-		if ($wgFullHTTPSExperiment || (!empty($user) && $user->getId() && in_array($specialPage, $secureSpecialPages))) {
-			if ($request->getProtocol() !== 'https') {
+		MediaWikiServices::getInstance()->getHookContainer()->run( 'SecureSpecialPages', [ &$secureSpecialPages ] );
+		if ( $wgFullHTTPSExperiment || ( !empty( $user ) && $user->getId() && in_array( $specialPage, $secureSpecialPages ) ) ) {
+			if ( $request->getProtocol() !== 'https' ) {
 				$redirect = $request->getFullRequestURL();
-				if (strpos($request->getFullRequestURL(), 'http://') === 0) {
-					$redirect = substr_replace($redirect, 'https://', 0, 7);
+				if ( strpos( $request->getFullRequestURL(), 'http://' ) === 0 ) {
+					$redirect = substr_replace( $redirect, 'https://', 0, 7 );
 				}
-				$output->enableClientCache(false);
-				$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
+				$output->enableClientCache( false );
+				$output->redirect( $redirect, ( $request->wasPosted() ? '307' : '302' ) );
 			}
 
 			return true;
 		}
 
-		if ((empty($user) || $user->isAnon()) && !in_array($specialPage, $secureSpecialPages) && $request->getProtocol() !== 'http') {
+		if ( ( empty( $user ) || $user->isAnon() ) && !in_array( $specialPage, $secureSpecialPages ) && $request->getProtocol() !== 'http' ) {
 			$response = $request->response();
-			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
+			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
 			$response->clearCookie(
 				'forceHTTPS',
 				[
 					'prefix' => '',
 					'secure' => false,
-					'path' => $config->get('CookiePath'),
-					'domain' => $config->get('CookieDomain'),
-					'httpOnly' => $config->get('CookieHttpOnly')
+					'path' => $config->get( 'CookiePath' ),
+					'domain' => $config->get( 'CookieDomain' ),
+					'httpOnly' => $config->get( 'CookieHttpOnly' )
 				]
 			);
 
 			$redirect = $request->getFullRequestURL();
-			if (strpos($request->getFullRequestURL(), 'https://') === 0) {
-				$redirect = substr_replace($redirect, 'http://', 0, 8);
+			if ( strpos( $request->getFullRequestURL(), 'https://' ) === 0 ) {
+				$redirect = substr_replace( $redirect, 'http://', 0, 8 );
 			}
-			$output->enableClientCache(false);
-			$output->redirect($redirect, ($request->wasPosted() ? '307' : '302'));
+			$output->enableClientCache( false );
+			$output->redirect( $redirect, ( $request->wasPosted() ? '307' : '302' ) );
 		}
 
 		return true;
@@ -167,32 +167,32 @@ class SubscriptionHooks {
 	/**
 	 * Handle automatically sending people back to regular HTTP.
 	 *
-	 * @param object $output   OutputPage
-	 * @param string $redirect Redirect URL
-	 * @param string $code     HTTP Status Code
+	 * @param object $output OutputPage
+	 * @param string &$redirect Redirect URL
+	 * @param string &$code HTTP Status Code
 	 *
-	 * @return boolean True
+	 * @return bool True
 	 */
-	public static function onBeforePageRedirect(OutputPage $output, &$redirect, &$code) {
+	public static function onBeforePageRedirect( OutputPage $output, &$redirect, &$code ) {
 		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
 
-		if ($wgFullHTTPSExperiment || (defined('MW_API') && MW_API === true)) {
+		if ( $wgFullHTTPSExperiment || ( defined( 'MW_API' ) && MW_API === true ) ) {
 			return true;
 		}
 
-		if (!empty($wgUser) && $wgUser->getId()) {
+		if ( !empty( $wgUser ) && $wgUser->getId() ) {
 			return true;
 		}
 
-		$server = str_ireplace(['https://', 'http://', '//'], '', $wgServer);
-		if (strpos($redirect, $server) === false) {
+		$server = str_ireplace( [ 'https://', 'http://', '//' ], '', $wgServer );
+		if ( strpos( $redirect, $server ) === false ) {
 			// Do not mess with external redirects.
 			return true;
 		}
 
-		if ($wgRequest->getProtocol() !== 'http' && strpos($redirect, 'https://') === 0) {
-			$redirect = substr_replace($redirect, 'http://', 0, 8);
-			if ($output->getRequest()->wasPosted()) {
+		if ( $wgRequest->getProtocol() !== 'http' && strpos( $redirect, 'https://' ) === 0 ) {
+			$redirect = substr_replace( $redirect, 'http://', 0, 8 );
+			if ( $output->getRequest()->wasPosted() ) {
 				$code = '307';
 			}
 		}
@@ -205,16 +205,16 @@ class SubscriptionHooks {
 	 *
 	 * @param object $user User Object
 	 *
-	 * @return boolean true
+	 * @return bool true
 	 */
-	public static function onUserLoggedIn(User $user) {
-		if ($user->isLoggedIn()) {
-			$subscription = Subscription::newFromUser($user);
-			if ($subscription !== false) {
-				$_cacheSetting = Subscription::skipCache(true);
+	public static function onUserLoggedIn( User $user ) {
+		if ( $user->isLoggedIn() ) {
+			$subscription = Subscription::newFromUser( $user );
+			if ( $subscription !== false ) {
+				$_cacheSetting = Subscription::skipCache( true );
 				// Don't care about the return.  This just forces a recache.
 				$subscription->getSubscription();
-				Subscription::skipCache($_cacheSetting);
+				Subscription::skipCache( $_cacheSetting );
 			}
 		}
 
@@ -224,12 +224,12 @@ class SubscriptionHooks {
 	/**
 	 * Setups and Modifies Database Information
 	 *
-	 * @param User  $user        The user being modified.
-	 * @param array $preferences Preferences to modify and return.
+	 * @param User $user The user being modified.
+	 * @param array &$preferences Preferences to modify and return.
 	 *
-	 * @return boolean true
+	 * @return bool true
 	 */
-	public static function onGetPreferences(User $user, array &$preferences) {
+	public static function onGetPreferences( User $user, array &$preferences ) {
 		$preferences['gpro_expires'] = [
 			'type' => 'api',
 			'default' => 0,
@@ -240,11 +240,11 @@ class SubscriptionHooks {
 	/**
 	 * Setups and Modifies Database Information
 	 *
-	 * @param object $updater [Optional] DatabaseUpdater Object
+	 * @param object|null $updater [Optional] DatabaseUpdater Object
 	 *
-	 * @return boolean true
+	 * @return bool true
 	 */
-	public static function onLoadExtensionSchemaUpdates(DatabaseUpdater $updater = null) {
+	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater = null ) {
 		$extDir = __DIR__;
 
 		return true;

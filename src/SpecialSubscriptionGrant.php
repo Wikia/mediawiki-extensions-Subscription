@@ -9,7 +9,7 @@
  * @copyright (c) 2019 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki
- **/
+ */
 
 namespace Subscription;
 
@@ -22,7 +22,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 * @return void
 	 */
 	public function __construct() {
-		parent::__construct('SubscriptionGrant', 'subscription', true);
+		parent::__construct( 'SubscriptionGrant', 'subscription', true );
 
 		$this->wgRequest	= $this->getRequest();
 		$this->wgUser		= $this->getUser();
@@ -36,10 +36,10 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 *
 	 * @return void [Outputs to screen]
 	 */
-	public function execute($path) {
+	public function execute( $path ) {
 		$this->templates = new TemplateSubscription;
 
-		$this->output->addModules(['ext.subscription']);
+		$this->output->addModules( [ 'ext.subscription' ] );
 
 		$this->checkPermissions();
 
@@ -55,10 +55,10 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 */
 	public function subscriptionGrantForm() {
 		$formData = null;
-		$this->output->setPageTitle(wfMessage('subscriptiongrant')->escaped());
+		$this->output->setPageTitle( wfMessage( 'subscriptiongrant' )->escaped() );
 
-		if ($this->wgRequest->wasPosted()) {
-			switch ($this->wgRequest->getVal('do')) {
+		if ( $this->wgRequest->wasPosted() ) {
+			switch ( $this->wgRequest->getVal( 'do' ) ) {
 				case 'lookup':
 					$this->lookup();
 					break;
@@ -68,7 +68,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			}
 		}
 
-		$this->output->addHTML($this->templates->subscriptionGrant($formData));
+		$this->output->addHTML( $this->templates->subscriptionGrant( $formData ) );
 	}
 
 	/**
@@ -77,18 +77,18 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 * @return void
 	 */
 	private	function lookup() {
-		$username = trim($this->wgRequest->getVal('username'));
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($username);
-		if (!$user || !$user->getId()) {
-			$this->output->addHTML("<span class='error'>User not found.</span><br/>");
+		$username = trim( $this->wgRequest->getVal( 'username' ) );
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username );
+		if ( !$user || !$user->getId() ) {
+			$this->output->addHTML( "<span class='error'>User not found.</span><br/>" );
 		} else {
-			$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
-			Subscription::skipCache(true);
-			$subInfo = $gamepediaPro->getSubscription($user->getId());
-			if ($subInfo['active']) {
-				$this->output->addHTML("<span class='success'>The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}.</span><br/>");
+			$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
+			Subscription::skipCache( true );
+			$subInfo = $gamepediaPro->getSubscription( $user->getId() );
+			if ( $subInfo['active'] ) {
+				$this->output->addHTML( "<span class='success'>The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}.</span><br/>" );
 			} else {
-				$this->output->addHTML("<span class='success'>{$user->getName()} does not have an active subscription.</span><br/>");
+				$this->output->addHTML( "<span class='success'>{$user->getName()} does not have an active subscription.</span><br/>" );
 			}
 		}
 	}
@@ -99,50 +99,50 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	 * @return array Form Data
 	 */
 	private function grantSubscription(): array {
-		$username = trim($this->wgRequest->getVal('username'));
-		$subscriptionDuration = trim($this->wgRequest->getVal('duration'));
-		$overwriteSub = $this->wgRequest->getVal('overwriteSub');
+		$username = trim( $this->wgRequest->getVal( 'username' ) );
+		$subscriptionDuration = trim( $this->wgRequest->getVal( 'duration' ) );
+		$overwriteSub = $this->wgRequest->getVal( 'overwriteSub' );
 		$formData = [
 			'username' => $username,
 			'duration' => $subscriptionDuration,
 			'overwriteSub' => $overwriteSub
 		];
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName($username);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username );
 
 		$userId = $user->getId();
-		if ($userId && $this->isValidSubscriptionDuration($subscriptionDuration)) {
-			$gamepediaPro = SubscriptionProvider::factory('GamepediaPro');
-			Subscription::skipCache(true);
+		if ( $userId && $this->isValidSubscriptionDuration( $subscriptionDuration ) ) {
+			$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
+			Subscription::skipCache( true );
 
 			// Cancel any existing subscription before applying a new one
 			$cancel = false;
-			if ($overwriteSub === 'checked' || $subscriptionDuration == 0) {
-				$cancel = $gamepediaPro->cancelCompedSubscription($userId);
-				$this->output->addHTML("<span class='success'>" . $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.' . "</span><br/>");
+			if ( $overwriteSub === 'checked' || $subscriptionDuration == 0 ) {
+				$cancel = $gamepediaPro->cancelCompedSubscription( $userId );
+				$this->output->addHTML( "<span class='success'>" . $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.' . "</span><br/>" );
 			}
 
-			if ($subscriptionDuration > 0) {
-				$createSubResult = $gamepediaPro->createCompedSubscription($userId, $subscriptionDuration);
-				if ($createSubResult === false) {
-					$this->output->addHTML("<span class='error'>Error creating subscription</span><br/>");
+			if ( $subscriptionDuration > 0 ) {
+				$createSubResult = $gamepediaPro->createCompedSubscription( $userId, $subscriptionDuration );
+				if ( $createSubResult === false ) {
+					$this->output->addHTML( "<span class='error'>Error creating subscription</span><br/>" );
 
 					// Usually what went wrong is the existing subscritpion wasn't cancelled first
-					$subInfo = $gamepediaPro->getSubscription($userId);
-					if (!$cancel = is_array($subInfo) && $subInfo['active']) {
+					$subInfo = $gamepediaPro->getSubscription( $userId );
+					if ( !$cancel = is_array( $subInfo ) && $subInfo['active'] ) {
 						$expiresAt = $subInfo['expires']->getHumanTimestamp();
-						$this->output->addHTML("<span class='error'>Subscription for " . htmlspecialchars($username) . "
+						$this->output->addHTML( "<span class='error'>Subscription for " . htmlspecialchars( $username ) . "
 												already exists, ending on " . $expiresAt . "<br/>
-												You'll need to overwrite the existing subscription.</span><br/>");
+												You'll need to overwrite the existing subscription.</span><br/>" );
 					}
 				}
 
-				$this->output->addHTML("<span class='success'>" . $createSubResult ? 'Comped subscription successfully created.' : 'Failed to create comped subscription.' . "</span><br/>");
+				$this->output->addHTML( "<span class='success'>" . $createSubResult ? 'Comped subscription successfully created.' : 'Failed to create comped subscription.' . "</span><br/>" );
 			}
-		} elseif (!$this->isValidSubscriptionDuration($subscriptionDuration)) {
-			$this->output->addHTML("<span class='error'>Invalid subscription duration</span><br/>");
+		} elseif ( !$this->isValidSubscriptionDuration( $subscriptionDuration ) ) {
+			$this->output->addHTML( "<span class='error'>Invalid subscription duration</span><br/>" );
 		} else {
-			$this->output->addHTML("<span class='error'>Invalid username</span><br/>");
-			$this->output->addHTML(htmlspecialchars($username) . " User ID: " . $userId);
+			$this->output->addHTML( "<span class='error'>Invalid username</span><br/>" );
+			$this->output->addHTML( htmlspecialchars( $username ) . " User ID: " . $userId );
 		}
 		return $formData;
 	}
@@ -159,12 +159,12 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	/**
 	 * Ensure Subscription duration is valid
 	 *
-	 * @param integer $duration Subscription Duration
+	 * @param int $duration Subscription Duration
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	private function isValidSubscriptionDuration($duration) {
-		if (!is_numeric($duration) || $duration < 0 || $duration > 100) {
+	private function isValidSubscriptionDuration( $duration ) {
+		if ( !is_numeric( $duration ) || $duration < 0 || $duration > 100 ) {
 			return false;
 		}
 		return true;

@@ -9,7 +9,7 @@
  * @copyright (c) 2016 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki
-**/
+ */
 
 namespace Subscription;
 
@@ -20,7 +20,7 @@ class Subscription {
 	/**
 	 * User ID
 	 *
-	 * @var integer
+	 * @var int
 	 */
 	private $userId;
 
@@ -34,28 +34,28 @@ class Subscription {
 	/**
 	 * Skip using the cache
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	static private $skipCache = false;
+	private static $skipCache = false;
 
 	/**
 	 * Use Local Cache Only
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	static private $useLocalCacheOnly = false;
+	private static $useLocalCacheOnly = false;
 
 	/**
 	 * Main Constructor
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
 	 * @return void
 	 */
-	public function __construct(int $userId) {
-		$this->userId = intval($userId);
+	public function __construct( int $userId ) {
+		$this->userId = intval( $userId );
 
-		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig('main');
+		$this->config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
 	}
 
 	/**
@@ -63,14 +63,14 @@ class Subscription {
 	 *
 	 * @param User $user User
 	 *
-	 * @return Subscription|boolean
+	 * @return Subscription|bool
 	 */
-	public static function newFromUser(User $user) {
-		if (!$user->getId()) {
+	public static function newFromUser( User $user ) {
+		if ( !$user->getId() ) {
 			return false;
 		}
 
-		return new self($user->getId());
+		return new self( $user->getId() );
 	}
 
 	/**
@@ -79,11 +79,11 @@ class Subscription {
 	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
 	 *                                If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public function hasSubscription(?string $providerId = null) {
-		foreach ($this->getSubscriptionProviders() as $subscription) {
-			if ($subscription !== null && $subscription->hasSubscription($this->userId)) {
+	public function hasSubscription( ?string $providerId = null ) {
+		foreach ( $this->getSubscriptionProviders() as $subscription ) {
+			if ( $subscription !== null && $subscription->hasSubscription( $this->userId ) ) {
 				return true;
 			}
 		}
@@ -99,13 +99,13 @@ class Subscription {
 	 *
 	 * @return array Multidimensional array of $providerId => [...data...] OR false on fatal error for a provider.  See SubscriptionProvider::getSubscription() for data array format.
 	 */
-	public function getSubscription(?string $providerId = null) {
+	public function getSubscription( ?string $providerId = null ) {
 		$_subscriptions = [];
-		foreach ($this->getSubscriptionProviders() as $subscription) {
+		foreach ( $this->getSubscriptionProviders() as $subscription ) {
 			$_subscriptions[$providerId] = false;
-			$subscription = SubscriptionProvider::factory($providerId);
-			if ($subscription !== null) {
-				$_subscriptions[$providerId] = $subscription->getSubscription($this->userId);
+			$subscription = SubscriptionProvider::factory( $providerId );
+			if ( $subscription !== null ) {
+				$_subscriptions[$providerId] = $subscription->getSubscription( $this->userId );
 			}
 		}
 
@@ -119,10 +119,10 @@ class Subscription {
 	 *
 	 * @return array CSS classes.
 	 */
-	public function getFlairClasses(?string $providerId = null) {
+	public function getFlairClasses( ?string $providerId = null ) {
 		$classess = [];
-		foreach ($this->getSubscriptionProviders() as $subscription) {
-			if ($subscription !== null && !empty($subscription->getFlairClass()) && $subscription->hasSubscription($this->userId)) {
+		foreach ( $this->getSubscriptionProviders() as $subscription ) {
+			if ( $subscription !== null && !empty( $subscription->getFlairClass() ) && $subscription->hasSubscription( $this->userId ) ) {
 				$classess[] = $subscription->getFlairClass();
 			}
 		}
@@ -133,28 +133,28 @@ class Subscription {
 	/**
 	 * Return specified or all subscription providers.
 	 *
-	 * @param string $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
+	 * @param string|null $providerId [Optional] Provider ID, a key in 'SubscriptionProviders'.
 	 *                           If a provider ID is not supplied it will loop through all the known providers short circuiting when it finds a valid subscription.
 	 *
 	 * @return array Subscription Providers.
 	 */
-	private function getSubscriptionProviders(?string $providerId = null) {
-		$providers = $this->config->get('SubscriptionProviders');
+	private function getSubscriptionProviders( ?string $providerId = null ) {
+		$providers = $this->config->get( 'SubscriptionProviders' );
 
 		$subscriptionProviders = [];
-		if (isset($providers) && is_array($providers)) {
-			if ($providerId !== null) {
-				if (!array_key_exists($providerId, $providers)) {
-					throw new SubscriptionProviderException(__METHOD__ . ": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders.");
+		if ( isset( $providers ) && is_array( $providers ) ) {
+			if ( $providerId !== null ) {
+				if ( !array_key_exists( $providerId, $providers ) ) {
+					throw new SubscriptionProviderException( __METHOD__ . ": Given subscription provider ID \"{$providerId}\" is not defined in SubscriptionProviders." );
 				}
-				$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
+				$subscriptionProviders[] = SubscriptionProvider::factory( $providerId );
 			} else {
-				foreach ($providers as $providerId => $details) {
-					if ($details === null) {
+				foreach ( $providers as $providerId => $details ) {
+					if ( $details === null ) {
 						// Provider has been nulled out to prevent processing it.
 						continue;
 					}
-					$subscriptionProviders[] = SubscriptionProvider::factory($providerId);
+					$subscriptionProviders[] = SubscriptionProvider::factory( $providerId );
 				}
 			}
 		}
@@ -166,13 +166,13 @@ class Subscription {
 	 * Get if local cache only should be used or to change its setting.
 	 * Setting this to true will cause $useLocalCacheOnly to have no effect.
 	 *
-	 * @param boolean $skip [Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 * @param bool|null $skip [Optional] True or False to enable or disable.  Not passing this argument results in no change.
 	 *
-	 * @return boolean Previous value, Enabled or Disabled
+	 * @return bool Previous value, Enabled or Disabled
 	 */
-	public static function skipCache(?bool $skip = null) {
+	public static function skipCache( ?bool $skip = null ) {
 		$return = self::$skipCache; // Copy so the return value is the old value if being changed.
-		if (is_bool($skip)) {
+		if ( is_bool( $skip ) ) {
 			self::$skipCache = $skip;
 		}
 		return $return;
@@ -181,13 +181,13 @@ class Subscription {
 	/**
 	 * Get if local cache only should be used or to change its setting.
 	 *
-	 * @param boolean $local [Optional] True or False to enable or disable.  Not passing this argument results in no change.
+	 * @param bool|null $local [Optional] True or False to enable or disable.  Not passing this argument results in no change.
 	 *
-	 * @return boolean Previous value, Enabled or Disabled
+	 * @return bool Previous value, Enabled or Disabled
 	 */
-	public static function useLocalCacheOnly($local = null) {
+	public static function useLocalCacheOnly( $local = null ) {
 		$return = self::$useLocalCacheOnly; // Copy so the return value is the old value if being changed.
-		if (is_bool($local)) {
+		if ( is_bool( $local ) ) {
 			self::$useLocalCacheOnly = $local;
 		}
 		return $return;

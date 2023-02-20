@@ -21,18 +21,18 @@ class GamepediaPro extends SubscriptionProvider {
 	 * Get if a specific global user ID has an entitlement.
 	 * Just a basic true or false, nothing more.
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
-	 * @return boolean Has Subscription
+	 * @return bool Has Subscription
 	 */
-	public function hasSubscription(int $userId) {
-		if ($userId < 1) {
+	public function hasSubscription( int $userId ) {
+		if ( $userId < 1 ) {
 			return false;
 		}
 
-		$data = $this->getSubscription($userId);
+		$data = $this->getSubscription( $userId );
 
-		if ($data !== false && isset($data['active'])) {
+		if ( $data !== false && isset( $data['active'] ) ) {
 			return $data['active'];
 		}
 
@@ -42,26 +42,26 @@ class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * Get the subscription information for a specific global user ID.
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
-	 * @return array|boolean Subscription information, null on missing subscription, false on failure.
+	 * @return array|bool Subscription information, null on missing subscription, false on failure.
 	 */
-	public function getSubscription(int $userId) {
-		if ($userId < 1) {
+	public function getSubscription( int $userId ) {
+		if ( $userId < 1 ) {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
-		if (!$user) {
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
+		if ( !$user ) {
 			return false;
 		}
 		$optionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
-		$expires = $optionsLookup->getOption($user, 'gpro_expires');
+		$expires = $optionsLookup->getOption( $user, 'gpro_expires' );
 
 		$subscription = [
 			'active'			=> $expires > 0,
 			'begins'			=> false,
-			'expires'			=> new MWTimestamp($expires),
+			'expires'			=> new MWTimestamp( $expires ),
 			'plan_id'			=> 'complimentary',
 			'plan_name'			=> 'Complimentary',
 			'price'				=> 0.00,
@@ -73,23 +73,23 @@ class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
 	 *
-	 * @param integer $userId User ID
-	 * @param integer $months Number of months to compensate.
+	 * @param int $userId User ID
+	 * @param int $months Number of months to compensate.
 	 *
-	 * @return boolean Success
+	 * @return bool Success
 	 */
-	public function createCompedSubscription(int $userId, int $months) {
-		if ($userId < 1 || $months < 1) {
+	public function createCompedSubscription( int $userId, int $months ) {
+		if ( $userId < 1 || $months < 1 ) {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
 		$user = $user->getInstanceForUpdate();
-		if (!$user) {
+		if ( !$user ) {
 			return false;
 		}
 		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-		$optionsManager->setOption($user, 'gpro_expires', strtotime('+' . $months . ' months'));
+		$optionsManager->setOption( $user, 'gpro_expires', strtotime( '+' . $months . ' months' ) );
 		$user->saveSettings();
 
 		return true;
@@ -98,22 +98,22 @@ class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
 	 *
-	 * @param integer $userId User ID
+	 * @param int $userId User ID
 	 *
-	 * @return boolean Success
+	 * @return bool Success
 	 */
-	public function cancelCompedSubscription(int $userId) {
-		if ($userId < 1) {
+	public function cancelCompedSubscription( int $userId ) {
+		if ( $userId < 1 ) {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId($userId);
+		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
 		$user = $user->getInstanceForUpdate();
-		if (!$user) {
+		if ( !$user ) {
 			return false;
 		}
 		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-		$optionsManager->setOption($user, 'gpro_expires', 0);
+		$optionsManager->setOption( $user, 'gpro_expires', 0 );
 		$user->saveSettings();
 
 		return true;
