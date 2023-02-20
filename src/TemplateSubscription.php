@@ -2,7 +2,7 @@
 
 namespace Subscription;
 
-use Title;
+use SpecialPage;
 
 /**
  * Curse Inc.
@@ -17,16 +17,8 @@ use Title;
  */
 
 class TemplateSubscription {
-	/**
-	 * Grant Subscriptions
-	 *
-	 * @param array|null $formValues
-	 *
-	 * @return string Built HTML
-	 */
-	public function subscriptionGrant( $formValues = null ) {
-		$subscriptionPage = Title::newFromText( 'Special:SubscriptionGrant' );
-		$subscriptionURL = $subscriptionPage->getFullURL();
+	public function subscriptionGrant( ?array $formValues = null ): string {
+		$subscriptionURL = SpecialPage::getSafeTitleFor( 'SubscriptionGrant' )->getFullURL();
 
 		$html = "
 			<div id='lookup'>

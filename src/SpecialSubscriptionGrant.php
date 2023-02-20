@@ -13,157 +13,121 @@
 
 namespace Subscription;
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserFactory;
+use OutputPage;
+use SpecialPage;
+use Subscription\Providers\GamepediaPro;
+use WebRequest;
 
 class SpecialSubscriptionGrant extends SpecialPage {
-	/**
-	 * Main Constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
+	public function __construct( private UserFactory $userFactory, private GamepediaPro $gamepediaPro ) {
 		parent::__construct( 'SubscriptionGrant', 'subscription', true );
-
-		$this->wgRequest	= $this->getRequest();
-		$this->wgUser		= $this->getUser();
-		$this->output		= $this->getOutput();
 	}
 
-	/**
-	 * Main Executor
-	 *
-	 * @param string $path Sub page passed in the URL.
-	 *
-	 * @return void [Outputs to screen]
-	 */
-	public function execute( $path ) {
-		$this->templates = new TemplateSubscription;
-
-		$this->output->addModules( [ 'ext.subscription' ] );
-
+	/** @inheritDoc */
+	public function execute( $subPage ) {
 		$this->checkPermissions();
-
 		$this->setHeaders();
+		$output = $this->getOutput();
+		$request = $this->getRequest();
 
-		$this->subscriptionGrantForm();
-	}
+		$output->setPageTitle( $this->msg( 'subscriptiongrant' )->escaped() );
+		$output->addModules( [ 'ext.subscription' ] );
 
-	/**
-	 * Subscription Grant Form
-	 *
-	 * @return void [Outputs to screen]
-	 */
-	public function subscriptionGrantForm() {
-		$formData = null;
-		$this->output->setPageTitle( wfMessage( 'subscriptiongrant' )->escaped() );
+		$template = new TemplateSubscription();
 
-		if ( $this->wgRequest->wasPosted() ) {
-			switch ( $this->wgRequest->getVal( 'do' ) ) {
-				case 'lookup':
-					$this->lookup();
-					break;
-				case 'grant_subscription':
-					$formData = $this->grantSubscription();
-					break;
-			}
+		if ( !$request->wasPosted() ) {
+			$output->addHTML( $template->subscriptionGrant() );
+			return;
 		}
 
-		$this->output->addHTML( $this->templates->subscriptionGrant( $formData ) );
+		switch ( $request->getVal( 'do' ) ) {
+			case 'lookup':
+				$this->lookupSubscriptionInfo( $request, $output );
+				$output->addHTML( $template->subscriptionGrant() );
+				return;
+			case 'grant_subscription':
+				$formData = $this->grantSubscription( $request, $output );
+				$output->addHTML( $template->subscriptionGrant( $formData ) );
+				return;
+		}
 	}
 
-	/**
-	 * Look up subscription information.
-	 *
-	 * @return void
-	 */
-	private	function lookup() {
-		$username = trim( $this->wgRequest->getVal( 'username' ) );
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username );
+	private	function lookupSubscriptionInfo( WebRequest $request, OutputPage $output ): void {
+		$username = trim( $request->getVal( 'username' ) );
+		$user = $this->userFactory->newFromName( $username );
 		if ( !$user || !$user->getId() ) {
-			$this->output->addHTML( "<span class='error'>User not found.</span><br/>" );
-		} else {
-			$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
-			Subscription::skipCache( true );
-			$subInfo = $gamepediaPro->getSubscription( $user->getId() );
-			if ( $subInfo['active'] ) {
-				$this->output->addHTML( "<span class='success'>The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}.</span><br/>" );
-			} else {
-				$this->output->addHTML( "<span class='success'>{$user->getName()} does not have an active subscription.</span><br/>" );
-			}
+			$output->addHTML( "<span class='error'>User not found.</span><br/>" );
+			return;
 		}
+
+		$subInfo = $this->gamepediaPro->getSubscription( $user->getId() );
+
+		$message = $subInfo['active'] ?
+			"The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}." :
+			"{$user->getName()} does not have an active subscription.";
+
+		$output->addHTML( "<span class='success'>$message</span><br/>" );
 	}
 
-	/**
-	 * Grant a Subscription
-	 *
-	 * @return array Form Data
-	 */
-	private function grantSubscription(): array {
-		$username = trim( $this->wgRequest->getVal( 'username' ) );
-		$subscriptionDuration = trim( $this->wgRequest->getVal( 'duration' ) );
-		$overwriteSub = $this->wgRequest->getVal( 'overwriteSub' );
+	private function grantSubscription( WebRequest $request, OutputPage $output ): array {
+		$username = trim( $request->getVal( 'username' ) );
+		$subscriptionDuration = trim( $request->getVal( 'duration' ) );
+		$overwriteSub = $request->getVal( 'overwriteSub' );
 		$formData = [
 			'username' => $username,
 			'duration' => $subscriptionDuration,
 			'overwriteSub' => $overwriteSub
 		];
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $username );
+
+		if ( !$this->isValidSubscriptionDuration( $subscriptionDuration ) ) {
+			$output->addHTML( "<span class='error'>Invalid subscription duration</span><br/>" );
+			return $formData;
+		}
+
+		$user = $this->userFactory->newFromName( $username );
+		if ( !$user || !$user->isRegistered() ) {
+			$output->addHTML( "<span class='error'>Invalid username</span><br/>" );
+			$output->addHTML( htmlspecialchars( $username ) . " User ID: 0" );
+			return $formData;
+		}
 
 		$userId = $user->getId();
-		if ( $userId && $this->isValidSubscriptionDuration( $subscriptionDuration ) ) {
-			$gamepediaPro = SubscriptionProvider::factory( 'GamepediaPro' );
-			Subscription::skipCache( true );
-
-			// Cancel any existing subscription before applying a new one
-			$cancel = false;
-			if ( $overwriteSub === 'checked' || $subscriptionDuration == 0 ) {
-				$cancel = $gamepediaPro->cancelCompedSubscription( $userId );
-				$this->output->addHTML( "<span class='success'>" . $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.' . "</span><br/>" );
-			}
-
-			if ( $subscriptionDuration > 0 ) {
-				$createSubResult = $gamepediaPro->createCompedSubscription( $userId, $subscriptionDuration );
-				if ( $createSubResult === false ) {
-					$this->output->addHTML( "<span class='error'>Error creating subscription</span><br/>" );
-
-					// Usually what went wrong is the existing subscritpion wasn't cancelled first
-					$subInfo = $gamepediaPro->getSubscription( $userId );
-					if ( !$cancel = is_array( $subInfo ) && $subInfo['active'] ) {
-						$expiresAt = $subInfo['expires']->getHumanTimestamp();
-						$this->output->addHTML( "<span class='error'>Subscription for " . htmlspecialchars( $username ) . "
-												already exists, ending on " . $expiresAt . "<br/>
-												You'll need to overwrite the existing subscription.</span><br/>" );
-					}
-				}
-
-				$this->output->addHTML( "<span class='success'>" . $createSubResult ? 'Comped subscription successfully created.' : 'Failed to create comped subscription.' . "</span><br/>" );
-			}
-		} elseif ( !$this->isValidSubscriptionDuration( $subscriptionDuration ) ) {
-			$this->output->addHTML( "<span class='error'>Invalid subscription duration</span><br/>" );
-		} else {
-			$this->output->addHTML( "<span class='error'>Invalid username</span><br/>" );
-			$this->output->addHTML( htmlspecialchars( $username ) . " User ID: " . $userId );
+		// Cancel any existing subscription before applying a new one
+		if ( $overwriteSub === 'checked' || $subscriptionDuration == 0 ) {
+			$cancel = $this->gamepediaPro->cancelCompedSubscription( $userId );
+			$message = $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.';
+			$output->addHTML( "<span class='success'>$message</span><br/>" );
+			return $formData;
 		}
+
+		$createSubResult = $this->gamepediaPro->createCompedSubscription( $userId, $subscriptionDuration );
+		if ( $createSubResult === false ) {
+			$output->addHTML( "<span class='error'>Error creating subscription</span><br/>" );
+
+			// Usually what went wrong is the existing subscritpion wasn't cancelled first
+			$subInfo = $this->gamepediaPro->getSubscription( $userId );
+			if ( is_array( $subInfo ) && $subInfo['active'] ) {
+				$expiresAt = $subInfo['expires']->getHumanTimestamp();
+				$output->addHTML( "<span class='error'>Subscription for " . htmlspecialchars( $username ) . "
+										already exists, ending on " . $expiresAt . "<br/>
+										You'll need to overwrite the existing subscription.</span><br/>" );
+			}
+		}
+
+		$message = $createSubResult ?
+			'Comped subscription successfully created.' :
+			'Failed to create comped subscription.';
+		$output->addHTML( "<span class='success'>$message</span><br/>" );
 		return $formData;
 	}
 
-	/**
-	 * Return the group name for this special page.
-	 *
-	 * @return string
-	 */
+	/** @inheritDoc */
 	protected function getGroupName() {
 		return 'users';
 	}
 
-	/**
-	 * Ensure Subscription duration is valid
-	 *
-	 * @param int $duration Subscription Duration
-	 *
-	 * @return bool
-	 */
-	private function isValidSubscriptionDuration( $duration ) {
+	private function isValidSubscriptionDuration( $duration ): bool {
 		if ( !is_numeric( $duration ) || $duration < 0 || $duration > 100 ) {
 			return false;
 		}

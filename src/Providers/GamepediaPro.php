@@ -12,11 +12,20 @@
 
 namespace Subscription\Providers;
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserIdentityLookup;
+use MediaWiki\User\UserOptionsLookup;
+use MediaWiki\User\UserOptionsManager;
 use MWTimestamp;
 use Subscription\SubscriptionProvider;
 
 class GamepediaPro extends SubscriptionProvider {
+	public function __construct(
+		private UserIdentityLookup $userIdentityLookup,
+		private UserOptionsLookup $userOptionsLookup,
+		private UserOptionsManager $userOptionsManager
+	) {
+	}
+
 	/**
 	 * Get if a specific global user ID has an entitlement.
 	 * Just a basic true or false, nothing more.
@@ -51,23 +60,21 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
-		if ( !$user ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( $userId );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 			return false;
 		}
-		$optionsLookup = MediaWikiServices::getInstance()->getUserOptionsLookup();
-		$expires = $optionsLookup->getOption( $user, 'gpro_expires' );
+		$expires = $this->userOptionsLookup->getOption( $userIdentity, 'gpro_expires' );
 
-		$subscription = [
-			'active'			=> $expires > 0,
-			'begins'			=> false,
-			'expires'			=> new MWTimestamp( $expires ),
-			'plan_id'			=> 'complimentary',
-			'plan_name'			=> 'Complimentary',
-			'price'				=> 0.00,
-			'subscription_id'	=> 'comped_' . $userId
+		return [
+			'active' => $expires > 0,
+			'begins' => false,
+			'expires' => new MWTimestamp( $expires ),
+			'plan_id' => 'complimentary',
+			'plan_name' => 'Complimentary',
+			'price' => 0.00,
+			'subscription_id' => 'comped_' . $userId
 		];
-		return $subscription;
 	}
 
 	/**
@@ -83,14 +90,12 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
-		$user = $user->getInstanceForUpdate();
-		if ( !$user ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( $userId );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 			return false;
 		}
-		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-		$optionsManager->setOption( $user, 'gpro_expires', strtotime( '+' . $months . ' months' ) );
-		$user->saveSettings();
+		$this->userOptionsManager->setOption( $userIdentity, 'gpro_expires', strtotime( '+' . $months . ' months' ) );
+		$this->userOptionsManager->saveOptions( $userIdentity );
 
 		return true;
 	}
@@ -107,14 +112,12 @@ class GamepediaPro extends SubscriptionProvider {
 			return false;
 		}
 
-		$user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $userId );
-		$user = $user->getInstanceForUpdate();
-		if ( !$user ) {
+		$userIdentity = $this->userIdentityLookup->getUserIdentityByUserId( $userId );
+		if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 			return false;
 		}
-		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-		$optionsManager->setOption( $user, 'gpro_expires', 0 );
-		$user->saveSettings();
+		$this->userOptionsManager->setOption( $userIdentity, 'gpro_expires', 0 );
+		$this->userOptionsManager->saveOptions( $userIdentity );
 
 		return true;
 	}

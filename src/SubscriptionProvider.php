@@ -14,53 +14,19 @@
 namespace Subscription;
 
 use MediaWiki\MediaWikiServices;
-use Wikimedia\ObjectFactory;
+use Subscription\Providers\GamepediaPro;
 
 abstract class SubscriptionProvider {
 	/**
-	 * Provider Instances
-	 *
-	 * @var array
+	 * @deprecated Instead grab GamepediaPro instance directly via
+	 * MediaWikiServices::getInstance()->getService( GamepediaPro::class );
 	 */
-	private static $instances = [];
-
-	/**
-	 * Provider ID of this instance.
-	 *
-	 * @var string
-	 */
-	private $providerId;
-
-	/**
-	 * Get a subscription provider.
-	 *
-	 * @param ?string $providerId Provider ID from $wgSusbcriptionProvider
-	 *
-	 * @return SubscriptionProvider|null
-	 */
-	public static function factory( ?string $providerId = null ) {
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
-		$wgSusbcriptionProviders = $config->get( 'SubscriptionProviders' );
-
-		if ( $providerId === null ) {
-			$providerId = $config->get( 'SubscriptionProvider' );
+	public static function factory( ?string $providerId = null ): ?SubscriptionProvider {
+		if ( $providerId === 'GamepediaPro' || $providerId === null ) {
+			return MediaWikiServices::getInstance()->getService( GamepediaPro::class );
 		}
 
-		if ( !array_key_exists( $providerId, self::$instances ) ) {
-			self::$instances[$providerId] = null;
-
-			if ( isset( $wgSusbcriptionProviders[$providerId] ) ) {
-				$provider = ObjectFactory::getObjectFromSpec( $wgSusbcriptionProviders[$providerId] );
-				if ( $provider instanceof SubscriptionProvider ) {
-					$provider->providerId = $providerId;
-					self::$instances[$providerId] = $provider;
-				} else {
-					throw new SubscriptionProviderException( __METHOD__ . ": Given subscription provider ID \"{$providerId}\": \"{$wgSusbcriptionProviders[$providerId]['class']}\" does not extend " . __CLASS__ . "." );
-				}
-			}
-		}
-
-		return self::$instances[$providerId];
+		return null;
 	}
 
 	/**
@@ -77,13 +43,13 @@ abstract class SubscriptionProvider {
 	 * Get the subscription information for a specific global user ID.
 	 * Should return an array of details:
 	 * [
-	 * 		'active'			=> true,
-	 * 		'begins'			=> new \MWTimestamp(), //MWTimestamp object or boolean false if not applicable.
-	 * 		'expires'			=> new \MWTimestamp(), //MWTimestamp object or boolean false if it never expires.
-	 * 		'plan_id'			=> 'premium_pro_user', //Changing the plan ID into lower case and replacing spaces is not required.
-	 * 		'plan_name'			=> 'Premium Pro User',
-	 * 		'price'				=> 9.9900, //Float
-	 * 		'subscription_id'	=> '123456abcdef' //Unique ID generated for the user's subscription.
+	 * 'active' => true,
+	 * 'begins' => new \MWTimestamp(), //MWTimestamp object or boolean false if not applicable.
+	 * 'expires' => new \MWTimestamp(), //MWTimestamp object or boolean false if it never expires.
+	 * 'plan_id' => 'premium_pro_user', //Changing the plan ID into lower case and replacing spaces is not required.
+	 * 'plan_name' => 'Premium Pro User',
+	 * 'price' => 9.9900, //Float
+	 * 'subscription_id' => '123456abcdef' //Unique ID generated for the user's subscription.
 	 * ]
 	 *
 	 * @param int $userId User ID
@@ -118,14 +84,5 @@ abstract class SubscriptionProvider {
 	 */
 	public function getFlairClass() {
 		return false;
-	}
-
-	/**
-	 * Return the duration to cache API responses in seconds.
-	 *
-	 * @return int Duration to cache API responses in seconds.
-	 */
-	public function getCacheDuration() {
-		return 600; // Cache for ten minutes.
 	}
 }

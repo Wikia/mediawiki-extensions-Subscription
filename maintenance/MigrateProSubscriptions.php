@@ -12,62 +12,39 @@ namespace Hydra\Maintenance;
 
 use LoggedUpdateMaintenance;
 use MediaWiki\MediaWikiServices;
-use Wikimedia\Rdbms\IDatabase;
 
-require_once dirname( dirname( dirname( __DIR__ ) ) ) . '/maintenance/Maintenance.php';
+require_once dirname( __DIR__, 3 ) . '/maintenance/Maintenance.php';
 
 /**
  * Maintenance script that cleans up tables that have orphaned users.
  */
 class MigrateProSubscriptions extends LoggedUpdateMaintenance {
-	private $prefix;
-
-	private $table;
-
-	/**
-	 * Constructor
-	 */
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription( 'Imports subscriptions from tables to user preferences.' );
 		$this->setBatchSize( 100 );
 	}
 
-	/**
-	 * Return an unique name to logged this maintenance as being done.
-	 *
-	 * @return string
-	 */
+	/** @inheritDoc */
 	protected function getUpdateKey() {
 		return __CLASS__;
 	}
 
-	/**
-	 * Do database updates for all tables.
-	 *
-	 * @return bool True
-	 */
+	/** @inheritDoc */
 	protected function doDBUpdates() {
-		$this->import();
-
-		return true;
+		return $this->import();
 	}
 
-	/**
-	 * Import subscriptions.
-	 *
-	 * @return void
-	 */
-	protected function import() {
+	protected function import(): bool {
+		$services = MediaWikiServices::getInstance();
+		$userIdentityLookup = $services->getUserIdentityLookup();
+		$optionsManager = $services->getUserOptionsManager();
+		$lbFactory = $services->getDBLoadBalancerFactory();
 		$dbw = $this->getDB( DB_PRIMARY );
-		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
-		$optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-
-		$orderby = [ 'user_id' ];
 
 		if ( !$dbw->tableExists( 'subscription_comp' ) ) {
 			$this->output( "Skipping due to `subscription_comp` table not existing.\n" );
-			return;
+			return true;
 		}
 
 		$this->output( "Migrating `subscription_comp` to user preferences...\n" );
@@ -78,66 +55,38 @@ class MigrateProSubscriptions extends LoggedUpdateMaintenance {
 			// Fetch the rows needing update
 			$res = $dbw->select(
 				'subscription_comp',
-				[ '*' ],
+				[ 'user_id', 'expires',  '*' ],
 				array_merge( [ 'expires > ' . time() ], [ $next ] ),
 				__METHOD__,
 				[
-					'ORDER BY' => $orderby,
-					'LIMIT' => $this->mBatchSize,
+					'ORDER BY' => 'user_id',
+					'LIMIT' => $this->getBatchSize(),
 				]
 			);
 			if ( !$res->numRows() ) {
-				break;
+				$this->output( "Migration complete: Migrated $count subscriptions.\n" );
+				return true;
 			}
 
 			// Update the existing rows
 			foreach ( $res as $row ) {
-				$user = $userFactory->newFromId( $row->user_id );
-				if ( !$user ) {
+				$userIdentity = $userIdentityLookup->getUserIdentityByUserId( (int)$row->user_id );
+				if ( !$userIdentity || !$userIdentity->isRegistered() ) {
 					return false;
 				}
 				$this->output( "User ID {$row->user_id} expires {$row->expires}\n" );
-				$optionsManager->setOption( $user, 'gpro_expires', $row->expires );
-				$user->saveSettings();
+				$optionsManager->setOption( $userIdentity, 'gpro_expires', $row->expires );
+				$optionsManager->saveOptions( $userIdentity );
 				$count++;
 			}
 
-			list( $next, $display ) = $this->makeNextCond( $dbw, $orderby, $row );
+			$next = 'user_id > ' . $dbw->addQuotes( $row->user_id );
+			$display = "user_id={$row->user_id}";
 			$this->output( "... $display\n" );
-			MediaWikiServices::getInstance()->getDBLoadBalancerFactory()->waitForReplication();
+			$lbFactory->waitForReplication();
 		}
-
-		$this->output(
-			"Migration complete: Migrated {$count} subscriptions.\n"
-		);
-	}
-
-	/**
-	 * Calculate a "next" condition and progress display string
-	 *
-	 * @param IDatabase $dbw
-	 * @param string[] $indexFields Fields in the index being ordered by
-	 * @param object $row Database row
-	 *
-	 * @return string[] [ string $next, string $display ]
-	 */
-	private function makeNextCond( $dbw, array $indexFields, $row ) {
-		$next = '';
-		$display = [];
-		for ( $i = count( $indexFields ) - 1; $i >= 0; $i-- ) {
-			$field = $indexFields[$i];
-			$display[] = $field . '=' . $row->$field;
-			$value = $dbw->addQuotes( $row->$field );
-			if ( $next === '' ) {
-				$next = "$field > $value";
-			} else {
-				$next = "$field > $value OR $field = $value AND ($next)";
-			}
-		}
-		$display = implode( ' ', array_reverse( $display ) );
-		return [ $next, $display ];
 	}
 }
 
-$maintClass = \Hydra\Maintenance\MigrateProSubscriptions::class;
+$maintClass = MigrateProSubscriptions::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

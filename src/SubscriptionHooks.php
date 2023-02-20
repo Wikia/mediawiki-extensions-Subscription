@@ -13,240 +13,68 @@
 
 namespace Subscription;
 
-use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\Linker\LinkTarget;
-use MediaWiki\MediaWikiServices;
+use HtmlArmor;
+use MediaWiki\Linker\Hook\HtmlPageLinkRendererEndHook;
+use MediaWiki\Preferences\Hook\GetPreferencesHook;
+use MediaWiki\User\UserIdentityLookup;
 
-class SubscriptionHooks {
+class SubscriptionHooks implements GetPreferencesHook, HtmlPageLinkRendererEndHook {
 	/**
 	 * Link cache for onLinkEnd look ups.
+	 * @see onHtmlPageLinkRendererEnd
 	 *
 	 * @var array
 	 */
 	private static $linkCache = [];
 
+	public function __construct(
+		private UserIdentityLookup $userIdentityLookup,
+		private Subscription $subscription
+	) {
+	}
+
 	/**
 	 * Handle adding premium flair
-	 *
-	 * @param LinkRenderer $linkRenderer
-	 * @param LinkTarget $target
-	 * @param bool $isKnown
-	 * @param string|object &$text
-	 * @param array &$attribs
-	 * @param string &$ret
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
-	public static function onHtmlPageLinkRendererEnd(
-		LinkRenderer $linkRenderer,
-		LinkTarget $target,
-		$isKnown,
-		&$text,
-		&$attribs,
-		&$ret
-	) {
-		$classes = false;
+	public function onHtmlPageLinkRendererEnd( $linkRenderer, $target, $isKnown, &$text, &$attribs, &$ret ) {
 		$defaultText = trim( strip_tags( HtmlArmor::getHtml( $text ) ) );
-		if ( !empty( $target ) && !empty( $target->getText() ) && $target->getNamespace() === NS_USER
-			&& mb_strpos( $defaultText, $target->getText() ) === 0 ) {
-			if ( array_key_exists( $target->getText(), self::$linkCache ) ) {
-				$classes = self::$linkCache[$target->getText()];
-			} else {
-				$user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $target->getText() );
+		if ( empty( $target ) ||
+			empty( $target->getText() ) ||
+			$target->getNamespace() !== NS_USER ||
+			!str_starts_with( $defaultText, $target->getText() ) ) {
+			return true;
+		}
 
-				if ( !empty( $user ) && $user->getId() ) {
-					$subscription = Subscription::newFromUser( $user );
-					if ( $subscription !== false ) {
-						$_cacheSetting = Subscription::useLocalCacheOnly( true );
-						$classes = $subscription->getFlairClasses( true );
-						Subscription::useLocalCacheOnly( $_cacheSetting );
-						if ( empty( $classes ) ) {
-							// Enforce sanity.
-							$classes = false;
-						}
-					}
+		$flairClasses = false;
+		if ( array_key_exists( $target->getText(), self::$linkCache ) ) {
+			$flairClasses = self::$linkCache[$target->getText()];
+		} else {
+			$userIdentity = $this->userIdentityLookup->getUserIdentityByName( $target->getText() );
+
+			if ( $userIdentity && $userIdentity->isRegistered() ) {
+				$flairClasses = $this->subscription->getFlairClasses( $userIdentity->getId() );
+				if ( empty( $flairClasses ) ) {
+					// Enforce sanity.
+					$flairClasses = false;
 				}
 			}
-
-			if ( $classes !== false ) {
-				$attribs['class'] = ( !empty( $attribs['class'] ) ? $attribs['class'] . ' ' : '' ) . implode( ' ', $classes );
-			}
-			self::$linkCache[$target->getText()] = $classes;
 		}
+
+		if ( $flairClasses !== false ) {
+			$classes = !empty( $attribs['class'] ) ? $attribs['class'] . ' ' : '';
+			$attribs['class'] = $classes . implode( ' ', $flairClasses );
+		}
+		self::$linkCache[$target->getText()] = $flairClasses;
 
 		return true;
 	}
 
-	/**
-	 * Handle setting if the user requires HTTPS per subscription.
-	 *
-	 * @param object $user User
-	 * @param bool &$requiresHttps Requires HTTPS
-	 *
-	 * @return bool True
-	 */
-	public static function onUserRequiresHTTPS( $user, &$requiresHttps ) {
-		global $wgFullHTTPSExperiment;
-
-		if ( $wgFullHTTPSExperiment ) {
-			$requiresHttps = true;
-			return true;
-		}
-
-		$requiresHttps = false;
-
-		if ( !empty( $user ) && $user->getId() ) {
-			$requiresHttps = true;
-		}
-		return true;
-	}
-
-	/**
-	 * Handle automatically sending people back to regular HTTP if not premium.
-	 *
-	 * @param object &$title Title
-	 * @param object &$article Article
-	 * @param object &$output Output
-	 * @param object &$user User
-	 * @param object $request WebRequest
-	 * @param object $mediaWiki Mediawiki
-	 *
-	 * @return bool True
-	 */
-	public static function onBeforeInitialize( &$title, &$article, &$output, &$user, $request, $mediaWiki ) {
-		global $wgFullHTTPSExperiment;
-
-		if ( defined( 'MW_API' ) && MW_API === true ) {
-			return true;
-		}
-
-		list( $specialPage, ) = MediaWikiServices::getInstance()->getSpecialPageFactory()
-			->resolveAlias( $title->getDBkey() );
-
-		$secureSpecialPages = [ 'Userlogin', 'Preferences' ];
-
-		MediaWikiServices::getInstance()->getHookContainer()->run( 'SecureSpecialPages', [ &$secureSpecialPages ] );
-		if ( $wgFullHTTPSExperiment || ( !empty( $user ) && $user->getId() && in_array( $specialPage, $secureSpecialPages ) ) ) {
-			if ( $request->getProtocol() !== 'https' ) {
-				$redirect = $request->getFullRequestURL();
-				if ( strpos( $request->getFullRequestURL(), 'http://' ) === 0 ) {
-					$redirect = substr_replace( $redirect, 'https://', 0, 7 );
-				}
-				$output->enableClientCache( false );
-				$output->redirect( $redirect, ( $request->wasPosted() ? '307' : '302' ) );
-			}
-
-			return true;
-		}
-
-		if ( ( empty( $user ) || $user->isAnon() ) && !in_array( $specialPage, $secureSpecialPages ) && $request->getProtocol() !== 'http' ) {
-			$response = $request->response();
-			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'main' );
-			$response->clearCookie(
-				'forceHTTPS',
-				[
-					'prefix' => '',
-					'secure' => false,
-					'path' => $config->get( 'CookiePath' ),
-					'domain' => $config->get( 'CookieDomain' ),
-					'httpOnly' => $config->get( 'CookieHttpOnly' )
-				]
-			);
-
-			$redirect = $request->getFullRequestURL();
-			if ( strpos( $request->getFullRequestURL(), 'https://' ) === 0 ) {
-				$redirect = substr_replace( $redirect, 'http://', 0, 8 );
-			}
-			$output->enableClientCache( false );
-			$output->redirect( $redirect, ( $request->wasPosted() ? '307' : '302' ) );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Handle automatically sending people back to regular HTTP.
-	 *
-	 * @param object $output OutputPage
-	 * @param string &$redirect Redirect URL
-	 * @param string &$code HTTP Status Code
-	 *
-	 * @return bool True
-	 */
-	public static function onBeforePageRedirect( OutputPage $output, &$redirect, &$code ) {
-		global $wgUser, $wgServer, $wgRequest, $wgFullHTTPSExperiment;
-
-		if ( $wgFullHTTPSExperiment || ( defined( 'MW_API' ) && MW_API === true ) ) {
-			return true;
-		}
-
-		if ( !empty( $wgUser ) && $wgUser->getId() ) {
-			return true;
-		}
-
-		$server = str_ireplace( [ 'https://', 'http://', '//' ], '', $wgServer );
-		if ( strpos( $redirect, $server ) === false ) {
-			// Do not mess with external redirects.
-			return true;
-		}
-
-		if ( $wgRequest->getProtocol() !== 'http' && strpos( $redirect, 'https://' ) === 0 ) {
-			$redirect = substr_replace( $redirect, 'http://', 0, 8 );
-			if ( $output->getRequest()->wasPosted() ) {
-				$code = '307';
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Overloads for UserLoadAfterLoadFromSession
-	 *
-	 * @param object $user User Object
-	 *
-	 * @return bool true
-	 */
-	public static function onUserLoggedIn( User $user ) {
-		if ( $user->isLoggedIn() ) {
-			$subscription = Subscription::newFromUser( $user );
-			if ( $subscription !== false ) {
-				$_cacheSetting = Subscription::skipCache( true );
-				// Don't care about the return.  This just forces a recache.
-				$subscription->getSubscription();
-				Subscription::skipCache( $_cacheSetting );
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Setups and Modifies Database Information
-	 *
-	 * @param User $user The user being modified.
-	 * @param array &$preferences Preferences to modify and return.
-	 *
-	 * @return bool true
-	 */
-	public static function onGetPreferences( User $user, array &$preferences ) {
+	/** @inheritDoc */
+	public function onGetPreferences( $user, &$preferences ) {
 		$preferences['gpro_expires'] = [
 			'type' => 'api',
 			'default' => 0,
 		];
-		return true;
-	}
-
-	/**
-	 * Setups and Modifies Database Information
-	 *
-	 * @param object|null $updater [Optional] DatabaseUpdater Object
-	 *
-	 * @return bool true
-	 */
-	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater = null ) {
-		$extDir = __DIR__;
-
-		return true;
 	}
 }
