@@ -9,10 +9,10 @@
  * @copyright (c) 2019 Curse Inc.
  * @license   GPL-2.0-or-later
  * @link      https://gitlab.com/hydrawiki
-**/
+ **/
 
-use Hydra\Subscription;
-use Hydra\SubscriptionProvider;
+namespace Subscription;
+
 use MediaWiki\MediaWikiServices;
 
 class SpecialSubscriptionGrant extends SpecialPage {

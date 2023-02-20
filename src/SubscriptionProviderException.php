@@ -11,7 +11,7 @@
  * @link      https://gitlab.com/hydrawiki
 **/
 
-namespace Hydra;
+namespace Subscription;
 
 use Exception;
 

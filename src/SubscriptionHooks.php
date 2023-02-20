@@ -11,7 +11,8 @@
  * @link      https://gitlab.com/hydrawiki
 **/
 
-use Hydra\Subscription;
+namespace Subscription;
+
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;

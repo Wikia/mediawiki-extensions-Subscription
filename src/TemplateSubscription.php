@@ -1,4 +1,9 @@
 <?php
+
+namespace Subscription;
+
+use Title;
+
 /**
  * Curse Inc.
  * Subscription

@@ -10,11 +10,11 @@
  * @link      https://gitlab.com/hydrawiki
  */
 
-namespace Hydra\SubscriptionProvider;
+namespace Subscription\Providers;
 
-use Hydra\SubscriptionProvider;
 use MediaWiki\MediaWikiServices;
 use MWTimestamp;
+use Subscription\SubscriptionProvider;
 
 class GamepediaPro extends SubscriptionProvider {
 	/**
