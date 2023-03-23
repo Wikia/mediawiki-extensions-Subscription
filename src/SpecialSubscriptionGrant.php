@@ -98,6 +98,9 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			$cancel = $this->gamepediaPro->cancelCompedSubscription( $userId );
 			$message = $cancel ? 'Existing subscription cancelled.' : 'Failed to cancel subscription.';
 			$output->addHTML( "<span class='success'>$message</span><br/>" );
+		}
+
+		if ( $subscriptionDuration == 0 ) {
 			return $formData;
 		}
 
