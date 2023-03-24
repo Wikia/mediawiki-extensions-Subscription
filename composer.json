@@ -1,19 +1,29 @@
 {
 	"name": "hydra/subscription",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"type": "mediawiki-extension",
 	"description": "Paid subscription system for Hydra Wiki Platform.",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0.0"
+		"php": ">=8.0.0"
 	},
 	"require-dev": {
-		"hydrawiki/hydrawiki-codesniffer": "^1.0.0"
+		"mediawiki/minus-x": "^1.1",
+		"mediawiki/mediawiki-codesniffer": "38.0.0",
+		"mediawiki/mediawiki-phan-config": "^0.11.1",
+		"seld/jsonlint": "1.8.3"
 	},
 	"scripts": {
 		"test": [
-			"phpcs -p -s"
+			"phpcs -p -s",
+			"minus-x check ."
 		],
-		"fix": "phpcbf"
+		"fix": [
+			"minus-x fix .",
+			"phpcbf"
+		],
+		"phpcs": "phpcs",
+		"jsonlint": "jsonlint ./i18n/*.json && jsonlint extension.json",
+		"phan": "vendor/bin/phan -d . --long-progress-bar"
 	}
 }

@@ -1,7 +1,33 @@
 <?xml version="1.0"?>
 <ruleset name="MediaWiki">
-    <rule ref="./vendor/hydrawiki/hydrawiki-codesniffer/HydraWiki" />
-    <file>.</file>
-    <arg name="encoding" value="utf8"/>
-    <arg name="extensions" value="php"/>
+	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
+		<!-- Relax the same rules that MW itself relaxes -->
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationPrivate" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationProtected" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationPublic" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.WrongStyle" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.ObjectTypeHintVar" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPrivate" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingParamTag" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingReturn" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.WrongStyle" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.NoParamType" />
+
+		<exclude name="MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures" />
+		<exclude name="MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName" />
+
+		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
+
+		<!-- Don't require an @covers annotation for every test -->
+		<exclude name="MediaWiki.Commenting.MissingCovers" />
+
+		<!-- Allow to use new PHP features -->
+		<exclude name="MediaWiki.PHP71Features.NullableType.NotAllowed" />
+		<exclude name="MediaWiki.PHP71Features.VoidReturnType.NotAllowed" />
+	</rule>
+	<file>.</file>
+	<arg name="encoding" value="utf8"/>
+	<arg name="extensions" value="php"/>
 </ruleset>

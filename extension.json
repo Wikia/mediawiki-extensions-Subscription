@@ -1,41 +1,30 @@
 {
 	"name": "Subscription",
-	"version": "1.0.0",
-	"author": [
-		"Alexia E. Smith",
-		"Hydra Wiki Platform Team"
-	],
+	"version": "2.0.0",
+	"author": ["Alexia E. Smith", "Hydra Wiki Platform Team"],
 	"descriptionmsg": "subscription_description",
 	"license-name": "GPL-2.0-or-later",
 	"type": "specialpage",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.39.0"
 	},
-	"AvailableRights": [
-		"subscription"
-	],
+	"AvailableRights": ["subscription"],
 	"SpecialPages": {
-		"SubscriptionGrant": "SpecialSubscriptionGrant"
+		"SubscriptionGrant": {
+			"class": "Subscription\\SpecialSubscriptionGrant",
+			"services": ["UserFactory", "Subscription\\Providers\\GamepediaPro"]
+		}
 	},
+	"ServiceWiringFiles": ["ServiceWiring.php"],
 	"MessagesDirs": {
-		"Subscription": [
-			"i18n"
-		]
+		"Subscription": ["i18n"]
 	},
 	"ExtensionMessagesFiles": {
 		"SpecialSubscription": "Subscription.alias.php",
 		"SubscriptionMagic": "Subscription.i18n.magic.php"
 	},
-	"AutoloadClasses": {
-		"Hydra\\Maintenance\\ReplaceGlobalIdWithUserId": "upgrade/php/ReplaceGlobalIdWithUserId.php",
-		"Hydra\\Subscription": "classes/Subscription.php",
-		"Hydra\\SubscriptionProvider": "classes/SubscriptionProvider.php",
-		"Hydra\\SubscriptionProviderException": "classes/SubscriptionProviderException.php",
-		"Hydra\\SubscriptionProvider\\GamepediaPro": "classes/providers/GamepediaPro.php",
-		"SpecialSubscription": "specials/SpecialSubscription.php",
-		"SpecialSubscriptionGrant": "specials/SpecialSubscriptionGrant.php",
-		"SubscriptionHooks": "Subscription.hooks.php",
-		"TemplateSubscription": "templates/TemplateSubscription.php"
+	"AutoloadNamespaces": {
+		"Subscription\\": "src/"
 	},
 	"ResourceModules": {
 		"ext.subscription": {
@@ -61,25 +50,15 @@
 		"localBasePath": "",
 		"remoteExtPath": "Subscription"
 	},
-	"Hooks": {
-		"BeforeInitialize": "SubscriptionHooks::onBeforeInitialize",
-		"BeforePageRedirect": "SubscriptionHooks::onBeforePageRedirect",
-		"GetPreferences": "SubscriptionHooks::onGetPreferences",
-		"HtmlPageLinkRendererEnd": "SubscriptionHooks::onHtmlPageLinkRendererEnd",
-		"LoadExtensionSchemaUpdates": "SubscriptionHooks::onLoadExtensionSchemaUpdates",
-		"UserLoggedIn": "SubscriptionHooks::onUserLoggedIn",
-		"UserRequiresHTTPS": "SubscriptionHooks::onUserRequiresHTTPS"
+	"HookHandlers": {
+		"SubscriptionHookHandler": {
+			"class": "Subscription\\SubscriptionHooks",
+			"services": ["UserIdentityLookup", "Subscription\\Subscription"]
+		}
 	},
-	"config": {
-		"SubscriptionProviders": {
-			"GamepediaPro": {
-				"class": "Hydra\\SubscriptionProvider\\GamepediaPro"
-			}
-		},
-		"SubscriptionProvider": "GamepediaPro",
-		"GProApiConfig": {},
-		"SubscriptionMasterDB": "master",
-		"FullHTTPSExperiment": true
+	"Hooks": {
+		"GetPreferences": "SubscriptionHookHandler",
+		"HtmlPageLinkRendererEnd": "SubscriptionHookHandler"
 	},
 	"manifest_version": 1
 }
