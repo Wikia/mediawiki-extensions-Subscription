@@ -4,13 +4,13 @@ on:
     branches: '**'
 
   push:
-    branches: [ master, MW_1_37, REL1_39 ]
+    branches: [master, REL1_39, REL1_43]
 
 jobs:
   build:
     strategy:
       matrix:
-        php_version: ['8.0']
+        php_version: ['8.2']
     runs-on: ubuntu-latest
     steps:
       - name: Setup PHP
