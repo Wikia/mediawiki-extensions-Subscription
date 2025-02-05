@@ -13,19 +13,26 @@
 
 namespace Subscription;
 
+use MediaWiki\Output\OutputPage;
+use MediaWiki\Request\WebRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\User\UserFactory;
-use OutputPage;
-use SpecialPage;
+use PermissionsError;
 use Subscription\Providers\GamepediaPro;
-use WebRequest;
+use Wikimedia\Timestamp\TimestampException;
 
 class SpecialSubscriptionGrant extends SpecialPage {
-	public function __construct( private UserFactory $userFactory, private GamepediaPro $gamepediaPro ) {
-		parent::__construct( 'SubscriptionGrant', 'subscription', true );
+	public function __construct(
+		private readonly UserFactory $userFactory,
+		private readonly GamepediaPro $gamepediaPro
+	) {
+		parent::__construct( 'SubscriptionGrant', 'subscription' );
 	}
 
-	/** @inheritDoc */
-	public function execute( $subPage ) {
+	/** @inheritDoc
+	 * @throws PermissionsError|TimestampException
+	 */
+	public function execute( $subPage ): void {
 		$this->checkPermissions();
 		$this->setHeaders();
 		$output = $this->getOutput();
@@ -53,6 +60,9 @@ class SpecialSubscriptionGrant extends SpecialPage {
 		}
 	}
 
+	/**
+	 * @throws TimestampException
+	 */
 	private	function lookupSubscriptionInfo( WebRequest $request, OutputPage $output ): void {
 		$username = trim( $request->getVal( 'username' ) );
 		$user = $this->userFactory->newFromName( $username );
@@ -70,6 +80,9 @@ class SpecialSubscriptionGrant extends SpecialPage {
 		$output->addHTML( "<span class='success'>$message</span><br/>" );
 	}
 
+	/**
+	 * @throws TimestampException
+	 */
 	private function grantSubscription( WebRequest $request, OutputPage $output ): array {
 		$username = trim( $request->getVal( 'username' ) );
 		$subscriptionDuration = trim( $request->getVal( 'duration' ) );
@@ -108,7 +121,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 		if ( $createSubResult === false ) {
 			$output->addHTML( "<span class='error'>Error creating subscription</span><br/>" );
 
-			// Usually what went wrong is the existing subscritpion wasn't cancelled first
+			// Usually what went wrong is the existing subscription wasn't cancelled first
 			$subInfo = $this->gamepediaPro->getSubscription( $userId );
 			if ( is_array( $subInfo ) && $subInfo['active'] ) {
 				$expiresAt = $subInfo['expires']->getHumanTimestamp();
@@ -126,7 +139,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'users';
 	}
 
