@@ -74,7 +74,7 @@ class SpecialSubscriptionGrant extends SpecialPage {
 		$subInfo = $this->gamepediaPro->getSubscription( $user->getId() );
 
 		$message = $subInfo['active'] ?
-			"The subscription for {$user->getName()} expires on {$subInfo['expires']->getHumanTimestamp()}." :
+			"The subscription for {$user->getName()} expires {$this->getLanguage()->getHumanTimestamp($subInfo['expires'])}." :
 			"{$user->getName()} does not have an active subscription.";
 
 		$output->addHTML( "<span class='success'>$message</span><br/>" );
@@ -124,9 +124,9 @@ class SpecialSubscriptionGrant extends SpecialPage {
 			// Usually what went wrong is the existing subscription wasn't cancelled first
 			$subInfo = $this->gamepediaPro->getSubscription( $userId );
 			if ( is_array( $subInfo ) && $subInfo['active'] ) {
-				$expiresAt = $subInfo['expires']->getHumanTimestamp();
+				$expiresAt = $this->getLanguage()->getHumanTimestamp( $subInfo['expires'] );
 				$output->addHTML( "<span class='error'>Subscription for " . htmlspecialchars( $username ) . "
-										already exists, ending on " . $expiresAt . "<br/>
+										already exists, ending " . $expiresAt . "<br/>
 										You'll need to overwrite the existing subscription.</span><br/>" );
 			}
 		}
