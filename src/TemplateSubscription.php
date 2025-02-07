@@ -2,7 +2,7 @@
 
 namespace Subscription;
 
-use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
 
 /**
  * Curse Inc.
@@ -20,9 +20,10 @@ class TemplateSubscription {
 	public function subscriptionGrant( ?array $formValues = null ): string {
 		$subscriptionURL = SpecialPage::getSafeTitleFor( 'SubscriptionGrant' )->getFullURL();
 
-		$html = "
+		// phpcs:disable
+		return "
 			<div id='lookup'>
-				<form method='POST' action='{$subscriptionURL}'>
+				<form method='POST' action='$subscriptionURL'>
 					<fieldset>
 						<input type='hidden' name='do' value='lookup'/>
 						<input type='text' name='username' value='" . htmlentities( ( !empty( $formValues['username'] ) ? $formValues['username'] : '' ) ) . "' placeholder='" . wfMessage( 'username' )->escaped() . "'/>
@@ -31,7 +32,7 @@ class TemplateSubscription {
 				</form>
 			</div>
 			<div id='sub-grant'>
-				<form method='POST' action='{$subscriptionURL}'>
+				<form method='POST' action='$subscriptionURL'>
 					<fieldset>
 						<input type='hidden' name='do' value='grant_subscription'/>
 						<input type='text' name='username' value='" . htmlentities( ( !empty( $formValues['username'] ) ? $formValues['username'] : '' ) ) . "' placeholder='" . wfMessage( 'username' )->escaped() . "'/>
@@ -43,7 +44,6 @@ class TemplateSubscription {
 					</fieldset>
 				</form>
 			</div>";
-
-		return $html;
+		// phpcs:enable
 	}
 }

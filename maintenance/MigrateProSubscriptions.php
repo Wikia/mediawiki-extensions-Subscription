@@ -16,6 +16,7 @@ use MediaWiki\MediaWikiServices;
 require_once dirname( __DIR__, 3 ) . '/maintenance/Maintenance.php';
 
 /**
+ * TODO: doesn't seem to be used (?) should be nuked
  * Maintenance script that cleans up tables that have orphaned users.
  */
 class MigrateProSubscriptions extends LoggedUpdateMaintenance {

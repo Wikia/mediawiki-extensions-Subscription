@@ -15,14 +15,15 @@ namespace Subscription\Providers;
 use MediaWiki\User\UserIdentityLookup;
 use MediaWiki\User\UserOptionsLookup;
 use MediaWiki\User\UserOptionsManager;
-use MWTimestamp;
+use MediaWiki\Utils\MWTimestamp;
 use Subscription\SubscriptionProvider;
+use Wikimedia\Timestamp\TimestampException;
 
 class GamepediaPro extends SubscriptionProvider {
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private UserOptionsLookup $userOptionsLookup,
-		private UserOptionsManager $userOptionsManager
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly UserOptionsLookup $userOptionsLookup,
+		private readonly UserOptionsManager $userOptionsManager
 	) {
 	}
 
@@ -30,11 +31,9 @@ class GamepediaPro extends SubscriptionProvider {
 	 * Get if a specific global user ID has an entitlement.
 	 * Just a basic true or false, nothing more.
 	 *
-	 * @param int $userId User ID
-	 *
-	 * @return bool Has Subscription
+	 * @throws TimestampException
 	 */
-	public function hasSubscription( int $userId ) {
+	public function hasSubscription( int $userId ): bool {
 		if ( $userId < 1 ) {
 			return false;
 		}
@@ -53,9 +52,10 @@ class GamepediaPro extends SubscriptionProvider {
 	 *
 	 * @param int $userId User ID
 	 *
-	 * @return array|bool Subscription information, null on missing subscription, false on failure.
+	 * @return array|false|null Subscription information, null on missing subscription, false on failure.
+	 * @throws TimestampException
 	 */
-	public function getSubscription( int $userId ) {
+	public function getSubscription( int $userId ): array|false|null {
 		if ( $userId < 1 ) {
 			return false;
 		}
@@ -85,7 +85,7 @@ class GamepediaPro extends SubscriptionProvider {
 	 *
 	 * @return bool Success
 	 */
-	public function createCompedSubscription( int $userId, int $months ) {
+	public function createCompedSubscription( int $userId, int $months ): bool {
 		if ( $userId < 1 || $months < 1 ) {
 			return false;
 		}
@@ -107,7 +107,7 @@ class GamepediaPro extends SubscriptionProvider {
 	 *
 	 * @return bool Success
 	 */
-	public function cancelCompedSubscription( int $userId ) {
+	public function cancelCompedSubscription( int $userId ): bool {
 		if ( $userId < 1 ) {
 			return false;
 		}
@@ -125,9 +125,9 @@ class GamepediaPro extends SubscriptionProvider {
 	/**
 	 * Return a valid CSS class for flair display.
 	 *
-	 * @return mixed False for no flair, string otherwise.
+	 * @return string False for no flair, string otherwise.
 	 */
-	public function getFlairClass() {
+	public function getFlairClass(): string {
 		return 'gamepedia_pro_user';
 	}
 }

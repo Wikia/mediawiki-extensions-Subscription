@@ -25,11 +25,11 @@ class SubscriptionHooks implements GetPreferencesHook, HtmlPageLinkRendererEndHo
 	 *
 	 * @var array
 	 */
-	private static $linkCache = [];
+	private static array $linkCache = [];
 
 	public function __construct(
-		private UserIdentityLookup $userIdentityLookup,
-		private Subscription $subscription
+		private readonly UserIdentityLookup $userIdentityLookup,
+		private readonly Subscription $subscription
 	) {
 	}
 
@@ -71,7 +71,7 @@ class SubscriptionHooks implements GetPreferencesHook, HtmlPageLinkRendererEndHo
 	}
 
 	/** @inheritDoc */
-	public function onGetPreferences( $user, &$preferences ) {
+	public function onGetPreferences( $user, &$preferences ): void {
 		$preferences['gpro_expires'] = [
 			'type' => 'api',
 			'default' => 0,

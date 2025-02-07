@@ -13,7 +13,7 @@
 
 namespace Subscription;
 
-class Subscription {
+readonly class Subscription {
 	/**
 	 * @param SubscriptionProvider[] $subscriptionProviders
 	 */

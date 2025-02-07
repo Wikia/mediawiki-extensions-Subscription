@@ -37,7 +37,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return bool Has Subscription
 	 */
-	abstract public function hasSubscription( int $userId );
+	abstract public function hasSubscription( int $userId ): bool;
 
 	/**
 	 * Get the subscription information for a specific global user ID.
@@ -56,7 +56,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return mixed Subscription information, false on API failure.
 	 */
-	abstract public function getSubscription( int $userId );
+	abstract public function getSubscription( int $userId ): mixed;
 
 	/**
 	 * Create a comped subscription for a specific global user ID for so many months.
@@ -66,7 +66,7 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return bool Success
 	 */
-	abstract public function createCompedSubscription( int $userId, int $months );
+	abstract public function createCompedSubscription( int $userId, int $months ): bool;
 
 	/**
 	 * Cancel the entirety of a global user ID's comped subscription.
@@ -75,14 +75,14 @@ abstract class SubscriptionProvider {
 	 *
 	 * @return bool Success
 	 */
-	abstract public function cancelCompedSubscription( int $userId );
+	abstract public function cancelCompedSubscription( int $userId ): bool;
 
 	/**
 	 * Return a valid CSS class for flair display.
 	 *
 	 * @return mixed False for no flair, string otherwise.
 	 */
-	public function getFlairClass() {
+	public function getFlairClass(): mixed {
 		return false;
 	}
 }
